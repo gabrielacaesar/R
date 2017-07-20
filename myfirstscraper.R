@@ -1,11 +1,8 @@
-install.packages(c("tidyverse", "stringr", "rvest"))
+install.packages(c("stringr", "rvest"))
 
 
-library(tidyverse)
 library(rvest)
 library(stringr)
-
-library(dplyr)
 
 
 site <- "http://www.imdb.com/search/title?year=2016,2016&title_type=feature&sort=moviemeter,asc"
