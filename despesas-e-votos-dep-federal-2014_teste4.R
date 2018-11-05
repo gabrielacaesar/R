@@ -21,7 +21,7 @@ gc_scatterplot4 <- ggplot(dep_federal_2014, aes(x = dep_federal_2014$procv_despe
                                                 y = factor(dep_federal_2014$UF, levels = rev(levels(factor(dep_federal_2014$UF)))),
                                                 col = "red")) +
   geom_point(position = "jitter", alpha = 0.5) +
-  labs(y = "UF", caption = "TSE e Camara dos Deputados") +
+  labs(y = "UF", caption = "Fonte: TSE e Camara dos Deputados") +
   scale_x_continuous(limits = c(100000,9000000)) +
   ggtitle("Eleicao 2014: Despesas totais (em RS) dos deputados federais eleitos") +
   theme(legend.position="none",
