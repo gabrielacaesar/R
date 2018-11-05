@@ -42,8 +42,7 @@ gc_scatterplot3 <- ggplot(dep_federal_2014, aes(x = dep_federal_2014$procv_despe
                                                 col = dep_federal_2014$reeleicao)) +
   geom_point(position = "jitter", alpha = 0.5) +
   labs(y = "UF", caption = "TSE e Camara dos Deputados") +
-  scale_x_continuous("Despesas totais (em RS)", limits = c(100000,9000000),
-                     breaks = seq(100000,9000000,4400000)) + 
+  scale_x_continuous("Despesas totais (em RS)", limits = c(100000,9000000)) + 
   scale_color_discrete("Reeleito:", 
                        labels = c("Nao", "Sim")) +
   ggtitle("Eleicao 2014: Deputados federais eleitos")
