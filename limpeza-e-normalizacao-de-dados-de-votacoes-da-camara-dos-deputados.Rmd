@@ -1,0 +1,104 @@
+---
+title: "Limpeza e normalização de dados de votações"
+subtitle: "Resultados de votações da Câmara dos Deputados"
+author: "Gabriela Caesar"
+date: "29 de novembro de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Votações na Câmara dos Deputados
+
+Este documento serve para limpar e normatizar os dados de votações da Câmara dos Deputados. Inicialmente, o arquivo pega as informações dentro de uma tabela do HTML da página.
+
+Depois, o script trabalha para normalizar os dados de partidos. Também padroniza a nomenclatura usada para cada voto e partido.
+
+Enfim, a tabela importada é cruzada com um arquivo CSV com o ID de cada deputado, bem como nome do arquivo para foto e permalink. Criamos ainda novas colunas com ID, nome e permalink da proposição importada.
+
+```{r load_packages, include=FALSE}
+library(rvest)
+
+```
+
+## Etapa 1
+
+Indicamos qual é o link que contém o resultado da votação. Informamos que é uma tabela dentro do HTML e que é um dataframe. Depois, renomeamos as colunas com os nomes "deputado", "uf" e "voto".
+
+
+```{r pressure, echo=FALSE}
+
+url <- "http://www.camara.leg.br/internet/votacao/mostraVotacao.asp?ideVotacao=8559&numLegislatura=55&codCasa=1&numSessaoLegislativa=4&indTipoSessaoLegislativa=O&numSessao=225&indTipoSessao=E&tipo=partido"
+
+file <- read_html(url, encoding = "UTF-8")
+tables <- html_nodes(file, "table")
+table1 <- html_table(tables[3], fill = TRUE, header = T)
+
+table1_df <- as.data.frame(table1)
+
+colnames(table1_df) <- c("deputado", "uf", "voto")
+head(table1_df, 100)
+```
+
+## ETAPA 2
+
+Queremos tirar o partido da linha e inseri-lo em uma nova coluna. Também queremos remover as linhas que repetem os partidos e as que informam o número total de deputados.
+
+```{r}
+
+table1_df$new_column <- NA
+
+idx <- grep("Total.*: \\d+", table1_df$deputado)
+
+for (i in seq_along(idx)){
+  n <- as.numeric(sub("^.*: ", "", table1_df$deputado[idx[i]]))
+  partido <- sub("Total ", "", table1_df$deputado[idx[i]])
+  partido <- sub(": .*", "", partido)
+  table1_df$new_column[(idx[i] - n):(idx[i] - 1)] <- partido
+}
+
+table1_df <- table1_df[-grep("Total .*:.*", table1_df$deputado), ]
+table1_df <- table1_df[-which(table1_df$deputado == table1_df$uf), ]
+```
+
+## ETAPA 3
+
+Substituímos os rótulos usados pela Câmara para o nosso padrão: 
+* "Sim" por "sim";
+* "Não" por "nao";
+* "Abstenção" por "abstencao";
+* "Obstrução" por "obstrucao";
+* "Art 17" por "naovotou".
+
+Observação: os dados dos ausentes entram posteriormente.
+
+```{r}
+table1_df$voto <- as.character(table1_df$voto)
+table1_df$voto[table1_df$voto == "Sim"] <- "sim"
+table1_df$voto[table1_df$voto == "Não"] <- "nao"
+table1_df$voto[table1_df$voto == "Abstenção"] <- "abstencao"
+table1_df$voto[table1_df$voto == "Obstrução"] <- "obstrucao"
+table1_df$voto[table1_df$voto == "Art. 17"] <- "naovotou"
+```
+
+
+## ETAPA 4
+
+Substituímos os rótulos usados pela Câmara para o nosso padrão: 
+* "Podemos" por "PODE"
+* "REDE" por "Rede"
+* "Solidaried" por "SD"
+
+```{r}
+colnames(table1_df)[4] <- "partido"
+
+table1_df$partido <- as.character(table1_df$partido)
+table1_df$partido[table1_df$partido == "Podemos"] <- "PODE"
+table1_df$partido[table1_df$partido == "REDE"] <- "Rede"
+table1_df$partido[table1_df$partido == "Solidaried"] <- "SD"
+```
+
+## CONTINUA EM BREVE
