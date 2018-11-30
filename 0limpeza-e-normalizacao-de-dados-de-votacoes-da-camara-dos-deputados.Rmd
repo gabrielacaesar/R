@@ -1,0 +1,193 @@
+---
+title: "Limpeza e normalização de dados de votações"
+description: "Resultados de votações da Câmara dos Deputados"
+author: 
+  name: Gabriela Caesar
+  url: http://www.gabrielacaesar.com/
+  affiliation: G1
+  affiliation_url: https://g1.globo.com/
+date: "29 de novembro de 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Votações na Câmara dos Deputados
+
+Este script serve para limpar e normatizar os dados de votações da Câmara dos Deputados. Inicialmente, o arquivo pega as informações dentro de uma tabela do HTML da página.
+
+Depois, o código trabalha para normalizar os dados de partidos e de posicionamento.
+
+Enfim, a tabela importada é cruzada com um arquivo CSV com o ID de cada deputado, bem como nome do arquivo para foto e permalink. Criamos ainda novas colunas com ID, nome e permalink da proposição importada.
+
+```{r load_packages, include=FALSE}
+library(rvest)
+
+```
+
+## Etapa 1
+
+Indicamos qual é o link que contém o resultado da votação. Informamos que é uma tabela dentro do HTML e que é um dataframe. Depois, renomeamos as colunas com os nomes "deputado", "uf" e "voto".
+
+
+```{r pressure, echo=FALSE}
+
+url <- "http://www.camara.leg.br/internet/votacao/mostraVotacao.asp?ideVotacao=8559&numLegislatura=55&codCasa=1&numSessaoLegislativa=4&indTipoSessaoLegislativa=O&numSessao=225&indTipoSessao=E&tipo=partido"
+
+file <- read_html(url, encoding = "UTF-8")
+tables <- html_nodes(file, "table")
+table1 <- html_table(tables[3], fill = TRUE, header = T)
+
+table1_df <- as.data.frame(table1)
+
+colnames(table1_df) <- c("deputado", "uf", "voto")
+head(table1_df, 100)
+```
+
+## ETAPA 2
+
+Queremos tirar o partido da linha e inseri-lo em uma nova coluna. Também queremos remover as linhas que repetem os partidos e as que informam o número total de deputados.
+
+```{r}
+
+table1_df$new_column <- NA
+
+idx <- grep("Total.*: \\d+", table1_df$deputado)
+
+for (i in seq_along(idx)){
+  n <- as.numeric(sub("^.*: ", "", table1_df$deputado[idx[i]]))
+  partido <- sub("Total ", "", table1_df$deputado[idx[i]])
+  partido <- sub(": .*", "", partido)
+  table1_df$new_column[(idx[i] - n):(idx[i] - 1)] <- partido
+}
+
+table1_df <- table1_df[-grep("Total .*:.*", table1_df$deputado), ]
+table1_df <- table1_df[-which(table1_df$deputado == table1_df$uf), ]
+
+head(table1_df, 100)
+```
+
+## ETAPA 3
+
+Substituímos os rótulos usados pela Câmara para o nosso padrão: 
+* "Sim" por "sim";
+* "Não" por "nao";
+* "Abstenção" por "abstencao";
+* "Obstrução" por "obstrucao";
+* "Art 17" por "naovotou".
+
+Observação: os dados dos ausentes entram posteriormente.
+
+```{r}
+table1_df$voto <- as.character(table1_df$voto)
+table1_df$voto[table1_df$voto == "Sim"] <- "sim"
+table1_df$voto[table1_df$voto == "Não"] <- "nao"
+table1_df$voto[table1_df$voto == "Abstenção"] <- "abstencao"
+table1_df$voto[table1_df$voto == "Obstrução"] <- "obstrucao"
+table1_df$voto[table1_df$voto == "Art. 17"] <- "naovotou"
+```
+
+
+## ETAPA 4
+
+Substituímos os rótulos usados pela Câmara para o nosso padrão: 
+* "Podemos" por "PODE"
+* "REDE" por "Rede"
+* "Solidaried" por "SD"
+
+```{r}
+colnames(table1_df)[4] <- "partido"
+
+table1_df$partido <- as.character(table1_df$partido)
+table1_df$partido[table1_df$partido == "Podemos"] <- "PODE"
+table1_df$partido[table1_df$partido == "REDE"] <- "Rede"
+table1_df$partido[table1_df$partido == "Solidaried"] <- "SD"
+```
+
+## ETAPA 5
+
+Cruzar os dados da tabela importada com o nosso CSV que reúne o ID de cada deputado que já aparece no projeto.
+
+```{r}
+df_base <- fread("~/Downloads/plenarioCamarasDosDeputados-politicos.csv", encoding = "UTF-8")
+
+colnames(df_base)[2] <- "deputado"
+
+df_new <- merge(x=table1_df, y=df_base, by="deputado")
+
+df_final <- data.table(df_new$partido.x, df_new$id, df_new$deputado, df_new$uf.x, df_new$voto)
+
+head(df_final, 10)
+
+```
+
+
+## ETAPA 6
+
+Descobrir quais deputados não tiveram correspondência no merge. Com os nomes, devemos checar caso a caso no planilha principal. Para checar se foi erro de acentuação ou outro motivo. Ou se, de fato, precisamos criar um ID para esse novo deputado
+
+No caso do "Zeca do Pt" foi a caixa baixa em "t" do "Pt". Em "Jozi Araújo" possivelmente foi o duplo espaçamento. Em "Chico D´Angelo" foi o "´".
+
+```{r}
+A <- table1_df$deputado
+B <- df_base$deputado
+
+setdiff(A, B)
+```
+
+## ETAPA 7
+
+Criar colunas para o ID da proposição ("id_proposicao"), nome da proposição ("proposicao") e para a URL ("permalink"). Depois, colocar ordenação alfabética pelo nome do deputado.
+
+```{r}
+
+df_final$id_proposicao <- NA
+df_final$proposicao <- NA
+df_final$permalink <- NA
+
+
+colnames(df_final) <- c("partido", "id_politico", "nome_politico","uf", "voto")
+
+arquivo <- cbind(id_proposicao = "0", df_final)
+arquivo <- cbind(proposicao = "PEC000-2018-1t", arquivo)
+arquivo <- cbind(permalink = "pec-da-limpeza-e-padronizacao-1-turno", arquivo)
+
+arquivo_final <- data.table(arquivo$id_proposicao, arquivo$proposicao, arquivo$partido,
+                            arquivo$id_politico, arquivo$nome_politico, arquivo$uf,
+                            arquivo$voto, arquivo$permalink)
+
+colnames(arquivo_final) <- c("id_proposicao", "proposicao", "partido", "id_politico", 
+                        "nome_politico","uf", "voto", "permalink")
+
+
+arquivo_final <- arquivo_final[order(arquivo_final$nome_politico),]
+
+head(arquivo_final, 10)
+
+```
+
+## ETAPA 8
+
+Finalmente, fazer o download do dataframe na pasta "Documentos". Esses dados devem ser incorporados na fonte que alimenta o site.
+
+```{r}
+write.csv(arquivo_final, "0arquivo_final_votacao_camara_dos_deputados_29_nov_2018.csv", row.names = T, quote = F)
+
+write.xlsx(as.data.frame(arquivo_final), 
+           file="arquivo_final_votacao_camara_dos_deputados_29_nov_2018.xlsx", 
+           row.names = TRUE, col.names = TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
