@@ -1,7 +1,11 @@
 ---
 title: "Limpeza e normalização de dados de votações"
-subtitle: "Resultados de votações da Câmara dos Deputados"
-author: "Gabriela Caesar"
+description: "Resultados de votações da Câmara dos Deputados"
+author: 
+  name: Gabriela Caesar
+  url: http://www.gabrielacaesar.com/
+  affiliation: G1
+  affiliation_url: https://g1.globo.com/
 date: "29 de novembro de 2018"
 output: html_document
 ---
@@ -176,7 +180,3 @@ write.xlsx(as.data.frame(arquivo_final),
            file="arquivo_final_votacao_camara_dos_deputados_29_nov_2018.xlsx", 
            row.names = TRUE, col.names = TRUE)
 ```
-
-
-
-
