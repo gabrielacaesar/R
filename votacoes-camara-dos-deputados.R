@@ -13,6 +13,7 @@ library(rmarkdown)
 library(rvest)
 library(data.table)
 library(xlsx)
+library(dplyr)
 
 
 ##### Script para normalizar nomes que vêm do site da Câmara
@@ -137,4 +138,131 @@ write.csv(arquivo_final, "0arquivo_final_votacao_camara_dos_deputados_29_nov_201
 
 write.xlsx(as.data.frame(arquivo_final), 
            file="arquivo_final_votacao_camara_dos_deputados_29_nov_2018.xlsx", 
+           row.names = TRUE, col.names = TRUE)
+
+######################################################
+######################################################
+### 6)
+## pegar o arquivo que apresenta o ID de cada deputado
+## tirar a acentuação de cada nome de deputado
+## criar uma coluna com os nomes de caixa alta
+## normalizar nomes de partido, uf e posicionamento
+## tarefa a ser cumprida por causa principalmente 
+## dos ausentes, identificados como "<------->"
+
+# A)
+# arquivo do ID foi importado antes como "df_base"
+# alterar acentuação e caps
+
+df_base_sem_acentuacao <- as.data.frame(iconv(df_base$deputado, from = "UTF-8", to = "ASCII//TRANSLIT"))
+
+colnames(df_base_sem_acentuacao) <- "deputado"
+
+df_base_caps <- as.data.frame(toupper(df_base_sem_acentuacao$deputado))
+
+# B)
+# novo arquivo com o DF "df_base" junto a "df_base_caps"
+
+df_base_new <- cbind(df_base, df_base_caps)
+colnames(df_base_new) <- c("V1", "deputado", "id", "foto", "temos a foto?", "partido",
+                           "uf", "exercicio", "permalink", "deputado_caps")
+
+# C)
+# este é o arquivo do DBF da Câmara
+# vamos normatizá-lo
+votacao_dbf <- fread(file = "~/Downloads/votacao_camara_dos_deputados_original_dbf.csv")
+
+colnames(votacao_dbf) <- c("cod_votacao", "deputado_caps", "voto","partido", "uf")
+
+votacao_dbf$partido <- as.character(votacao_dbf$partido)
+votacao_dbf$partido[votacao_dbf$partido == "Podemos"] <- "PODE"
+votacao_dbf$partido[votacao_dbf$partido == "REDE"] <- "Rede"
+votacao_dbf$partido[votacao_dbf$partido == "Solidaried"] <- "SD"
+
+votacao_dbf$voto <- as.character(votacao_dbf$voto)
+votacao_dbf$voto[votacao_dbf$voto == "SIM"] <- "sim"
+votacao_dbf$voto[votacao_dbf$voto == "NAO"] <- "nao"
+votacao_dbf$voto[votacao_dbf$voto == "ABSTENCAO"] <- "abstencao"
+votacao_dbf$voto[votacao_dbf$voto == "OBSTRUCAO"] <- "obstrucao"
+votacao_dbf$voto[votacao_dbf$voto == "ART. 17"] <- "naovotou"
+votacao_dbf$voto[votacao_dbf$voto == "<------->"] <- "ausente"
+
+votacao_dbf$uf <- as.character(votacao_dbf$uf)
+votacao_dbf$uf[votacao_dbf$uf == "ACRE"] <- "AC"
+votacao_dbf$uf[votacao_dbf$uf == "ALAGOAS"] <- "AL"
+votacao_dbf$uf[votacao_dbf$uf == "AMAPA"] <- "AP"
+votacao_dbf$uf[votacao_dbf$uf == "AMAZONAS"] <- "AM"
+votacao_dbf$uf[votacao_dbf$uf == "BAHIA"] <- "BA"
+votacao_dbf$uf[votacao_dbf$uf == "CEARA"] <- "CE"
+votacao_dbf$uf[votacao_dbf$uf == "DISTRITO FEDERAL"] <- "DF"
+votacao_dbf$uf[votacao_dbf$uf == "ESPIRITO SANTO"] <- "ES"
+votacao_dbf$uf[votacao_dbf$uf == "GOIAS"] <- "GO"
+votacao_dbf$uf[votacao_dbf$uf == "MARANHAO"] <- "MA"
+votacao_dbf$uf[votacao_dbf$uf == "MATO GROSSO"] <- "MT"
+votacao_dbf$uf[votacao_dbf$uf == "MATO GROSSO DO SUL"] <- "MS"
+votacao_dbf$uf[votacao_dbf$uf == "MINAS GERAIS"] <- "MG"
+votacao_dbf$uf[votacao_dbf$uf == "PARA"] <- "PA"
+votacao_dbf$uf[votacao_dbf$uf == "PARAIBA"] <- "PB"
+votacao_dbf$uf[votacao_dbf$uf == "PARANA"] <- "PR"
+votacao_dbf$uf[votacao_dbf$uf == "PERNAMBUCO"] <- "PE"
+votacao_dbf$uf[votacao_dbf$uf == "PIAUI"] <- "PI"
+votacao_dbf$uf[votacao_dbf$uf == "RIO DE JANEIRO"] <- "RJ"
+votacao_dbf$uf[votacao_dbf$uf == "RIO GRANDE DO NORTE"] <- "RN"
+votacao_dbf$uf[votacao_dbf$uf == "RIO GRANDE DO SUL"] <- "RS"
+votacao_dbf$uf[votacao_dbf$uf == "RONDONIA"] <- "RO"
+votacao_dbf$uf[votacao_dbf$uf == "RORAIMA"] <- "RR"
+votacao_dbf$uf[votacao_dbf$uf == "SANTA CATARINA"] <- "SC"
+votacao_dbf$uf[votacao_dbf$uf == "SAO PAULO"] <- "SP"
+votacao_dbf$uf[votacao_dbf$uf == "SERGIPE"] <- "SE"
+votacao_dbf$uf[votacao_dbf$uf == "TOCANTINS"] <- "TO"
+
+# D)
+# ordenação e merge
+
+votacao_dbf <- votacao_dbf[order(votacao_dbf$deputado_caps),]
+
+votacao_dbf_merge <- merge(x=votacao_dbf, y=df_base_new, by="deputado_caps")
+
+votacao_dbf_final <- data.table(votacao_dbf_merge$partido.x, votacao_dbf_merge$id, 
+                                votacao_dbf_merge$deputado_caps, votacao_dbf_merge$deputado, 
+                                votacao_dbf_merge$uf.x, votacao_dbf_merge$voto)
+
+# E)
+# ver quais deputados não tiveram correspondência
+# Analisar se houve um erro (de acentuação, possivelmente)
+# Ou se é necessário cadastrar o deputado
+
+A <- votacao_dbf$deputado_caps
+B <- df_base_new$deputado_caps
+
+setdiff(A, B)
+
+# F)
+# inserir colunas sobre a tal proposição
+# e definir quais colunas queremos no DF
+
+votacao_dbf_final <- cbind(id_proposicao = "0", votacao_dbf_final)
+votacao_dbf_final <- cbind(proposicao = "PEC000-2018-1t", votacao_dbf_final)
+votacao_dbf_final <- cbind(permalink = "pec-da-limpeza-e-padronizacao-1-turno", votacao_dbf_final)
+
+colnames(votacao_dbf_final) <- c("permalink", "proposicao", "id_proposicao", "partido", 
+                                 "id_politico", "politico_upper", "nome_politico",
+                                 "uf", "voto")
+
+votacao_dbf_final <- data.table(votacao_dbf_final$id_proposicao, votacao_dbf_final$proposicao, 
+                            votacao_dbf_final$partido, votacao_dbf_final$id_politico, 
+                            votacao_dbf_final$politico_upper, votacao_dbf_final$nome_politico,
+                            votacao_dbf_final$uf, votacao_dbf_final$voto, votacao_dbf_final$permalink)
+
+colnames(votacao_dbf_final) <- c("id_proposicao", "proposicao","partido", "id_politico",
+                                 "politico_upper", "nome_politico", "uf", "voto", "permalink")
+
+# G)
+# fazer o download dos dados
+
+
+write.csv(votacao_dbf_final, "votacao_dbf_final_votacao_camara_dos_deputados_30_nov_2018.csv", row.names = T, quote = F)
+
+write.xlsx(as.data.frame(votacao_dbf_final), 
+           file="votacao_dbf_final_votacao_camara_dos_deputados_30_nov_2018.xlsx", 
            row.names = TRUE, col.names = TRUE)
