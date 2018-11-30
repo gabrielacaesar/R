@@ -1,11 +1,11 @@
 ---
-title: "Limpeza e normalização de dados"
+title: "Limpeza e normalizaÃ§Ã£o de dados"
 author: "Gabriela Caesar"
 date: 29/11/2018
 output: html_document
 ---
   
-# Nomalizando e limpando os dados de votações da Câmara dos Deputados
+# Nomalizando e limpando os dados de votaÃ§Ãµes da CÃ¢mara dos Deputados
 
 install.packages("rmarkdown")
 install.packages("rvest")
@@ -16,13 +16,13 @@ library(xlsx)
 library(dplyr)
 
 
-##### Script para normalizar nomes que vêm do site da Câmara
+##### Script para normalizar nomes que vÃªm do site da CÃ¢mara
 
 
 #### Direto do HTML
 ### 1)
-## pegar lista do html da página
-## expandir partido para seção de deputados
+## pegar lista do html da pÃ¡gina
+## expandir partido para seÃ§Ã£o de deputados
 
 url <- "http://www.camara.leg.br/internet/votacao/mostraVotacao.asp?ideVotacao=8559&numLegislatura=55&codCasa=1&numSessaoLegislativa=4&indTipoSessaoLegislativa=O&numSessao=225&indTipoSessao=E&tipo=partido"
 
@@ -52,17 +52,17 @@ table1_df <- table1_df[-which(table1_df$deputado == table1_df$uf), ]
 
 ### 2-A)
 ## trocar "Sim" por "sim"
-## trocar "Não" por "nao"
-## trocar "Abstenção" por "abstencao"
-## trocar "Obstrução" por "obstrucao"
+## trocar "NÃ£o" por "nao"
+## trocar "AbstenÃ§Ã£o" por "abstencao"
+## trocar "ObstruÃ§Ã£o" por "obstrucao"
 ## trocar "Art 17" por "naovotou"
 # obs: ausentes entram depois
 
 table1_df$voto <- as.character(table1_df$voto)
 table1_df$voto[table1_df$voto == "Sim"] <- "sim"
-table1_df$voto[table1_df$voto == "Não"] <- "nao"
-table1_df$voto[table1_df$voto == "Abstenção"] <- "abstencao"
-table1_df$voto[table1_df$voto == "Obstrução"] <- "obstrucao"
+table1_df$voto[table1_df$voto == "NÃ£o"] <- "nao"
+table1_df$voto[table1_df$voto == "AbstenÃ§Ã£o"] <- "abstencao"
+table1_df$voto[table1_df$voto == "ObstruÃ§Ã£o"] <- "obstrucao"
 table1_df$voto[table1_df$voto == "Art. 17"] <- "naovotou"
 
 ### 2-B)
@@ -79,7 +79,7 @@ table1_df$partido[table1_df$partido == "Solidaried"] <- "SD"
 
 ### 3)
 ## cruzar dataframe com outro dataframe, considerando o nome para pegar o ID
-## outro daframe é a página única com cada deputado e o respectivo ID
+## outro daframe Ã© a pÃ¡gina Ãºnica com cada deputado e o respectivo ID
 
 df_base <- fread("~/Downloads/plenarioCamarasDosDeputados-politicos.csv", encoding = "UTF-8")
 
@@ -91,14 +91,14 @@ df_final <- data.table(df_new$partido.x, df_new$id, df_new$deputado, df_new$uf.x
 
 
 ### 4)
-## descobrir quais deputados não tiveram correspondência no merge
+## descobrir quais deputados nÃ£o tiveram correspondÃªncia no merge
 ## com os nomes, devemos checar caso a caso no planilha principal
-## para checar se foi erro de acentuação ou outro motivo
+## para checar se foi erro de acentuaÃ§Ã£o ou outro motivo
 ## ou se, de fato, precisamos criar um ID para esse novo deputado
 
 ## no caso do "Zeca do Pt" foi a caixa baixa em "t" do "Pt"
-## em "Jozi Araújo" possivelmente foi o duplo espaçamento
-## em "Chico D´Angelo" foi o "´"
+## em "Jozi AraÃºjo" possivelmente foi o duplo espaÃ§amento
+## em "Chico DÂ´Angelo" foi o "Â´"
 
 A <- table1_df$deputado
 B <- df_base$deputado
@@ -106,10 +106,10 @@ B <- df_base$deputado
 setdiff(A, B)
 
 ### 5)
-## criar coluna para o ID da proposição ("id_proposicao")
-## criar coluna para o nome vulgar da proposição ("proposicao")
+## criar coluna para o ID da proposiÃ§Ã£o ("id_proposicao")
+## criar coluna para o nome vulgar da proposiÃ§Ã£o ("proposicao")
 ## criar coluna para o URL ("permalink")
-## colocar ordenação alfabética pelo nome do deputado
+## colocar ordenaÃ§Ã£o alfabÃ©tica pelo nome do deputado
 ## fazer o download do dataframe na pasta "Documentos"
 
 df_final$id_proposicao <- NA
@@ -144,7 +144,7 @@ write.xlsx(as.data.frame(arquivo_final),
 ######################################################
 ### 6)
 ## pegar o arquivo que apresenta o ID de cada deputado
-## tirar a acentuação de cada nome de deputado
+## tirar a acentuaÃ§Ã£o de cada nome de deputado
 ## criar uma coluna com os nomes de caixa alta
 ## normalizar nomes de partido, uf e posicionamento
 ## tarefa a ser cumprida por causa principalmente 
@@ -152,7 +152,7 @@ write.xlsx(as.data.frame(arquivo_final),
 
 # A)
 # arquivo do ID foi importado antes como "df_base"
-# alterar acentuação e caps
+# alterar acentuaÃ§Ã£o e caps
 
 df_base_sem_acentuacao <- as.data.frame(iconv(df_base$deputado, from = "UTF-8", to = "ASCII//TRANSLIT"))
 
@@ -168,8 +168,8 @@ colnames(df_base_new) <- c("V1", "deputado", "id", "foto", "temos a foto?", "par
                            "uf", "exercicio", "permalink", "deputado_caps")
 
 # C)
-# este é o arquivo do DBF da Câmara
-# vamos normatizá-lo
+# este Ã© o arquivo do DBF da CÃ¢mara
+# vamos normatizÃ¡-lo
 votacao_dbf <- fread(file = "~/Downloads/votacao_camara_dos_deputados_original_dbf.csv")
 
 colnames(votacao_dbf) <- c("cod_votacao", "deputado_caps", "voto","partido", "uf")
@@ -217,7 +217,7 @@ votacao_dbf$uf[votacao_dbf$uf == "SERGIPE"] <- "SE"
 votacao_dbf$uf[votacao_dbf$uf == "TOCANTINS"] <- "TO"
 
 # D)
-# ordenação e merge
+# ordenaÃ§Ã£o e merge
 
 votacao_dbf <- votacao_dbf[order(votacao_dbf$deputado_caps),]
 
@@ -228,9 +228,9 @@ votacao_dbf_final <- data.table(votacao_dbf_merge$partido.x, votacao_dbf_merge$i
                                 votacao_dbf_merge$uf.x, votacao_dbf_merge$voto)
 
 # E)
-# ver quais deputados não tiveram correspondência
-# Analisar se houve um erro (de acentuação, possivelmente)
-# Ou se é necessário cadastrar o deputado
+# ver quais deputados nÃ£o tiveram correspondÃªncia
+# Analisar se houve um erro (de acentuaÃ§Ã£o, possivelmente)
+# Ou se Ã© necessÃ¡rio cadastrar o deputado
 
 A <- votacao_dbf$deputado_caps
 B <- df_base_new$deputado_caps
@@ -238,7 +238,7 @@ B <- df_base_new$deputado_caps
 setdiff(A, B)
 
 # F)
-# inserir colunas sobre a tal proposição
+# inserir colunas sobre a tal proposiÃ§Ã£o
 # e definir quais colunas queremos no DF
 
 votacao_dbf_final <- cbind(id_proposicao = "0", votacao_dbf_final)
@@ -254,7 +254,7 @@ votacao_dbf_final <- data.table(votacao_dbf_final$id_proposicao, votacao_dbf_fin
                             votacao_dbf_final$politico_upper, votacao_dbf_final$nome_politico,
                             votacao_dbf_final$uf, votacao_dbf_final$voto, votacao_dbf_final$permalink)
 
-colnames(votacao_dbf_final) <- c("id_proposicao", "proposicao","partido", "id_politico",
+colnames(votacao_dbf_final) <- c("id_proposicao", "proposicao", "partido", "id_politico",
                                  "politico_upper", "nome_politico", "uf", "voto", "permalink")
 
 # G)
