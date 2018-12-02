@@ -6,6 +6,7 @@ output: html_document
 ---
   
 # Nomalizando e limpando os dados de votações da Câmara dos Deputados
+# Instalando e chamando as bibliotecas
 
 install.packages("rmarkdown")
 install.packages("rvest")
@@ -16,12 +17,12 @@ library(xlsx)
 library(dplyr)
 
 
-##### Script para normalizar nomes que vêm do site da Câmara
+##### Script para baixar, limpar e normalizar dados de votação do site da Câmara
 
 
 #### Direto do HTML
 ### 1)
-## pegar lista do html da página
+## pegar tabela do html da página
 ## expandir partido para seção de deputados
 
 url <- "http://www.camara.leg.br/internet/votacao/mostraVotacao.asp?ideVotacao=8559&numLegislatura=55&codCasa=1&numSessaoLegislativa=4&indTipoSessaoLegislativa=O&numSessao=225&indTipoSessao=E&tipo=partido"
