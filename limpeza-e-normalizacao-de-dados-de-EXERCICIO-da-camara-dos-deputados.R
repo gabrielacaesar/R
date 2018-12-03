@@ -1,14 +1,14 @@
-# Deputados em exercÌcio ou fora de exercÌcio na C‚mara dos Deputados
+# Deputados em exerc√≠cio ou fora de exerc√≠cio na C√¢mara dos Deputados
 ## Gabriela Caesar
 ## 3 de dezembro de 2018
 
-## Este script serve para identificar quais deputados est„o em exercÌcio ou fora de exercÌcio 
-## do mandato na C‚mara dos Deputados. Inicialmente, importamos o CSV que apresenta todos os deputados 
-## cadastrados no projeto. Depois, importamos um XLSX origin·rio da C‚mara dos Deputados que tem a 
-## vers„o mais atualizada dos nomes que est„o no exercÌcio do mandato.
+## Este script serve para identificar quais deputados est√£o em exerc√≠cio ou fora de exerc√≠cio 
+## do mandato na C√¢mara dos Deputados. Inicialmente, importamos o CSV que apresenta todos os deputados 
+## cadastrados no projeto. Depois, importamos um XLSX origin√°rio da C√¢mara dos Deputados que tem a 
+## vers√£o mais atualizada dos nomes que est√£o no exerc√≠cio do mandato.
 
-## NÛs normalizamos os nomes de ambos os arquivos para, depois, cruzar os dados. Enfim, podemos criar
-## uma coluna para informar se o deputado est· em exercÌcio ("sim") ou n„o est· em exercÌcio ("nao").
+## N√≥s normalizamos os nomes de ambos os arquivos para, depois, cruzar os dados. Enfim, podemos criar
+## uma coluna para informar se o deputado est√° em exerc√≠cio ("sim") ou n√£o est√° em exerc√≠cio ("nao").
 ## Enfim, o script faz o download do CSV final, que deve ser inserido no projeto.
 
 
@@ -23,21 +23,21 @@ setwd("D:/Pessoal/Downloads/")
 
 
 # ETAPA 1
-## Importamos o arquivo atualizado na C‚mara
-## Eliminamos as colunas desnecess·rias
+## Importamos o arquivo atualizado na C√¢mara
+## Eliminamos as colunas desnecess√°rias
 
 em_exercicio <- fread("deputado.csv")
 
-em_exercicio$EndereÁo <- NULL
+em_exercicio$Endere√ßo <- NULL
 em_exercicio$Anexo <- NULL
-em_exercicio$`EndereÁo (continuaÁ„o)` <- NULL
+em_exercicio$`Endere√ßo (continua√ß√£o)` <- NULL
 em_exercicio$Gabinete <- NULL
-em_exercicio$`EndereÁo (complemento)` <- NULL
+em_exercicio$`Endere√ßo (complemento)` <- NULL
 em_exercicio$Telefone <- NULL
 em_exercicio$Fax <- NULL
-em_exercicio$`MÍs Anivers·rio` <- NULL
-em_exercicio$`Dia Anivers·rio` <- NULL
-em_exercicio$`Correio EletrÙnico` <- NULL
+em_exercicio$`M√™s Anivers√°rio` <- NULL
+em_exercicio$`Dia Anivers√°rio` <- NULL
+em_exercicio$`Correio Eletr√¥nico` <- NULL
 em_exercicio$Tratamento <- NULL
 
 colnames(em_exercicio) <- c("nome_parlamentar", "partido", "uf", "titular_suplente", 
@@ -74,7 +74,7 @@ glimpse(df_base_new)
 
 # ETAPA 3
 ## Dar um merge e checar os partidos
-## Mostrar qual caso houve mudanÁa de sigla
+## Mostrar qual caso houve mudan√ßa de sigla
 
 merge_exercicio <- merge(x=em_exercicio, y=df_base_new, by="deputado_caps")
 
@@ -96,17 +96,17 @@ View(checagem_partido_falso)
 ## Mostrar quais deputados passam a constar "sim"
 ## Mas antes estavam como "nao"
 
-## Criar coluna para "Em exercÌcio?"
+## Criar coluna para "Em exerc√≠cio?"
 ## Incluir "sim" quando for positivo
 ## Incluir "nao" quando for negativo
 
 # Ajustar colunas para empilhar DFs
-# Ordenar de forma alfabÈtica
+# Ordenar de forma alfab√©tica
 
-# FALTA::: AJUDAR O ENCODING DO NOME PARLAMENTAR
+# FALTA::: AJUSTAR O ENCODING DO NOME PARLAMENTAR
 
 
-merge_exercicio_sim <- cbind(`Em exercÌcio?` = "sim", merge_exercicio)
+merge_exercicio_sim <- cbind(`Em exerc√≠cio?` = "sim", merge_exercicio)
 
 A <- em_exercicio$deputado_caps
 B <- df_base_new$deputado_caps
@@ -116,11 +116,11 @@ setdiff(A, B)
 new_merge <- merge(x = df_base_new, y = merge_exercicio_sim, by ="deputado_caps", all = TRUE)
 
 merge_exercicio_nao <- new_merge %>%
-  filter(is.na(`Em exercÌcio?`)) %>%
+  filter(is.na(`Em exerc√≠cio?`)) %>%
   select(deputado_caps, deputado.x, id.x, foto.x, `temos a foto?.x`,
        partido, uf, exercicio.x, permalink.x)
 
-merge_exercicio_nao <- data.frame(merge_exercicio_nao, `Em exercÌcio?` = "nao")
+merge_exercicio_nao <- data.frame(merge_exercicio_nao, `Em exerc√≠cio?` = "nao")
 
 colnames(merge_exercicio_nao) <- c("deputado_caps", "nome_parlamentar", "id", "foto",
                                    "temos_a_foto", "partido", "uf", "exercicio", "permalink",
@@ -130,7 +130,7 @@ colnames(merge_exercicio_nao) <- c("deputado_caps", "nome_parlamentar", "id", "f
 merge_exercicio_sim <- merge_exercicio_sim %>%
   select(deputado_caps, nome_parlamentar, id, foto, 
          `temos a foto?`, partido.y, uf.y, exercicio, permalink, 
-         `Em exercÌcio?`)
+         `Em exerc√≠cio?`)
 
 colnames(merge_exercicio_sim) <- c("deputado_caps", "nome_parlamentar", "id", "foto",
                                   "temos_a_foto", "partido", "uf", "exercicio", "permalink",
@@ -153,7 +153,7 @@ write.xlsx(as.data.frame(final_merge_cresc),
 
 # EXTRA - ETAPA 6
 ## Mostrar apenas as linhas 
-## Que devem sofrer mudanÁas
+## Que devem sofrer mudan√ßas
 
 
 alteracoes_deputados <- as.data.frame(cbind(final_merge_cresc, 
