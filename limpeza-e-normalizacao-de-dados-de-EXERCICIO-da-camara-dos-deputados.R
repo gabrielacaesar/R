@@ -23,7 +23,7 @@ setwd("D:/Pessoal/Downloads/")
 
 
 # ETAPA 1
-## Importamos o arquivo atualizado na Câmara
+## Importamos o arquivo atualizado da Câmara
 ## Eliminamos as colunas desnecessárias
 
 em_exercicio <- fread("deputado.csv")
