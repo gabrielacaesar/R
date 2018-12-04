@@ -57,7 +57,7 @@ glimpse(em_exercicio)
 ## E os respectivos IDs
 ## Criar coluna com nomes sem acentos e em caps
 
-df_base <- fread("plenarioCamarasDosDeputados-politicos-3dez2018.csv")
+df_base <- fread("plenarioCamarasDosDeputados-politicos-3dez2018.csv", encoding = "UTF-8")
 
 df_base_sem_acentuacao <- as.data.frame(iconv(df_base$nome, from = "UTF-8", to = "ASCII//TRANSLIT"))
 
