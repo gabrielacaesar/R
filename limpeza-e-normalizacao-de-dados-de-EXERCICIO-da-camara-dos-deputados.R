@@ -103,8 +103,6 @@ View(checagem_partido_falso)
 # Ajustar colunas para empilhar DFs
 # Ordenar de forma alfabética
 
-# FALTA::: AJUSTAR O ENCODING DO NOME PARLAMENTAR
-
 
 merge_exercicio_sim <- cbind(`Em exercício?` = "sim", merge_exercicio)
 
