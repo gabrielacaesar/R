@@ -1,15 +1,15 @@
-# Senadores em exercÌcio ou fora de exercÌcio
+# Senadores em exerc√≠cio ou fora de exerc√≠cio
 ## Gabriela Caesar
 ## 4 de dezembro de 2018
 
-## Este script serve para identificar quais senadores est„o em exercÌcio 
-## ou fora de exercÌcio do mandato. Inicialmente, pegamos uma tabela do HTML
-## da p·gina oficial do Senado Federal que apresenta todos os senadores em exercÌcio.
+## Este script serve para identificar quais senadores est√£o em exerc√≠cio 
+## ou fora de exerc√≠cio do mandato. Inicialmente, pegamos uma tabela do HTML
+## da p√°gina oficial do Senado Federal que apresenta todos os senadores em exerc√≠cio.
 
 ## Depois, importamos o CSV que apresenta todos os senadores cadastrados no projeto. 
 
-## NÛs normalizamos os nomes de ambos os arquivos para, depois, cruzar os dados. Enfim, podemos criar
-## uma coluna para informar se o senador est· em exercÌcio ("sim") ou n„o est· em exercÌcio ("nao").
+## N√≥s normalizamos os nomes de ambos os arquivos para, depois, cruzar os dados. Enfim, podemos criar
+## uma coluna para informar se o senador est√° em exerc√≠cio ("sim") ou n√£o est√° em exerc√≠cio ("nao").
 ## Enfim, o script faz o download do CSV final, que deve ser inserido no projeto.
 
 ## Importamos as bibliotecas
@@ -20,7 +20,7 @@ library(dplyr)
 
 # ETAPA 1
 ## Capturamos a tabela do HTML
-## Eliminamos as colunas desnecess·rias
+## Eliminamos as colunas desnecess√°rias
 
 url <- "https://www25.senado.leg.br/web/senadores/em-exercicio/-/e/por-nome"
 
@@ -32,13 +32,13 @@ head(table1)
 
 table1_df <- as.data.frame(table1)
 
-table1_df$PerÌodo <- NULL
+table1_df$Per√≠odo <- NULL
 table1_df$Telefones <- NULL
-table1_df$Correio.EletrÙnico <- NULL
+table1_df$Correio.Eletr√¥nico <- NULL
 
 # ETAPA 2
 ## trocar "REDE" por "Rede"
-## Avante e SD, por exemplo, n„o tÍm representaÁ„o na C‚mara
+## Avante e SD, por exemplo, n√£o t√™m representa√ß√£o na C√¢mara
 
 colnames(table1_df)<- c("nome_parlamentar", "partido", "uf")
 
@@ -60,7 +60,7 @@ arquivo_senado <- cbind(table1_df, table1_df_caps)
 
 # ETAPA 4
 ## importamos o nosso arquivo base para comparar
-## ambos os DFs e ver as diferenÁas
+## ambos os DFs e ver as diferen√ßas
 
 setwd("D:/Pessoal/Downloads/")
 df_base <- fread("plenarioSenadoFederal-politicos.csv", encoding = "UTF-8")
@@ -80,7 +80,7 @@ arquivo_senado_base <- cbind(df_base_caps, df_base)
 
 # ETAPA 6
 ## Dar um merge e checar os partidos
-## Mostrar qual caso houve mudanÁa de sigla
+## Mostrar qual caso houve mudan√ßa de sigla
 
 merge_senado <- merge(x = arquivo_senado, y = arquivo_senado_base, by = "senador_caps")
 
@@ -101,8 +101,51 @@ View(checagem_partido_falso)
 
 
 # ETAPA 7
+## Criar coluna nova para o exerc√≠cio
+## Criar DF para "sim"
+## Criar DF para "nao"
+## Unificar tudo em um DF
+## Manter apenas as colunas que queremos
+## Ordenar de forma alfab√©tica
 
-## ainda criar coluna para o exercÌcio
-## que deve ser preenchida com "sim" ou "nao"
+## label NAO
 
+merge_exercicio_nao <- new_merge %>%
+  filter(is.na(`Em exerc√≠cio?`)) %>%
+  select(senador_caps, nome.y, id.y, foto.y,
+         `temos a foto?.y`, partido, uf, exercicio.x, 
+         permalink.y)
 
+merge_exercicio_nao <- data.frame(merge_exercicio_nao, em_exercicio_new = "nao")
+
+colnames(merge_exercicio_nao) <- c("senador_caps", "nome_parlamentar", "id", "foto",
+                                   "temos_a_foto", "partido", "uf", "exercicio", "permalink",
+                                   "em_exercicio_new")
+
+## label SIM
+
+merge_exercicio_sim <- cbind(`Em exerc√≠cio?` = "sim", merge_senado)
+
+merge_exercicio_sim <- merge_exercicio_sim %>%
+  select(senador_caps, nome_parlamentar, id, foto,
+         `temos a foto?`, partido.y, uf.y, exercicio, permalink)
+
+merge_exercicio_sim <- data.frame(merge_exercicio_sim, em_exercicio_new = "sim")
+
+colnames(merge_exercicio_sim) <- c("senador_caps", "nome_parlamentar", "id", "foto",
+                                   "temos_a_foto", "partido", "uf", "exercicio", "permalink",
+                                   "em_exercicio_new")
+
+final_merge <- bind_rows(merge_exercicio_sim, merge_exercicio_nao)
+
+final_merge_cresc <- final_merge[order(final_merge$senador_caps),]
+
+# ETAPA 8
+## Fazer o download do CSV
+## e do XLSX
+
+write.csv(final_merge_cresc, "final_merge_cresc_5_dez_2018.csv", row.names = T, quote = F)
+
+write.xlsx(as.data.frame(final_merge_cresc), 
+           file="final_merge_cresc_5_dez_2018.xlsx", 
+           row.names = TRUE, col.names = TRUE)
