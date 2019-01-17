@@ -86,7 +86,7 @@ while(i <= 514) {
     pessoa_info <- jsonlite::fromJSON(api_content)
     pessoa_foto <- pessoa_info$dados$ultimoStatus$urlFoto
     download.file(pessoa_foto, basename(pessoa_foto), mode = "wb", header = TRUE)
-    Sys.sleep(0.5)
+    Sys.sleep(5)
   }, error = function(e) return(NULL)
   )
   i <- i + 1
