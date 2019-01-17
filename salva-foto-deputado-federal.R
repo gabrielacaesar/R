@@ -17,6 +17,7 @@ install.packages("XML")
 install.packages("xml2")
 install.packages("methods")
 install.packages("httr")
+install.packages("purrr")
 library(dplyr)
 library(readr)
 library(readxl)
@@ -30,6 +31,7 @@ library(httr)
 library(jsonlite)
 library(lubridate)
 library(httr)
+library(purrr)
 
 getwd()
 setwd("~/Downloads")
@@ -70,13 +72,19 @@ deputados$municipioNascimento <- NULL
 
 # acessar o xml e pegar a url dentro de 'urlFoto'
 
+setwd("~/Downloads/deputados2019")
+
+i <- 1
 
 while(i <= 514) {
-  url <- deputados$uri[i]
-  api_content <- rawToChar(GET(url)$content)
-  pessoa_info <- jsonlite::fromJSON(api_content)
-  pessoa_foto <- pessoa_info$dados$ultimoStatus$urlFoto
-  download.file(pessoa_foto, basename(pessoa_foto), mode = "wb")
-  Sys.sleep(0.3)
+  tryCatch({
+    url <- deputados$uri[i]
+    api_content <- rawToChar(GET(url)$content)
+    pessoa_info <- jsonlite::fromJSON(api_content)
+    pessoa_foto <- pessoa_info$dados$ultimoStatus$urlFoto
+    download.file(pessoa_foto, basename(pessoa_foto), mode = "wb")
+    Sys.sleep(0.5)
+  }, error = function(e) return(NULL)
+  )
   i <- i + 1
 }
