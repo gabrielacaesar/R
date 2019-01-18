@@ -116,5 +116,4 @@ for (p in photos) {
 ### em andamento
 # falta descobrir quais deputados tiveram erro na foto
 # temos 271 fotos neste momento
-# há fotos que foram salvas antes de o download estar 100% (rosangela gomes, por exemplo)?
-# sobre fotos ausentes: caso tecnologia da CD não responde, entrar em contato com a ascom
+## à espera de câmara dos deputados subir as demais fotos
