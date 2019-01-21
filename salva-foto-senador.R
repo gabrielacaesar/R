@@ -1,12 +1,16 @@
-install.packages("RCUrl")
+# objetivo
+## acessar a página de cada senador
+## salvar a foto de cada senador
+## renomear o arquivo da foto
+## substituir o 'id' pelo nome em lower, com traço
 
-library(data.table) # necessário
+library(data.table)
 library(rvest)
 library(lubridate)
 library(stringr)
 library(dplyr)
-library(RCurl) # necessário
-library(XML) # idem
+library(RCurl)
+library(XML)
 library(httr)
 library(purrr)
 # link que contém todos os senadores em exercício
@@ -63,3 +67,51 @@ while(1 <= 81){
   )
   i <- i + 1
 }
+  
+
+################### renomear as fotos
+
+# 1. criar um DF com o nome e a url do perfil
+# 2. tirar acentos, colocar em lower e com traço os nomes
+# 3. substituir 'id' por 'name_lower'
+
+url <- "https://www25.senado.leg.br/web/senadores/em-exercicio/-/e/por-nome"
+
+file <- read_html(url)
+tables <- html_nodes(file, "table")
+table1 <- html_table(tables[1], fill = TRUE, header = T)
+
+
+# pegamos apenas a primeira coluna
+table1_df <- as.data.frame(table1)[1]
+
+
+# tiramos a acentuação
+table1_df_sem_acentuacao <- as.data.frame(iconv(table1_df$Nome, from = "UTF-8", to = "ASCII//TRANSLIT"))
+colnames(table1_df_sem_acentuacao) <- "senador_lower"
+
+
+# colocamos em caixa baixa
+table1_df_lower <- as.data.frame(tolower(table1_df_sem_acentuacao$senador_lower))
+colnames(table1_df_lower) <- "senador_lower"
+
+
+# trocamos o espaço por hifen
+table_name_final <- as.data.frame(gsub(" ", "-", table1_df_lower$senador_lower))
+
+
+# no DF com os links, nós mantemos apenas os IDs
+id_split <- as.data.frame(gsub("https://www25.senado.leg.br/web/senadores/senador/-/perfil/", "senador", links_senador$links))
+
+
+# juntamos os DF com os links e os nomes
+table_dfs_final <- cbind(table_name_final, id_split)
+colnames(table_dfs_final)[1] <- "name_lower"
+colnames(table_dfs_final)[2] <- "id_senador"
+
+
+################# renomeando os arquivos
+
+
+
+# continuar
