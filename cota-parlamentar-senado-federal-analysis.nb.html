@@ -1,0 +1,469 @@
+---
+title: "Cota parlamentar do Senado"
+author: "Gabriela Caesar"
+date: "22/01/2019"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+Este notebook se propõe a analisar os gastos dos senadores com a Cota para o Exercício da Atividade Parlamentar (Ceap). Os dados usados neste projeto estão disponíveis no site do Senado Federal. 
+
+Para todar cada trecho de código, você deve clicar em 'run' no lado direito ou pressionar 'ctrl+shift+enter' dentro do código. 
+
+Abaixo, nós estamos carregando as bibliotecas necessárias para esta análise.
+
+
+
+```{r}
+library(data.table)
+library(ggplot2)
+```
+
+Definimos o diretório em que vamos trabalhar e importamos o arquivo CSV. Ele recebeu na análise o nome 'cota2018'.
+
+```{r}
+setwd("~/Downloads/")
+cota2018 <- fread("cota-parlamentar-sf2018.csv", sep = ";")
+head(cota2018)
+```
+
+Queremos analisar brevemente o arquivo importado. Por exemplo, quantas linhas o arquivo tem? Quantos senadores são mencionados? Há algum erro de digitação nas colunas 'MES' e 'DATA'? Os valores de 'VALOR_REEMBOLSO' estão como float?
+
+```{r}
+summary(cota2018)
+```
+```{r}
+summary(cota2018$VALOR_REEMBOLSADO)
+```
+
+```{r}
+unique(cota2018$SENADOR)
+```
+```{r}
+length(unique(cota2018$SENADOR))
+```
+
+
+```{r}
+unique(cota2018$MES)
+```
+
+```{r}
+ggplot(data=cota2018, aes(cota2018$MES)) +
+  geom_histogram(col = "blue",
+                 binwidth = 1,
+                 fill = "green",
+                 alpha = .2) +
+  labs(title = "Gastos com a cota parlamentar em 2018", x = "Mês", y = "R$") +
+  scale_y_continuous(labels=function(y) format(y, big.mark = ".", scientific = FALSE))
+
+```
+```{r}
+typeof(cota2018$VALOR_REEMBOLSADO)
+```
+
+```{r}
+?as.double
+```
+
+Como o 'valor do reembolso' está em texto, nós vamos converter para número float/double.
+
+
+```{r}
+cota2018$VALOR_REEMBOLSADO <- as.double(sub(",", ".", cota2018$VALOR_REEMBOLSADO))
+head(cota2018$VALOR_REEMBOLSADO)
+
+```
+
+Abaixo nós vemos quais foram os gastos individuais mais altos em 2018. O valor mais alto foi de R$ 66 mil, com a contratação da empresa "NC Comunicação Visual Ltda"", na categoria "divulgação da atividade parlamentar". O reembolso foi solicitado em dezembro pelo senador Eduardo Lopes (PRB-RJ). Veja abaixo os gastos mais altos de 2018:
+
+
+```{r}
+order_cota2018 <- cota2018[order(cota2018$VALOR_REEMBOLSADO, decreasing = TRUE),]
+
+head(order_cota2018)
+
+```
+
+Considerando esse mesmo dataframe, agora queremos identificar quais foram os menores gastos em 2018. Os menores valores registrados são de 1 centavo e fazem parte da categoria que abrange passagens áereas. Os senadores responsáveis são Jorge Viana (PT-AC) e Dário Berger (MDB-SC).
+
+```{r}
+order_cota2018 <- cota2018[order(cota2018$VALOR_REEMBOLSADO, decreasing = FALSE),]
+
+head(order_cota2018)
+```
+
+
+Agora queremos saber quais foram os cinco senadores que mais gastaram durante o ano de 2018. E, depois, também os cinco que menos gastaram em 2018.
+
+Para isso, vamos agrupar os valores por nome. Ou seja, todas as despesas de determinado senador devem ser somadas e apresentadas no nome dele.
+
+Abaixo vemos que os senadores Eduardo Braga (MDB-AM) e João Capiberibe (PSB-AP) foram os campeões em despesas com a cota parlamentar.
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_desc <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_desc)
+```
+
+Por outro lado, os senadores Ione Guimarães (PTB-GO) e Cristovam Buarque (PPS-DF) foram os que apresentaram menos despesas com a cota parlamentar. 
+
+Ione Guimarães é suplente de Lúcia Vânia (PSB-GO) e ficou menos dias em exercício do mandato.
+
+Note que o nosso dataframe apresenta 74 nomes, sendo que são 81 senadores. Possivelmente, algum senador optou por não usar a cota. É necessária uma apuração para detectar os motivos.
+
+```{r}
+senador_cota2018_asc <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = FALSE),]
+head(senador_cota2018_asc)
+
+```
+
+Aplicamos um filtro por categoria para saber qual foi o senador que gastou mais naquela determina categoria. Fazemo isso com todas as categorias. 
+
+Primeiro, precisa saber quais categorias nós temos.
+
+```{r}
+unique(cota2018$TIPO_DESPESA)
+
+```
+
+## CATEGORIA DA COTA
+### DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  filter(TIPO_DESPESA == "Divulgação da atividade parlamentar") %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_cat1 <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_cat1)
+```
+
+```{r}
+summary(senador_cota2018_cat1)
+```
+
+## CATEGORIA DA COTA
+### ALUGUEL DE ESCRITÓRIO POLÍTICO ETC
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  filter(TIPO_DESPESA == "Aluguel de imóveis para escritório político, compreendendo despesas concernentes a eles.") %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_cat2 <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_cat2)
+```
+```{r}
+summary(senador_cota2018_cat2)
+```
+
+
+## CATEGORIA DA COTA
+### PASSAGENS AÉREAS ETC
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  filter(TIPO_DESPESA == "Passagens aéreas, aquáticas e terrestres nacionais") %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_cat3 <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_cat3)
+```
+```{r}
+summary(senador_cota2018_cat3)
+```
+
+## CATEGORIA DA COTA
+### CONSULTORIAS, PESQUISAS ETC
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  filter(TIPO_DESPESA == "Contratação de consultorias, assessorias, pesquisas, trabalhos técnicos e outros serviços de apoio ao exercício do mandato parlamentar") %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_cat5 <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_cat5)
+```
+```{r}
+summary(senador_cota2018_cat5)
+```
+
+## CATEGORIA DA COTA
+### ALIMENTAÇÃO, HOSPEDAGEM ETC
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  filter(TIPO_DESPESA == "Locomoção, hospedagem, alimentação, combustíveis e lubrificantes") %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_cat6 <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_cat6)
+```
+```{r}
+summary(senador_cota2018_cat6)
+```
+
+## CATEGORIA DA COTA
+### DESPESAS POSTAIS, MATERIAL DE ESCRITÓRIO ETC
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  filter(TIPO_DESPESA == "Aquisição de material de consumo para uso no escritório político, inclusive aquisição ou locação de software, despesas postais, aquisição de publicações, locação de móveis e de equipamentos. ") %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_cat7 <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_cat7)
+```
+```{r}
+summary(senador_cota2018_cat7)
+```
+
+## CATEGORIA DA COTA
+### SEGURANÇA PRIVADA 
+
+```{r}
+senador_cota2018 <- cota2018 %>%
+  filter(TIPO_DESPESA == "Serviços de Segurança Privada" ) %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+senador_cota2018_cat8 <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = TRUE),]
+head(senador_cota2018_cat8)
+```
+```{r}
+summary(senador_cota2018_cat8)
+```
+
+## FIM DA ANÁLISE POR CATEGORIA
+
+
+Quais foram os gastos totais com cada categoria? Os senadores, em geral, pediram reembolso por despesas em quais categorias? E quais categorias tiveram menos pedidos de reembolso?
+
+```{r}
+
+```
+
+
+Temos um scatterplot com todos os pedidos de reembolso? Quais são os outliers? 
+```{r}
+
+scatterplot_cota2018 <- ggplot(cota2018, aes(x = cota2018$TIPO_DESPESA,
+                               y = cota2018$VALOR_REEMBOLSADO,
+                               col = "red")) + 
+  geom_point(alpha = 0.5, size = 3.5) +
+  labs(y = "Valor reembolsado (em R$)", caption = "Fonte: Senado Federal", 
+       title = "Despesas de senadores com a cota parlamentar em 2018",
+       subtitle = "Distribuição mostra despesas, em R$, por categoria de gasto",
+       family = "Open Sans") +
+  theme(legend.position = "none",
+        axis.title.x = element_blank())
+
+scatterplot_cota2018
+
+```
+
+## LIMITE DA COTA POR UF
+### GASTOS VS. LIMITE
+
+Cada UF tem um limite de despesas. Ou seja, um senador do Amazonas, por exemplo, pode pedir reembolsos que somam R$ 44.276,60 por mês. Já os senadores do Distrito Federal e de Goiás precisam respeitar o teto de R$ 21.045,20. Isso ocorre porque alguns estados são mais distantes de Brasília e, por isso, alguns senadores precisam desembolsar mais para chegar ao Congresso.
+
+Agora, precisamos importar a tabela com os limites de gastos com a cota parlamentar por UF.
+
+Esses valores estão em uma matéria publicada pelo G1 em abril de 2018:
+https://g1.globo.com/politica/noticia/viagens-de-jatinho-flat-de-luxo-refeicao-de-r-1000-gastos-de-senadores-com-cota-parlamentar-chegam-a-r-266-milhoes-em-2017.ghtml
+
+```{r}
+
+url <- "https://g1.globo.com/politica/noticia/viagens-de-jatinho-flat-de-luxo-refeicao-de-r-1000-gastos-de-senadores-com-cota-parlamentar-chegam-a-r-266-milhoes-em-2017.ghtml"
+
+file <- read_html(url)
+tables <- html_nodes(file, "table")
+table1 <- html_table(tables[1], fill = TRUE, header = T)
+
+table1_df <- as.data.frame(table1)
+
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Amapá"] <- "AP"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Amazonas"] <- "AM"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Acre"] <- "AC"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Alagoas"] <- "AL"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Bahia"] <- "BA"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Ceará"] <- "CE"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Distrito Federal"] <- "DF"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Espírito Santo"] <- "ES"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Goiás"] <- "GO"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Maranhão"] <- "MA"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Mato Grosso"] <- "MT"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Mato Grosso do Sul"] <- "MS"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Minas Gerais"] <- "MG"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Pará"] <- "PA"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Paraíba"] <- "PB"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Paraná"] <- "PR"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Pernambuco"] <- "PE"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Piauí"] <- "PI"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Rio de Janeiro"] <- "RJ"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Rio Grande do Norte"] <- "RN"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Rio Grande do Sul"] <- "RS"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Rondônia"] <- "RO"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Roraima"] <- "RR"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Santa Catarina"] <- "SC"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "São Paulo"] <- "SP"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Sergipe"] <- "SE"
+table1_df$Unidade.federativa[table1_df$Unidade.federativa == "Tocantins"] <- "TO"
+
+colnames(table1_df)<- c("uf", "limite_cota")
+
+
+```
+
+Já importamos acima a tabela com os limites de despesas com a cota. Agora, precisamos inserir uma coluna com "UF" e "partido" no dataframe "cota2018".
+
+### USAR APENAS EM CASO DE COMPARAR COM O LIMITE DA COTA POR UF
+
+```{r}
+
+url_senador <- "https://www25.senado.leg.br/web/senadores/em-exercicio/-/e/por-nome"
+
+file_senador <- read_html(url_senador)
+tables_senador <- html_nodes(file_senador, "table")
+table1_senador <- html_table(tables_senador[1], fill = TRUE, header = T)
+
+table1_df_senador <- as.data.frame(table1_senador)
+
+colnames(table1_df_senador)<- c("uf", "limite_cota")
+
+table1_df_sem_acentuacao <- as.data.frame(iconv(table1_df_senador$nome_parlamentar, from = "UTF-8", to = "ASCII//TRANSLIT"))
+
+colnames(table1_df_sem_acentuacao) <- "senador_caps"
+table1_df_caps <- as.data.frame(toupper(table1_df_sem_acentuacao$senador_caps))
+
+arquivo_senado <- cbind(table1_df_senador, table1_df_caps)
+colnames(arquivo_senado)<- c("nome_parlamentar", "partido", "uf", "legislatura", "telefone", "email", "SENADOR")
+
+arquivo_senado$telefone <- NULL
+arquivo_senado$email <- NULL
+arquivo_senado$nome_parlamentar <- NULL
+arquivo_senado$legislatura <- NULL
+
+```
+
+
+```{r}
+url_senador_2 <- "https://www25.senado.leg.br/web/senadores/fora-de-exercicio/-/f/por-nome"
+
+
+file_senador_2 <- read_html(url_senador_2)
+tables_senador_2 <- html_nodes(file_senador_2, "table")
+table1_senador_2 <- html_table(tables_senador_2[1], fill = TRUE, header = T)
+
+table1_df_senador_2 <- as.data.frame(table1_senador_2)
+
+colnames(table1_df_senador_2)<- c("SENADOR", "partido", "uf", "motivo_afastamento")
+
+
+table1_df_sem_acentuacao_2 <- as.data.frame(iconv(table1_df_senador_2$SENADOR, from = "UTF-8", to = "ASCII//TRANSLIT"))
+
+colnames(table1_df_sem_acentuacao_2) <- "senador_caps"
+table1_df_caps_2 <- as.data.frame(toupper(table1_df_sem_acentuacao_2$senador_caps))
+
+arquivo_senado_2 <- cbind(table1_df_senador_2, table1_df_caps_2)
+colnames(arquivo_senado_2)<- c("nome_parlamentar", "partido", "uf", "motivo_afastamento", "SENADOR")
+
+arquivo_senado_2$motivo_afastamento <- NULL
+arquivo_senado_2$nome_parlamentar <- NULL
+
+```
+
+
+Acima nós importamos uma tabela do site do Senado, tiramos a acentuação e colocamos em CAPs. Abaixo nós vamos inserir algumas colunas desse dataframe em "cota2018".
+
+Vamos cruzar pela coluna "SENADOR", que consta nos dois arquivos.
+```{r}
+
+arquivo_senado_final <- bind_rows(arquivo_senado, arquivo_senado_2)
+
+merge_senado <- merge(x = arquivo_senado_final, y = cota2018, by = "SENADOR")
+```
+
+
+Calcular a relação entre as despesas e o total disponível por UF na cota. Quais senadores gastaram mais de 90% do total da cota disponível no respectivo estado?
+```{r}
+senador_cota2018 <- cota2018 %>%
+  group_by(SENADOR) %>%
+  summarise(total_cota = sum(VALOR_REEMBOLSADO))
+
+
+merge_limite_cota <- merge(x = senador_cota2018, y = arquivo_senado, by = "SENADOR")
+
+
+
+
+
+
+```
+
+Calcular a qual UF pertecem os senadores que tiveram os maiores gastos. São do AM? do AP? do PA?
+```{r}
+
+```
+
+Calcular a quais partidos pertecem os senadores que tiveram as maiores despesas. Qual é a média de gasto de um senador do PT na comparação com um senador do MDB, por exemplo?
+```{r}
+
+```
+
+
+```{r, echo=FALSE}
+url <- "http://www.online-image-editor.com//styles/2014/images/example_image.png"
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
