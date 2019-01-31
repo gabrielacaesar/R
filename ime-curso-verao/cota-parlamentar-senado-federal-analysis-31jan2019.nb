@@ -8,13 +8,13 @@ output:
     df_print: paged
 ---
 
-Este notebook se propıe a analisar os gastos dos senadores com a Cota para o ExercÌcio da Atividade Parlamentar (Ceap). Os dados usados neste projeto est„o disponÌveis no site do Senado Federal. 
+Este notebook se prop√µe a analisar os gastos dos senadores com a Cota para o Exerc√≠cio da Atividade Parlamentar (Ceap). Os dados usados neste projeto est√£o dispon√≠veis no site do Senado Federal. 
 
-Para todar cada trecho de cÛdigo, vocÍ deve clicar em 'run' no lado direito ou pressionar 'ctrl+shift+enter' dentro do cÛdigo. 
+Para rodar cada trecho de c√≥digo, voc√™ deve clicar em 'run' no lado direito ou pressionar 'ctrl+shift+enter' dentro do c√≥digo. 
 
-Abaixo, nÛs estamos carregando as bibliotecas necess·rias para esta an·lise. Caso nunca tenha trabalhado com elas, vocÍ precisar· instalar as bibliotecas com o comando "install.packages()".
+Abaixo, n√≥s estamos carregando as bibliotecas necess√°rias para esta an√°lise. Caso nunca tenha trabalhado com elas, voc√™ precisar√° instalar as bibliotecas com o comando "install.packages()".
 
-Link do que pode ser feito com esta an·lise:
+Link do que pode ser feito com esta an√°lise:
 1) https://g1.globo.com/politica/noticia/viagens-de-jatinho-flat-de-luxo-refeicao-de-r-1000-gastos-de-senadores-com-cota-parlamentar-chegam-a-r-266-milhoes-em-2017.ghtml
 
 2) http://especiais.g1.globo.com/politica/gastos-dos-senadores-em-2017/
@@ -26,9 +26,9 @@ library(ggplot2)
 library(dplyr)
 ```
 
-Definimos o diretÛrio em que vamos trabalhar e importamos o arquivo CSV. Ele recebeu na an·lise o nome 'cota2018'.
+Definimos o diret√≥rio em que vamos trabalhar e importamos o arquivo CSV. Ele recebeu na an√°lise o nome 'cota2018'.
 
-O arquivo que usamos est· neste link: https://www12.senado.leg.br/transparencia/dados-abertos-transparencia/dados-abertos-ceaps
+O arquivo que usamos est√° neste link: https://www12.senado.leg.br/transparencia/dados-abertos-transparencia/dados-abertos-ceaps
 
 
 ```{r}
@@ -37,13 +37,13 @@ cota2018 <- fread("cota-parlamentar-sf-31jan2018.csv", sep = ";")
 head(cota2018)
 ```
 
-Queremos analisar brevemente o arquivo importado. Por exemplo, quantas linhas o arquivo tem? Quantos senadores s„o mencionados? H· algum erro de digitaÁ„o nas colunas 'MES' e 'DATA'? Os valores de 'VALOR_REEMBOLSO' est„o como float?
+Queremos analisar brevemente o arquivo importado. Por exemplo, quantas linhas o arquivo tem? Quantos senadores s√£o mencionados? H√° algum erro de digita√ß√£o nas colunas 'MES' e 'DATA'? Os valores de 'VALOR_REEMBOLSO' est√£o como float?
 
 ```{r}
 summary(cota2018)
 ```
 
-Como n„o queremos trabalhar com o dataframe inteiro, vamos deletar as colunas "DOCUMENTO", "DETALHAMENTO" e "DATA".
+Como n√£o queremos trabalhar com o dataframe inteiro, vamos deletar as colunas "DOCUMENTO", "DETALHAMENTO" e "DATA".
 
 ```{r}
 
@@ -72,7 +72,7 @@ ggplot(data=cota2018, aes(cota2018$MES)) +
                  binwidth = 1,
                  fill = "green",
                  alpha = .2) +
-  labs(title = "N˙mero de pedidos de reembolso via Ceap no Senado em 2018", x = "MÍs", y = "N∫ de pedidos") +
+  labs(title = "N√∫mero de pedidos de reembolso via Ceap no Senado em 2018", x = "M√™s", y = "N¬∫ de pedidos") +
   scale_y_continuous(labels=function(y) format(y, big.mark = ".", scientific = FALSE))
 
 ```
@@ -84,7 +84,7 @@ typeof(cota2018$VALOR_REEMBOLSADO)
 ?as.double
 ```
 
-Como o 'valor do reembolso' est· em texto, nÛs vamos converter para n˙mero float/double.
+Como o 'valor do reembolso' est√° em texto, n√≥s vamos converter para n√∫mero float/double.
 
 
 ```{r}
@@ -99,7 +99,7 @@ sum(cota2018$VALOR_REEMBOLSADO)
 ```
 
 
-Abaixo nÛs vemos quais foram os gastos individuais mais altos em 2018. O valor mais alto foi de R$ 66 mil, com a contrataÁ„o da empresa "NC ComunicaÁ„o Visual Ltda"", na categoria "divulgaÁ„o da atividade parlamentar". O reembolso foi solicitado em dezembro pelo senador Eduardo Lopes (PRB-RJ). Veja abaixo os gastos mais altos de 2018:
+Abaixo n√≥s vemos quais foram os gastos individuais mais altos em 2018. O valor mais alto foi de R$ 66 mil, com a contrata√ß√£o da empresa "NC Comunica√ß√£o Visual Ltda"", na categoria "divulga√ß√£o da atividade parlamentar". O reembolso foi solicitado em dezembro pelo senador Eduardo Lopes (PRB-RJ). Veja abaixo os gastos mais altos de 2018:
 
 
 ```{r}
@@ -109,7 +109,7 @@ head(order_cota2018)
 
 ```
 
-Considerando esse mesmo dataframe, agora queremos identificar quais foram os menores gastos em 2018. Os menores valores registrados s„o de 1 centavo e fazem parte da categoria que abrange passagens ·ereas. Os senadores respons·veis s„o Jorge Viana (PT-AC) e D·rio Berger (MDB-SC).
+Considerando esse mesmo dataframe, agora queremos identificar quais foram os menores gastos em 2018. Os menores valores registrados s√£o de 1 centavo e fazem parte da categoria que abrange passagens √°ereas. Os senadores respons√°veis s√£o Jorge Viana (PT-AC) e D√°rio Berger (MDB-SC).
 
 ```{r}
 order_cota2018 <- cota2018[order(cota2018$VALOR_REEMBOLSADO, decreasing = FALSE),]
@@ -118,11 +118,11 @@ head(order_cota2018)
 ```
 
 
-Agora queremos saber quais foram os cinco senadores que mais gastaram durante o ano de 2018. E, depois, tambÈm os cinco que menos gastaram em 2018.
+Agora queremos saber quais foram os cinco senadores que mais gastaram durante o ano de 2018. E, depois, tamb√©m os cinco que menos gastaram em 2018.
 
 Para isso, vamos agrupar os valores por nome. Ou seja, todas as despesas de determinado senador devem ser somadas e apresentadas no nome dele.
 
-Abaixo vemos que os senadores Jo„o Capiberibe (PSB-AP) e Eduardo Braga (MDB-AM) foram os campeıes em despesas com a cota parlamentar.
+Abaixo vemos que os senadores Jo√£o Capiberibe (PSB-AP) e Eduardo Braga (MDB-AM) foram os campe√µes em despesas com a cota parlamentar.
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
@@ -134,11 +134,11 @@ senador_cota2018_desc <- senador_cota2018[order(senador_cota2018$total_cota, dec
 head(senador_cota2018_desc)
 ```
 
-Por outro lado, os senadores Ione Guimar„es (PTB-GO) e Cristovam Buarque (PPS-DF) foram os que apresentaram menos despesas com a cota parlamentar. 
+Por outro lado, os senadores Ione Guimar√£es (PTB-GO) e Cristovam Buarque (PPS-DF) foram os que apresentaram menos despesas com a cota parlamentar. 
 
-Ione Guimar„es È suplente de L˙cia V‚nia (PSB-GO) e ficou menos dias em exercÌcio do mandato.
+Ione Guimar√£es √© suplente de L√∫cia V√¢nia (PSB-GO) e ficou menos dias em exerc√≠cio do mandato.
 
-Note que o nosso dataframe apresenta 74 nomes, sendo que s„o 81 senadores. Possivelmente, algum senador optou por n„o usar a cota. … necess·ria uma apuraÁ„o para detectar os motivos.
+Note que o nosso dataframe apresenta 74 nomes, sendo que s√£o 81 senadores. Possivelmente, algum senador optou por n√£o usar a cota. √â necess√°ria uma apura√ß√£o para detectar os motivos.
 
 ```{r}
 senador_cota2018_asc <- senador_cota2018[order(senador_cota2018$total_cota, decreasing = FALSE),]
@@ -146,11 +146,11 @@ head(senador_cota2018_asc)
 
 ```
 
-# AN¡LISE POR CATEGORIA
+# AN√ÅLISE POR CATEGORIA
 
 Aplicamos um filtro por categoria para saber qual foi o senador que gastou mais naquela determina categoria. Fazemo isso com todas as categorias. 
 
-Primeiro, precisa saber quais categorias nÛs temos.
+Primeiro, precisa saber quais categorias n√≥s temos.
 
 ```{r}
 unique(cota2018$TIPO_DESPESA)
@@ -158,11 +158,11 @@ unique(cota2018$TIPO_DESPESA)
 ```
 
 ## CATEGORIA DA COTA
-### DIVULGA«√O DA ATIVIDADE PARLAMENTAR
+### DIVULGA√á√ÉO DA ATIVIDADE PARLAMENTAR
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
-  filter(TIPO_DESPESA == "DivulgaÁ„o da atividade parlamentar") %>%
+  filter(TIPO_DESPESA == "Divulga√ß√£o da atividade parlamentar") %>%
   group_by(SENADOR) %>%
   summarise(total_cota = sum(VALOR_REEMBOLSADO))
 
@@ -175,11 +175,11 @@ summary(senador_cota2018_cat1)
 ```
 
 ## CATEGORIA DA COTA
-### ALUGUEL DE ESCRIT”RIO POLÕTICO ETC
+### ALUGUEL DE ESCRIT√ìRIO POL√çTICO ETC
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
-  filter(TIPO_DESPESA == "Aluguel de imÛveis para escritÛrio polÌtico, compreendendo despesas concernentes a eles.") %>%
+  filter(TIPO_DESPESA == "Aluguel de im√≥veis para escrit√≥rio pol√≠tico, compreendendo despesas concernentes a eles.") %>%
   group_by(SENADOR) %>%
   summarise(total_cota = sum(VALOR_REEMBOLSADO))
 
@@ -193,11 +193,11 @@ summary(senador_cota2018_cat2)
 
 
 ## CATEGORIA DA COTA
-### PASSAGENS A…REAS ETC
+### PASSAGENS A√âREAS ETC
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
-  filter(TIPO_DESPESA == "Passagens aÈreas, aqu·ticas e terrestres nacionais") %>%
+  filter(TIPO_DESPESA == "Passagens a√©reas, aqu√°ticas e terrestres nacionais") %>%
   group_by(SENADOR) %>%
   summarise(total_cota = sum(VALOR_REEMBOLSADO))
 
@@ -214,7 +214,7 @@ summary(senador_cota2018_cat3)
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
-  filter(TIPO_DESPESA == "ContrataÁ„o de consultorias, assessorias, pesquisas, trabalhos tÈcnicos e outros serviÁos de apoio ao exercÌcio do mandato parlamentar") %>%
+  filter(TIPO_DESPESA == "Contrata√ß√£o de consultorias, assessorias, pesquisas, trabalhos t√©cnicos e outros servi√ßos de apoio ao exerc√≠cio do mandato parlamentar") %>%
   group_by(SENADOR) %>%
   summarise(total_cota = sum(VALOR_REEMBOLSADO))
 
@@ -227,11 +227,11 @@ summary(senador_cota2018_cat5)
 ```
 
 ## CATEGORIA DA COTA
-### ALIMENTA«√O, HOSPEDAGEM ETC
+### ALIMENTA√á√ÉO, HOSPEDAGEM ETC
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
-  filter(TIPO_DESPESA == "LocomoÁ„o, hospedagem, alimentaÁ„o, combustÌveis e lubrificantes") %>%
+  filter(TIPO_DESPESA == "Locomo√ß√£o, hospedagem, alimenta√ß√£o, combust√≠veis e lubrificantes") %>%
   group_by(SENADOR) %>%
   summarise(total_cota = sum(VALOR_REEMBOLSADO))
 
@@ -244,11 +244,11 @@ summary(senador_cota2018_cat6)
 ```
 
 ## CATEGORIA DA COTA
-### DESPESAS POSTAIS, MATERIAL DE ESCRIT”RIO ETC
+### DESPESAS POSTAIS, MATERIAL DE ESCRIT√ìRIO ETC
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
-  filter(TIPO_DESPESA == "AquisiÁ„o de material de consumo para uso no escritÛrio polÌtico, inclusive aquisiÁ„o ou locaÁ„o de software, despesas postais, aquisiÁ„o de publicaÁıes, locaÁ„o de mÛveis e de equipamentos. ") %>%
+  filter(TIPO_DESPESA == "Aquisi√ß√£o de material de consumo para uso no escrit√≥rio pol√≠tico, inclusive aquisi√ß√£o ou loca√ß√£o de software, despesas postais, aquisi√ß√£o de publica√ß√µes, loca√ß√£o de m√≥veis e de equipamentos. ") %>%
   group_by(SENADOR) %>%
   summarise(total_cota = sum(VALOR_REEMBOLSADO))
 
@@ -261,11 +261,11 @@ summary(senador_cota2018_cat7)
 ```
 
 ## CATEGORIA DA COTA
-### SEGURAN«A PRIVADA 
+### SEGURAN√áA PRIVADA 
 
 ```{r}
 senador_cota2018 <- cota2018 %>%
-  filter(TIPO_DESPESA == "ServiÁos de SeguranÁa Privada" ) %>%
+  filter(TIPO_DESPESA == "Servi√ßos de Seguran√ßa Privada" ) %>%
   group_by(SENADOR) %>%
   summarise(total_cota = sum(VALOR_REEMBOLSADO))
 
@@ -295,7 +295,7 @@ head(empresa_cota2018)
 
 ```
 
-E tambÈm podemos fazer a busca pelo CNPJ, com a coluna "CNPJ_CPF".
+E tamb√©m podemos fazer a busca pelo CNPJ, com a coluna "CNPJ_CPF".
 
 ```{r}
 empresa_cota2018_2 <- cota2018 %>%
@@ -309,10 +309,10 @@ head(empresa_cota2018_2)
 ```
 
 A quem pertece o CPNJ_CPF que mais recebeu dinheiro via Ceap no Senado em 2018?
-Podemos pesquisar esse CNPJ_CPF no dataframe original. H· um lugar para a busca.
+Podemos pesquisar esse CNPJ_CPF no dataframe original. H√° um lugar para a busca.
 
 
-Temos um scatterplot com todos os pedidos de reembolso? Quais s„o os outliers? 
+Temos um scatterplot com todos os pedidos de reembolso? Quais s√£o os outliers? 
 ```{r}
 
 scatterplot_cota2018 <- ggplot(cota2018, aes(x = cota2018$TIPO_DESPESA,
@@ -321,7 +321,7 @@ scatterplot_cota2018 <- ggplot(cota2018, aes(x = cota2018$TIPO_DESPESA,
   geom_point(alpha = 0.5, size = 3.5) +
   labs(y = "Valor reembolsado (em R$)", caption = "Fonte: Senado Federal", 
        title = "Despesas de senadores com a cota parlamentar em 2018",
-       subtitle = "DistribuiÁ„o mostra despesas, em R$, por categoria de gasto",
+       subtitle = "Distribui√ß√£o mostra despesas, em R$, por categoria de gasto",
        family = "Open Sans") +
   theme(legend.position = "none",
         axis.title.x = element_blank())
