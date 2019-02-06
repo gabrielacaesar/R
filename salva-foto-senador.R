@@ -41,25 +41,25 @@ setwd("~/Downloads/senadores-new")
 
 
 ######################### loop
-  
+
 i <- 1
 while(1 <= 81){
   tryCatch({
-# defining the row of each senator
-  foto_webpage <- data.frame(links_senador$links[i])
-# renaming the column's name
-  colnames(foto_webpage) <- "links" 
-# getting all images of html page
-# filtering the photo which we want
-  html <- as.character(foto_webpage$links) %>%
-    httr::GET() %>%
-    xml2::read_html() %>%
-    rvest::html_nodes("img") %>%
-    map(xml_attrs) %>%
-    map_df(~as.list(.)) %>%
-    filter(src %like% "senadores/img/fotos-oficiais/") %>%
-    as.data.frame(html)
-# downloading the photo
+    # defining the row of each senator
+    foto_webpage <- data.frame(links_senador$links[i])
+    # renaming the column's name
+    colnames(foto_webpage) <- "links" 
+    # getting all images of html page
+    # filtering the photo which we want
+    html <- as.character(foto_webpage$links) %>%
+      httr::GET() %>%
+      xml2::read_html() %>%
+      rvest::html_nodes("img") %>%
+      map(xml_attrs) %>%
+      map_df(~as.list(.)) %>%
+      filter(src %like% "senadores/img/fotos-oficiais/") %>%
+      as.data.frame(html)
+    # downloading the photo
     foto_senador <- html$src
     download.file(foto_senador, basename(foto_senador), mode = "wb", header = TRUE)
     Sys.sleep(5)
@@ -67,7 +67,7 @@ while(1 <= 81){
   )
   i <- i + 1
 }
-  
+
 
 ################### renomear as fotos
 
@@ -112,6 +112,12 @@ colnames(table_dfs_final)[2] <- "id_senador"
 
 ################# renomeando os arquivos
 
+setwd("~/Downloads/senadores-new")
+
+changeName<- function(old_name, new_name){
+  
+  file.rename(paste0(old_name,'.jpg'), paste0(new_name,'.jpg'))
+}
 
 
-# continuar
+mapply(changeName, table_dfs_final$id_senador,table_dfs_final$name_lower)
