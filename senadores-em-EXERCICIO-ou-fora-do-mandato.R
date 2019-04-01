@@ -38,7 +38,7 @@ table1_df$Correio.Eletrônico <- NULL
 
 # ETAPA 2
 ## trocar "REDE" por "Rede"
-## Avante e SD, por exemplo, não têm representação na Câmara
+## Avante e SD, por exemplo, não têm representação no Senado
 
 colnames(table1_df)<- c("nome_parlamentar", "partido", "uf")
 
