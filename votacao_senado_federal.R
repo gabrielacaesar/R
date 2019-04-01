@@ -1,21 +1,22 @@
-
-
-
-
-
+###############################
+# Importamos os dados de uma votação no Senado
+# Fazemos o download dos dados e separamos as colunas
+# Normalizamos os posicionamentos
+# Criamos uma coluna com CAPS e sem acentuação
+# Cruzamos com a tabela-mãe para pegar partido e UF
+# Fazemos o download do arquivo
+###############################
 
 ## Importamos as bibliotecas
 library(rvest)
 library(data.table)
 library(xlsx)
 library(dplyr)
-install.packages("dplyr")
-install.packages("tidyr")
 library(tidyr)
 
 # ETAPA 1
 ## Capturamos a tabela do HTML
-## Eliminamos as colunas desnecess�rias
+## Eliminamos as colunas desnecessárias
 
 url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/votacao/2478375"
 
@@ -37,7 +38,7 @@ votos_senado$voto[votos_senado$voto == "Sim"] <- "sim"
 votos_senado$voto[votos_senado$voto == "NCom"] <- "ausente"
 votos_senado$voto[votos_senado$voto == "MIS"] <- "ausente"
 votos_senado$voto[votos_senado$voto == "AP"] <- "ausente"
-votos_senado$voto[votos_senado$voto == "N�o"] <- "nao"
+votos_senado$voto[votos_senado$voto == "Não"] <- "nao"
 votos_senado$voto[votos_senado$voto == "Presidente (art. 51 RISF)"] <- "art17"
 
 votos_sem_acentuacao <- as.data.frame(iconv(votos_senado$nome, to = "ASCII//TRANSLIT"))
