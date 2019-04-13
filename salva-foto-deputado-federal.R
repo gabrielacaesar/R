@@ -112,8 +112,3 @@ for (p in photos) {
   cat("renaming", basename(p), "to", name, "\n")
 }
 
-
-### em andamento
-# falta descobrir quais deputados tiveram erro na foto
-# temos 271 fotos neste momento
-## à espera de câmara dos deputados subir as demais fotos
