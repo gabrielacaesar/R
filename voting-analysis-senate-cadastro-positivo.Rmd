@@ -1,0 +1,252 @@
+---
+title: "Voting analysis"
+author: "Gabriela Caesar"
+date: "15 de abril de 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Cadastro positivo no Senado
+
+Este trabalho se propõe a analisar a votação do cadastro positivo no Senado Federal. Os senadores votaram a proposição no plenário da Casa em 13 de março de 2019. 
+
+Na época, o projeto já tinha sido aprovado na Câmara. Em xxx, a proposição foi sancionada pelo presidente Jair Bolsonaro e virou a lei xxxx. 
+
+### Etapa 1: carregar as bibliotecas
+
+Primeiro, vamos carregar as bibliotecas que serão necessárias nesta análise.
+
+```{r cars}
+#install.packages("data.table")
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("ggplot2")
+
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+```
+
+### Etapa 2: importar o arquivo
+
+Informamos o link do nosso arquivo, que contém os dados coletados do site do Senado. O arquivo é importado para o início da análise.
+
+```{r}
+
+voting <- fread("https://gist.githubusercontent.com/gabrielacaesar/021ac23cb7027cf2f80e9e2634ebadf9/raw/c24bb21e0e868ceea617e300b3385ae995846367/cadastro-positivo-votacao-senado")
+
+```
+
+### Etapa 3: conhecer o arquivo importado
+
+Abaixo constam informações básicas referentes ao arquivo importado.
+
+```{r}
+summary(voting)
+```
+
+### Etapa 4: eliminar colunas excessivas
+
+Como algumas colunas não são necessárias para a nossa análise, vamos reduzir o tamanho do arquivo e deletar as colunas abaixo. 
+
+Também vamos ver as primeiras linhas do nosso arquivo após essa mudança.
+
+```{r}
+voting$permalink <- NULL
+voting$nome_politico <- NULL
+voting$id_proposicao <- NULL
+voting$id_politico <- NULL
+
+head(voting)
+```
+
+### Etapa 5: conhecer melhor o arquivo
+Quais são as variáveis dentro da coluna que indica o voto de cada senador? Abaixo vemos que há quatro opções nesta votação: sim, não, ausente e art17.
+
+Artigo 17 se refere ao fato de o presidente da sessão não votar.
+
+```{r}
+unique(voting$voto)
+
+```
+
+### Etapa 6: analisar melhor a coluna
+Quantos votos determinada variável teve?
+
+```{r}
+length(which(voting$voto == "sim"))
+
+```
+
+### Etapa 7: descobrir o resultado final
+E se quiséssemos saber a ocorrência de todas as variáveis?
+
+Criamos uma coluna chamada "integer" (ou "inteiro") que recebe o valor "1" em cada linha. Assim, essa coluna vai nos ajudar no agrupamento, já que cada voto tem o peso "1".
+
+```{r}
+voting$integer <- 1
+
+df <- voting %>%
+      dplyr::group_by(voto) %>%
+      summarise(nvoto = sum(integer))
+
+df
+
+```
+
+### Etapa 8: verificar quais são os ausentes
+E se, apenas agora, quisermos saber quem são os senadores que estão em determinada categoria?
+
+```{r}
+
+ausentes <- voting %>%
+  filter(voto == "ausente")
+
+ausentes
+
+```
+
+### Etapa 9: agrupar os votos por UF
+E se quiséssemos informar os votos por UF? 
+
+Lembramos que cada UF tem o mesmo número de senadores: três.
+
+```{r}
+
+voting_uf <- voting %>%
+      dplyr::group_by(uf, voto) %>%
+      summarise(nvoto = sum(integer))
+
+voting_uf
+
+```
+
+### Etapa 10: fazer um gráfico com os votos por UF
+Agora usamos a biblioteca ggplot2 e montamos um gráfico de barras na horizontal que mostra como cada UF votou no projeto.
+
+Identificamos, por exemplo, que 2/3 dos senadores do Acre estavam ausentes na votação.
+
+E também que 2/3 dos senadores de Goiás votaram contra a proposição.
+
+```{r}
+
+chart_uf <- ggplot(data=voting_uf, aes(x=uf,y=nvoto,fill=voto)) +
+            geom_bar(stat="identity") + 
+            coord_flip() +
+            ggtitle("Votação do cadastro positivo no Senado por UF")
+
+chart_uf
+
+```
+
+### Etapa 11: agrupar os votos por partido
+Queremos fazer esse mesmo procedimento só que, em vez de considerarmos a bancada por UF, nós vamos considerar a bancada do partido.
+
+
+```{r}
+
+voting_party <- voting %>%
+      dplyr::group_by(partido, voto) %>%
+      summarise(nvoto = sum(integer))
+
+voting_party
+
+```
+
+### Etapa 12: fazer um gráfico com os votos por partido
+
+```{r}
+chart_party <- ggplot(data=voting_party, aes(x=partido,y=nvoto,fill=voto)) +
+            geom_bar(stat="identity") + 
+            coord_flip() +
+            ggtitle("Votação do cadastro positivo no Senado por partido")
+
+chart_party
+
+```
+
+
+## Etapa 13: calcular o número de senadores que votaram "sim"
+Ainda vamos continuar trabalhando com os dados por bancada. 
+
+Agora, porém, nós queremos saber agora quantos votos senadores de cada partido votaram "sim".
+
+```{r}
+voting_yes <- voting %>%
+      filter(voto == "sim") %>%
+      dplyr::group_by(partido, voto) %>%
+      summarise(nvoto = sum(integer))
+
+sum(voting_yes$nvoto)
+
+voting_yes
+```
+
+## Etapa 14: calcular o número de senadores por partido
+
+Agora que já sabemos quantos senadores votaram sim em cada partido, nós também precisamos saber quanto isso representa considerando o total da bancada.
+
+Abaixo sabemos o tamanho de cada bancada.
+
+```{r}
+voting_perc <- voting %>%
+      dplyr::group_by(partido) %>%
+      summarise(nvoto = sum(integer))
+
+sum(voting_perc$nvoto)
+
+voting_perc
+```
+
+## Etapa 5: unir dois dataframes
+
+Agora que temos os dois dataframes nós vamos unificá-los em apenas um arquivo. Vamos usar a coluna "partido" para isso.
+
+Depois, criamos a coluna para indicar o percentual de adesão ao "sim".
+
+
+```{r}
+
+voting_yes_party <- merge(voting_yes, voting_perc, by = "partido")
+
+colnames(voting_yes_party) <- c("partido", "voto", "nvoto", "bancada")
+
+voting_yes_party$perc_sim <- (voting_yes_party$nvoto/voting_yes_party$bancada) * 100
+
+
+```
+
+## Etapa 16: ordenar do maior para o menor
+
+E, daí, colocamos em ordem decrescente para saber qual partido teve a maior adesão.
+
+No total, 100% de sete partidos votaram "sim". Considerando o partido com a maior bancada, a adesão maior foi do Podemos.
+
+Já o PROS deve a menor adesão.
+
+```{r}
+
+voting_yes_party <- voting_yes_party[order(-voting_yes_party$perc_sim),]
+
+voting_yes_party
+
+```
+
+## Etapa 17: fazer um gráfico com a adesão de partidos
+
+Do total de senadores em cada partido, quantos votaram "sim"?
+
+```{r}
+chart_yes_party <- ggplot(voting_yes_party, aes(partido, perc_sim)) +
+        geom_bar(stat = "identity") +
+        coord_flip() +
+        ggtitle("Adesão por partido ao 'sim' no cadastro positivo no Senado")
+
+chart_yes_party
+```
+
