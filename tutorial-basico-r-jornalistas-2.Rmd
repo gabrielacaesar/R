@@ -1,0 +1,153 @@
+---
+title: "Funções básicas do R para jornalistas - 2"
+author: "Gabriela Caesar"
+date: "3 de maio de 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Tutorial 2
+
+Este caderno mostra as funções básicas da linguagem de programação R que podem ser úteis para jornalistas. Anteriormente, eu fiz tutoriais com o [básico do Google Spreadsheet para jornalista](https://medium.com/@gabrielacaesar/o-b%C3%A1sico-de-google-spreadsheet-para-jornalistas-fun%C3%A7%C3%B5es-matem%C3%A1ticas-e3b87e5371d6).
+
+Caso você não tenha o RStudio na sua máquina, por favor siga o passo a passo deste tutorial (em inglês) para [Mac](https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-mac-e911606ce4f4) e [Windows](https://medium.com/@GalarnykMichael/install-r-and-rstudio-on-windows-5f503f708027). Também recomendo que você baixe um editor de texto, como o [Sublime](https://www.sublimetext.com/3).
+
+Cada bloco de código, também chamado de “chunk”, tem uma função diferente. Para criar um arquivo `"R Markdown"`, assim como este caderno, abra o RStudio, clique em `"File" > "New File" > "R Markdown"`. Ou, se não for escrever muito, crie um `"R Script"`.
+
+Para rodar o código, selecione o trecho e clique em `command + enter` no Mac (ou `CTRL + enter` no Windows). No `"R Markdown"`, também é possível clicar na seta verde à direita.
+
+São, no total, três cadernos de R para jornalistas:
+
+[Instalação, leitura e verificação](https://rpubs.com/gcaesar/492111);
+Limpeza, renomeações e modificações (este post);
+Análise de dados e criação de gráficos (em breve).
+
+## Carregar bibliotecas
+Desta vez, nós não precisamos instalar as bibliotecas, com `install.packages()` porque já fizemos esse procedimento na primeira etapa do tutorial. Agora, apenas vamos "chamar" as bibliotecas.
+
+```{r message=FALSE}
+library(data.table)
+library(tidyverse)
+library(ggplot2)
+```
+
+## Importar o arquivo
+Como estamos trabalhando noutro caderno - e o arquivo ainda não foi "chamado" aqui -, nós também precisamos repetir esse procedimento. Vamos escolher o nome "cota_senado" para chamar o nosso arquivo que está hospedado no link mencionado no bloco de código abaixo.
+
+```{r}
+cota_senado <- fread("https://gist.githubusercontent.com/gcaesar27/5faede8c1c6ffc82c7145dc3ececcbfe/raw/f3192ff17214c3c5d8eca4ebad42ba6f70d409aa/cota-senado-30-abril-2019", encoding = "UTF-8")
+```
+
+## Deletar coluna
+Nós queremos deletar uma das colunas do nosso arquivo. Por isso, vamos rodar o código abaixo. Logo depois, nós vamos rodar o `colnames(cota_senado)` para confirmar que a coluna foi removida.
+
+```{r}
+cota_senado$DOCUMENTO <- NULL
+
+colnames(cota_senado)
+```
+
+## Criar coluna
+Da mesma forma, nós também podemos criar uma coluna. Como estamos na parte introdutória do R, todos os valores da nova coluna serão iguais. A nova coluna se chama "CASA" e recebe o valor "SENADO FEDERAL".
+
+Também vamos rodar `colnames(cota_senado)` para confirmar que a nova coluna foi criada.
+```{r}
+cota_senado$CASA <- "SENADO FEDERAL"
+
+colnames(cota_senado)
+```
+
+## Contar linhas
+A função `nrows()` xxxx
+```{r}
+
+```
+
+## Mudar a classe
+Quando importamos o arquivo, a gente não informou as classes de cada coluna. Identificamos na primeira etapa do tutorial, porém, que a coluna "VALOR_REEMBOLSADO" foi registrada como "character" (ou seja, texto). Agora queremos convertê-la para número.
+
+Por isso, usaremos a função `as.numeric()` e depois verificamos a classe da coluna com `typeof()`.
+
+```{r}
+cota_senado$VALOR_REEMBOLSADO <- as.numeric(cota_senado$VALOR_REEMBOLSADO)
+
+typeof(cota_senado$VALOR_REEMBOLSADO)
+```
+
+## Somar valores
+
+```{r}
+
+```
+
+## Colocar em caixa baixa
+A função `tolower()` coloca todo o texto em caixa baixa. Para mostrar como funciona, vamos aplicar essa função à coluna "SENADOR", que no arquivo importado tem os valores em caixa alta.
+
+Podemos criar uma nova coluna com os valores em caixa baixa ou sobrescrever aquela coluna. Aqui, optamos por criar uma nova coluna. Usamos a função `head(cota_senado, 3)` em seguida para verificar o arquivo.
+```{r}
+cota_senado$senador_lower <- tolower(cota_senado$SENADOR)
+
+head(cota_senado, 3)
+```
+
+## Colocar em caixa alta
+Vemos que a coluna "FORNECEDOR" tem valores que são em caixa alta e baixa, outros apenas em caixa alta e várias despadronizações. Por isso, vamos usar a função `toupper()` para colocar todo o texto em caixa alta. 
+
+Vamos sobrescrever a coluna "FORNECEDOR" e colocar tudo em caixa alta. Usamos a função `head(cota_senado, 3)` em seguida para verificar o arquivo.
+```{r}
+cota_senado$FORNECEDOR <- toupper(cota_senado$FORNECEDOR)
+
+head(cota_senado, 3)
+```
+
+## Tirar a acentuação
+Também para ajudar na padronização, nós ainda vamos tirar a acentuação de todos os valores da coluna "FORNECEDOR". 
+
+Perceba, porém, que a coluna "CNPJ_CPF" pode ser mais valiosa para a análise, considerando que é mais fácil que várias pessoas tenham digitado os números de forma padronizada do que os nomes.
+
+```{r}
+
+```
+
+## Juntar dois (ou mais) arquivos
+
+```{r}
+
+```
+
+## Empilhar dois (ou mais) arquivos
+
+O TSE, por exemplo, costuma divulgar vários arquivos, sendo que cada um se refere a uma UF. Para juntar todos esses arquivos em apenas um único arquivo, a função xxx é a indicada.
+
+```{r}
+
+```
+
+## Separar em duas (ou mais) colunas
+A coluna "DATA" tem o seguinte formato: dia/mês/ano. Queremos criar uma coluna apenas com o valor do dia. Outra que tenha apenas o valor do mês. E a terceira com o valor do ano. O separador, no caso, é "/". 
+
+Como queremos manter a atual coluna "DATA", a gente também xxx.
+```{r}
+
+```
+
+## Unir em uma única coluna
+Caso quiséssemos fazer o procedimento contrário - juntar várias colunas em apenas uma única -, a gente faria assim:
+```{r}
+
+```
+
+## Transformar linhas em colunas
+
+```{r}
+
+```
+
+## Transformar colunas em linhas
+
+```{r}
+
+```
