@@ -1,15 +1,13 @@
 ---
 title: "Funções básicas do R para jornalistas - 2"
 author: "Gabriela Caesar"
-date: "7 de maio de 2019"
+date: "2019-05-07"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ## Tutorial 2
+
+
 
 Este caderno mostra as funções básicas da linguagem de programação R que podem ser úteis para jornalistas. Anteriormente, eu fiz tutoriais com o [básico do Google Spreadsheet para jornalista](https://medium.com/@gabrielacaesar/o-b%C3%A1sico-de-google-spreadsheet-para-jornalistas-fun%C3%A7%C3%B5es-matem%C3%A1ticas-e3b87e5371d6).
 
@@ -80,6 +78,7 @@ O nosso arquivo usa o padrão brasileiro de separar os reais dos centavos com v�
 ```{r}
 cota_senado$VALOR_REEMBOLSADO <- gsub("\\,", ".", cota_senado$VALOR_REEMBOLSADO)
 
+head(cota_senado$VALOR_REEMBOLSADO)
 ```
 
 ## Mudar a classe
