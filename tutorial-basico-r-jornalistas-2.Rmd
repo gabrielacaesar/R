@@ -38,7 +38,7 @@ library(tidyverse)
 library(ggplot2)
 ```
 
-## Importar e verificar o arquivo
+## Importar e ver as colunas
 Como estamos trabalhando noutro caderno - e o arquivo ainda não foi "chamado" aqui -, nós também precisamos repetir esse procedimento, com `fread()`. Vamos escolher o nome "cota_senado" para chamar o nosso arquivo que está hospedado no link mencionado no bloco de código abaixo.
 
 Para saber quais são as colunas do nosso arquivo, usamos depois a função `colnames()`.
