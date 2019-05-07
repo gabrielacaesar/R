@@ -186,7 +186,7 @@ head(cota_senado_final)
 ## Unir em uma única coluna
 Caso quiséssemos fazer o procedimento contrário - juntar várias colunas em apenas uma única -, a gente usaria a função `unite`. A gente informou o nome da nova coluna, "DATA_NEW", depois os nomes das colunas que vão se juntar e também o separador dos valores ("-"). 
 
-Desta vez, optamos por não informar se queremos ou não manter as colunas "DIA", "MES" e "ANO", então o que vale é o padrão. Por padrão, o "remove = TRUE". Isso é sempre claro na documentação do R. Você pode digitar no console `?unite` ou pesquisar no site [www.rdocumentation.org](www.rdocumentation.org).
+Desta vez, optamos por não informar se queremos ou não manter as colunas "DIA", "MES" e "ANO", então o que vale é o padrão. Por padrão, o "remove = TRUE". Isso é sempre claro na documentação do R, que pode ser acessada ao digitar no console `?unite` ou ao pesquisar no site [www.rdocumentation.org](www.rdocumentation.org).
 
 ```{r}
 cota_senado_final <- unite(cota_senado_final, "DATA_NEW", c("DIA", "MES", "ANO"), sep = "-")
