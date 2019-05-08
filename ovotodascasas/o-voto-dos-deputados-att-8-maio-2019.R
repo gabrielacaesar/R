@@ -150,14 +150,14 @@ votacao_final$permalink <- "projeto-sobre-alguma-coisa-2-turno"
 colnames(votacao_final) <- c("nome_upper", "voto", "partido", "uf", "nome_politico", "id_politico",
                              "id_proposicao", "proposicao", "permalink")
 
-#17. definir a ordem das colunas
+#18. definir a ordem das colunas
 
 votacao_final <- votacao_final %>% 
   select("id_proposicao", "proposicao", "partido", "id_politico", 
          "nome_upper", "nome_politico", "uf", "voto", "permalink") %>% 
   arrange(nome_upper)
 
-#18. fazer o download
+#19. fazer o download
 
 write.csv(votacao_final, "votacao_final.csv")
 
