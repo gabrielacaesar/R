@@ -26,7 +26,7 @@ library(foreign)
 
 #3. importar o arquivo novo de votação
 setwd("~/Downloads/")
-votacao_nova_dbf <- read.dbf("CD190095.dbf")
+votacao_nova_dbf <- read.dbf("CD190102.dbf")
 
 
 #4. mudar os nomes de colunas
@@ -117,7 +117,7 @@ votacao_nova_dbf$nome_upper <- as.character(votacao_nova_dbf$nome_upper)
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "PROFESSORA DORINHA SEABRA REZEN"] <- "PROFESSORA DORINHA SEABRA REZENDE"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "CHICO D`ANGELO"] <- "CHICO D'ANGELO"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "LUIZ PHILIPPE DE ORLEANS E BRAG"] <- "LUIZ PHILIPPE DE ORLEANS E BRAGANCA"
-  
+
 #11. fazer novamente o left_join
 
 joined_data_2 <- left_join(votacao_nova_dbf, id_politicos, by = "nome_upper")
@@ -133,22 +133,22 @@ setdiff(A, B)
 votacao_final <- joined_data_2 %>% 
   select("nome_upper", "voto", "partido.x", "uf.x", "nome", "id")
 
-#14. inserir coluna com o ID da proposição
+#14. renomear as colunas
 
-votacao_final$id_proposicao <- "999"
+colnames(votacao_final) <- c("nome_upper", "voto", "partido", "uf", "nome_politico", "id_politico")
 
-#15. inserir coluna com o nome da proposição
+#15. inserir coluna com o ID da proposição
 
-votacao_final$proposicao <- "PEC-123-2019-2t"
+votacao_final$id_proposicao <- "4"
 
-#16. inserir coluna com o permalink da proposição
+#16. inserir coluna com o nome da proposição
 
-votacao_final$permalink <- "projeto-sobre-alguma-coisa-2-turno"
+votacao_final$proposicao <- "PLP55-2019"
 
-#17. renomear as colunas
+#17. inserir coluna com o permalink da proposição
 
-colnames(votacao_final) <- c("nome_upper", "voto", "partido", "uf", "nome_politico", "id_politico",
-                             "id_proposicao", "proposicao", "permalink")
+votacao_final$permalink <- "prorrogacao-de-beneficios-fiscais-a-igrejas-e-instituicoes-beneficentes"
+
 
 #18. definir a ordem das colunas
 
@@ -160,5 +160,3 @@ votacao_final <- votacao_final %>%
 #19. fazer o download
 
 write.csv(votacao_final, "votacao_final.csv")
-
-
