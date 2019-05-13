@@ -39,7 +39,7 @@ votacao_nova_dbf$voto[votacao_nova_dbf$voto == "SIM"] <- "sim"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "NAO"] <- "nao"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "OBSTRUCAO"] <- "obstrucao"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "ABSTENCAO"] <- "abstencao"
-votacao_nova_dbf$voto[votacao_nova_dbf$voto == "ART. 17"] <- "art17"
+votacao_nova_dbf$voto[votacao_nova_dbf$voto == "ART. 17"] <- "naovotou"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "<------->"] <- "ausente"
 
 unique(votacao_nova_dbf$voto)
