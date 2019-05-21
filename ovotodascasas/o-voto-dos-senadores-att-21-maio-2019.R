@@ -38,7 +38,7 @@ setwd("~/Downloads/")
 votacao_pdf <- extract_tables("documento-votacoes-senado-pdf-gabrielacaesar-21maio2019.pdf", encoding = "UTF-8")
 
 # 4. PROCESSO PARA CADA PÁGINA: 
-# pegar tabela, renomear header, deletar primeira linha
+# pegar tabela, renomear header, deletar primeira linha e segunda coluna
 
 nome_colunas <- c("nome_politico", "blank", "uf", "partido", "voto")
 
