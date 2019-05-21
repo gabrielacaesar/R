@@ -62,7 +62,7 @@ colnames(table_4) <- nome_colunas
 table_4 = table_4[-1,]
 table_4 <- table_4[,-2]
 
-# 5. transformar em tibble
+# 5. transformar em data frame
 
 table_1 <- as.data.frame(table_1)
 table_2 <- as.data.frame(table_2)
