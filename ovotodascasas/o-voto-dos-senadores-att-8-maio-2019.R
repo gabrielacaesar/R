@@ -101,8 +101,7 @@ joined_data <- left_join(votacao_nova_final, id_politicos, by = "nome_upper")
 # OBS: Ao abrir o 'joined_data', nós ordenamos e vemos quais são os casos.
 # Abaixo, fazemos a correção no arquivo original das correções.
 
-# ** APENAS SE NECESSÁRIO
-
+View(joined_data)
 
 #10. fazer novamente o left_join (CASO NECESSÁRIO)
 
