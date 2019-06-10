@@ -1,22 +1,201 @@
 #install.packages("tidyverse")
 #install.packages("dplyr")
 #install.packages("data.table")
+#install.packages("scales")
+
 library(tidyverse)
 library(dplyr)
 library(data.table)
+library(scales)
 
 setwd("~/Downloads/")
 
+# reading file
 df <- fread("orgaos-provisorios-levantamento-extracao-em-6-jun-2019.csv", encoding = "UTF-8")
 
+# renaming columns
 colnames(df) <- c("esfera", "partido", "tipo_orgao", "uf", "municipio", 
                "inicio_vigencia", "fim_vigencia", "situacao", "situacao_vigencia")
 
+#################################
+# 1a - Dados totais
 
-# 1 - Dados municipais + TOTAL
-# Um df em que tenhamos as seguintes colunas: 
-# partido, número de órgãos definitivos, número de órgãos provisórios,
-# número de comissões executivas e número de comissões interventoras.
+# filtering for valid rows
+df_total <- df %>%
+  dplyr::filter(situacao_vigencia == "Vigente") %>%
+  separate(partido, c("nome_partido", "sigla_partido"), sep = " - ")
+
+# renaming parties
+df_total$nome_partido[df_total$nome_partido == "NOVO"] <- "Novo"
+df_total$nome_partido[df_total$nome_partido == "PATRIOTA"] <- "Patriota"
+df_total$nome_partido[df_total$nome_partido == "AVANTE"] <- "Avante"
+df_total$nome_partido[df_total$nome_partido == "SOLIDARIEDADE"] <- "SD"
+df_total$nome_partido[df_total$nome_partido == "PCDOB"] <- "PCdoB"
+df_total$nome_partido[df_total$nome_partido == "REDE"] <- "Rede"
+
+# tidying df
+df_total_2 <- df_total %>%
+  group_by(tipo_orgao, nome_partido) %>%
+  summarise(int = n()) %>%
+  spread(tipo_orgao, int) %>%
+  `colnames<-`(c("nome_partido", "comissao_executiva", "comissao_interventora", "orgao_definitivo", "orgao_provisorio"))
+
+# adding 0 instead of NA
+df_total_2$comissao_executiva[is.na(df_total_2$comissao_executiva)] <- 0
+df_total_2$comissao_interventora[is.na(df_total_2$comissao_interventora)] <- 0
+df_total_2$orgao_definitivo[is.na(df_total_2$orgao_definitivo)] <- 0
+df_total_2$orgao_provisorio[is.na(df_total_2$orgao_provisorio)] <- 0
+
+# creating columns for perc
+df_total_3 <- df_total_2 %>%
+  mutate(total = comissao_executiva + comissao_interventora + orgao_definitivo + orgao_provisorio) %>%
+  mutate(comissao_executiva_perc = (comissao_executiva / total) * 100) %>%
+  mutate(comissao_interventora_perc = (comissao_interventora / total) * 100) %>%
+  mutate(orgao_definitivo_perc = (orgao_definitivo / total) * 100) %>%
+  mutate(orgao_provisorio_perc = (orgao_provisorio / total) * 100)
+
+
+# 1b - Gráfico com dados totais
+df_total_chart <- df_total %>%
+  #filter(tipo_orgao != "Comissão executiva", tipo_orgao != "Comissão interventora") %>%
+  group_by(tipo_orgao, nome_partido) %>%
+  summarise(int = n()) %>%
+  ungroup() %>%
+  arrange(tipo_orgao) %>%
+  group_by(nome_partido) %>%
+  mutate(n_total = sum(int))
+
+df_total_plot <- ggplot(df_total_chart, aes(x = reorder(nome_partido, n_total), y = int, fill = tipo_orgao, width = 0.8)) + 
+  geom_bar(stat = "identity") +
+  coord_flip() + 
+  scale_fill_manual("tipo_orgao", values = c("Comissão executiva" = "#EECCCC", "Comissão interventora" = "#7E0F08", 
+                                             "Órgão definitivo" = "#CB6666", "Órgão provisório" = "#A80000"),
+                                            guide = guide_legend(reverse = TRUE)) + 
+  scale_y_continuous(labels=function(x) format(x, big.mark = ".", scientific = FALSE)) +
+  labs(title = "Nº de diretórios definitivos e comissões provisórias no Brasil",
+      subtitle = "Estrutura temporária é predominante em xx partidos; especialistas 
+dizem que comissões provisórias são 'menos democráticas'",
+      caption = "Fonte: TSE") +
+  theme(text = element_text(family = "Open Sans"),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        legend.title = element_blank(),
+        legend.key.size = unit(0.8, "line"),
+        plot.title = element_text(size = 16, face="bold"),
+        plot.subtitle = element_text(size = 13),
+        plot.caption = element_text(),
+        legend.position = "top",
+        legend.justification = "left",
+        legend.direction = "horizontal") 
+
+df_total_plot
+
+# 1c - Gráfico com dados totais
+# considerando percentuais
+
+
+df_total_4 <- df_total %>%
+  group_by(tipo_orgao, nome_partido) %>%
+  summarise(int = n()) %>%
+  ungroup() %>%
+  arrange(tipo_orgao) %>%
+  group_by(nome_partido) %>%
+  mutate(n_total = sum(int)) %>%
+  mutate(int_perc = int / n_total) %>%
+  ungroup() %>%
+  add_row(tipo_orgao = "Órgão provisório", nome_partido = "Novo", int = 0, n_total = 0, int_perc = 0) %>%
+  mutate(nome_partido = factor(nome_partido),
+         valor_prov = ifelse(tipo_orgao == "Órgão provisório", int_perc, NA)) %>%
+  group_by(nome_partido) %>%
+  mutate(valor_prov = mean(valor_prov, na.rm=T)) %>%
+  ungroup() %>%
+  mutate(nome_partido = fct_reorder(nome_partido, valor_prov))
+
+
+
+df_total_plot_perc <- ggplot(df_total_4, aes(x = nome_partido, y = int_perc, fill = tipo_orgao, width = 0.8)) +
+  geom_bar(stat = "identity") +
+  coord_flip() + 
+  scale_fill_manual("tipo_orgao", values = c("Comissão executiva" = "#EECCCC", "Comissão interventora" = "#7E0F08", 
+                                             "Órgão definitivo" = "#CB6666", "Órgão provisório" = "#A80000"),
+                                            guide = guide_legend(reverse = TRUE)) +
+  scale_y_continuous(labels = percent) +
+  labs(title = "Percentual de cada órgão partidário no Brasil",
+     subtitle = "xx partidos têm mais de xx% de comissões provisórias, 
+consideradas por especialistas como 'menos democráticas'",
+     caption = "Fonte: TSE") +
+  theme(text = element_text(family = "Open Sans"),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        legend.title = element_blank(),
+        legend.key.size = unit(0.8, "line"),
+        plot.title = element_text(size = 16, face="bold"),
+        plot.subtitle = element_text(size = 13),
+        plot.caption = element_text(),
+        legend.position = "top",
+        legend.justification = "left",
+        legend.direction = "horizontal") 
+
+df_total_plot_perc
+
+
+# 1d - Gráficos do tipo facet_wrap()
+# considerando percentuais
+
+# chart below still show 4 variables
+df_total_5 <- df_total_4 %>%
+  filter(tipo_orgao != "Comissão interventora", tipo_orgao != "Comissão executiva")
+
+df_total_plot_facet_wrap_perc <- ggplot(df_total_5, aes(x = tipo_orgao, y = int_perc, fill = tipo_orgao, width = 0.8)) +
+  geom_bar(stat = "identity") +
+  facet_grid(~nome_partido, ncol = 5) +
+  scale_fill_manual("tipo_orgao", values = c("Órgão definitivo" = "#CB6666", "Órgão provisório" = "#A80000"),
+                    guide = guide_legend(reverse = TRUE)) +
+  labs(title = "Percentual de cada órgão partidário no Brasil",
+       subtitle = "xx partidos têm mais de xx% de comissões provisórias, 
+       consideradas por especialistas como 'menos democráticas'",
+       caption = "Fonte: TSE") +
+  theme(text = element_text(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        legend.title = element_blank(),
+        legend.key.size = unit(0.8, "line"),
+        plot.title = element_text(size = 16, face="bold"),
+        plot.subtitle = element_text(size = 13),
+        plot.caption = element_text(),
+        legend.position = "top",
+        legend.justification = "left",
+        legend.direction = "horizontal") 
+
+df_total_plot_facet_wrap_perc
+
+
+
+####################################################################################
+####################################################################################
+####################################################################################
+#                                                                                  #
+# 1 - Dados municipais + TOTAL                                                     #
+# Um df em que tenhamos as seguintes colunas:                                      #
+# partido, número de órgãos definitivos, número de órgãos provisórios,             #
+# número de comissões executivas e número de comissões interventoras.              #
+#                                                                                  # 
+####################################################################################
+####################################################################################
+####################################################################################
+
 df_municipio <- df %>%
   dplyr::filter(esfera == "Municipal", 
                 situacao_vigencia == "Vigente")
