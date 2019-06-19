@@ -7,11 +7,11 @@
 ################################################################
 
 ################################################################
-###                 Inclus„o de votaÁ„o nova                 ###
+###                 Inclus√£o de vota√ß√£o nova                 ###
 ################################################################
 
 ################################################################
-###                 Coleta do HTML da C‚mara                 ###
+###                 Coleta do HTML da C√¢mara                 ###
 ################################################################
 
 ################################################################
@@ -35,6 +35,8 @@ library(dplyr)
 library(tidyverse)
 
 #3. importar os dados via URL
+# ATEN√á√ÉO: confira abaixo a URL a ser inserida
+# ATEN√á√ÉO: o final da URL deve ser 'tipo=partido'
 
 url <- "https://www.camara.gov.br/internet/votacao/mostraVotacao.asp?ideVotacao=8846&tipo=partido"
 
@@ -52,7 +54,7 @@ table1_df <- data.frame(table1) %>%
   `colnames<-`(c("nome", "uf", "voto")) %>%
   mutate(new_column = NA)
 
-#6. apagar linhas que n„o se referem a deputados
+#6. apagar linhas que n√£o se referem a deputados
 
 idx <- grep("Total.*: \\d+", table1_df$nome)
 
@@ -71,9 +73,9 @@ colnames(table1_df)[4] <- "partido"
 
 table1_df$voto <- as.character(table1_df$voto)
 table1_df$voto[table1_df$voto == "Sim"] <- "sim"
-table1_df$voto[table1_df$voto == "N„o"] <- "nao"
-table1_df$voto[table1_df$voto == "AbstenÁ„o"] <- "abstencao"
-table1_df$voto[table1_df$voto == "ObstruÁ„o"] <- "obstrucao"
+table1_df$voto[table1_df$voto == "N√£o"] <- "nao"
+table1_df$voto[table1_df$voto == "Absten√ß√£o"] <- "abstencao"
+table1_df$voto[table1_df$voto == "Obstru√ß√£o"] <- "obstrucao"
 table1_df$voto[table1_df$voto == "Art. 17"] <- "naovotou"
 
 #8. padronizar partidos
@@ -88,7 +90,7 @@ table1_df$partido[table1_df$partido == "S.Part."] <- "S/Partido"
 #9. padronizar nome que vem com erros
 
 table1_df$nome[table1_df$nome == "Chico D`Angelo"] <- "Chico D'Angelo"
-table1_df$nome[table1_df$nome == "Fl·vio Nogueira"] <- "Flavio Nogueira"
+table1_df$nome[table1_df$nome == "Fl√°vio Nogueira"] <- "Flavio Nogueira"
 table1_df$nome[table1_df$nome == "Jhc"] <- "JHC"
 
 #9. criar coluna 'nome_upper', com nomes em caixa alta e sem acento
@@ -106,8 +108,9 @@ table1_df <- table1_df %>%
 ################################################################
 
 #10. importar o arquivo com os IDs (aba 'politicos')
-# ATEN«√O: confirmar antes que a coluna 'exercicio' est· atualizada
+# ATEN√á√ÉO: confirmar antes que a coluna 'exercicio' est√° atualizada
 # conforme consulta em https://www.camara.leg.br/internet/deputado/pesquisaHistorico.asp
+# ATEN√á√ÉO: confira abaixo nome do arquivo e altere se necess√°rio
 
 setwd("~/Downloads/")
 id_politicos <- read.csv("~/Downloads/plenario2019_CD-politicos-19jun2019.csv", encoding = "UTF-8", stringsAsFactors = F)
@@ -118,8 +121,8 @@ joined_data <- id_politicos %>%
   filter(exercicio != "nao") %>%
   left_join(table1_df, by = "nome_upper")
 
-#12. contar o n˙mero de ocorrÍncias de NA
-# ATEN«√O: esse n˙mero precisa 'bater' com o n˙mero de ausentes
+#12. contar o n√∫mero de ocorr√™ncias de NA
+# ATEN√á√ÉO: esse n√∫mero precisa 'bater' com o n√∫mero de ausentes
 
 sum(is.na(joined_data$voto))
 
@@ -132,14 +135,14 @@ joined_data_2 <- joined_data %>%
   mutate(partido.y = ifelse(is.na(partido.y), partido.x, partido.y))
 
 
-#14. checar nomes (e corrigir se necess·rio)
+#14. checar nomes (e corrigir se necess√°rio)
 
 A <- joined_data_2$nome.x
 B <- joined_data_2$nome.y
 
 setdiff(A, B)
 
-#15. checar partidos (e corrigir se necess·rio)
+#15. checar partidos (e corrigir se necess√°rio)
 
 C <- joined_data_2$partido.x
 D <- joined_data_2$partido.y
@@ -158,15 +161,18 @@ votacao_final <- joined_data_2 %>%
   select(partido.x, id, nome_upper, nome.x, uf.x, voto) %>%
   `colnames<-`(c("partido", "id_politico", "nome_upper", "nome_politico", "uf", "voto"))
 
-#18. inserir coluna com o ID da proposiÁ„o
+#18. inserir coluna com o ID da proposi√ß√£o
+# ATEN√á√ÉO: o campo abaixo precisa ser alterado para o ID da nova proposi√ß√£o
 
 votacao_final$id_proposicao <- "6"
 
-#19. inserir coluna com o nome da proposiÁ„o
+#19. inserir coluna com o nome da proposi√ß√£o
+# ATEN√á√ÉO: o campo abaixo precisa ser alterado para o c√≥digo da nova proposi√ß√£o
 
 votacao_final$proposicao <- "PEC57-2019"
 
-#20. inserir coluna com o permalink da proposiÁ„o
+#20. inserir coluna com o permalink da proposi√ß√£o
+# ATEN√á√ÉO: o campo abaixo precisa ser alterado para o permalink da nova proposi√ß√£o
 
 votacao_final$permalink <- "projeto-tutorial-para-a-inclusao"
 
@@ -177,5 +183,5 @@ votacao_final <- votacao_final %>%
          nome_upper, nome_politico, uf, voto, permalink)
 
 #22. fazer o download
-
+# ATEN√á√ÉO: escolha o nome do arquivo; recomendado: "votacao_NOME_DO_PROJETO_DATA.csv"
 write.csv(votacao_final, "votacao_final_projeto_tutorial_para_a_inclusao_19jun2019.csv")
