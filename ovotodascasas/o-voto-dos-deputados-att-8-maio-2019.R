@@ -102,7 +102,7 @@ unique(votacao_nova_dbf$partido)
 
 #8. importar o arquivo com os IDs (aba 'politicos')
 
-id_politicos <- read.csv("plenario2019_CD_politicos.csv", encoding = "UTF-8")
+id_politicos <- read.csv("plenario2019_CD_politicos.csv", encoding = "UTF-8", stringsAsFactors = F)
 
 #9. dar um join para pegar os IDs e os nomes em caixa alta e baixa
 
