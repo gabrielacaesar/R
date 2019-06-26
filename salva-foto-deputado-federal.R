@@ -46,7 +46,9 @@ deputados <- fread("deputados_26jun2019.csv", encoding = "UTF-8")
 deputados_new <- deputados %>%
   filter(idLegislaturaFinal == 56) %>%
   mutate(nome = iconv(str_to_lower(nome), from = "UTF-8", to = "ascii//translit")) %>%
-  mutate(nome = str_replace_all(nome, " ", "-"))
+  mutate(nome = str_replace_all(nome, " ", "-")) %>%
+  mutate(nome = str_replace_all(nome, "\\.", "")) %>%
+  arrange(nome)
 
 
 # deletamos colunas desnecessárias
