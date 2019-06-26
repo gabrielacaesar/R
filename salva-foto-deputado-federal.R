@@ -11,7 +11,7 @@
 
 
 # etapa 1
-## carregando as bibliotecas
+## carregar as bibliotecas
 install.packages("abjutils")
 install.packages("stringr")
 install.packages("XML")
@@ -37,7 +37,7 @@ library(purrr)
 getwd()
 setwd("~/Downloads")
 
-# importamos o csv
+# importar o csv
 deputados <- fread("deputados_26jun2019.csv", encoding = "UTF-8")
 
 # filtrar pela atual legislatura
@@ -51,7 +51,7 @@ deputados_new <- deputados %>%
   arrange(nome)
 
 
-# deletamos colunas desnecessárias
+# deletar colunas desnecessárias
 deputados$idLegislaturaInicial <- NULL
 deputados$idLegislaturaFinal <- NULL
 deputados$cpf <- NULL
@@ -63,16 +63,16 @@ deputados$dataFalecimento <- NULL
 deputados$municipioNascimento <- NULL
 
 
-# criando um novo diretório em downloads
-# entrando neste novo diretório
+# criar um novo diretório em downloads
+# entrar neste novo diretório
 setwd("~/Downloads/")
 dir.create("deputados-new")
 setwd("~/Downloads/deputados-new")
 
 
 # loop para baixar todos os arquivos de fotos
-# acessa o xml e pega a url dentro de 'urlFoto'
-# e ignora links que não funcionam
+# acessar o xml e pega a url dentro de 'urlFoto'
+# e ignorar links que não funcionam
 i <- 1
 while(i <= 514) {
   tryCatch({
