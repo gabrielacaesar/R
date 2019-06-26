@@ -1,13 +1,13 @@
 # passo a passo
 # importar um df com os links da API com as infos de cada deputado
-# criar uma coluna 'name-lower', com o nome de cada deputado em lower, sem acento, separado com traço
-# acrescentar a coluna 'name-lower' ao df antigo
+# arquivo CSV em 'deputados' https://dadosabertos.camara.leg.br/swagger/api.html#staticfile
+# mudar a coluna 'nome' para o nome de cada deputado em lower, sem acento, separado com traço
 
 # acessar o xml e pegar a url dentro de 'urlFoto'
 # salvar foto com o id de cada deputado
 # repetir procedimento para cada um dos 513 deputados eleitos
 
-# trocar o id de cada deputado por 'name-lower'
+# trocar o id de cada deputado por 'nome'
 
 
 # etapa 1
@@ -38,22 +38,15 @@ getwd()
 setwd("~/Downloads")
 
 # importamos o csv
-deputados <- fread("dep-legislatura56-14jan2019.csv")
+deputados <- fread("deputados_26jun2019.csv", encoding = "UTF-8")
 
-# tiramos a acentuação
-deputados_sem_acentuacao <- as.data.frame(abjutils::rm_accent(deputados$nome))
-colnames(deputados_sem_acentuacao) <- "nome_deputado"
-
-# convertemos para lower
-deputados_sem_acentuacao <- as.data.frame(tolower(deputados_sem_acentuacao$nome_deputado))
-colnames(deputados_sem_acentuacao) <- "nome_deputado"
-
-# substituímos espaço por hífen
-deputados_sem_acentuacao <- as.data.frame(sub(" ", "-", deputados_sem_acentuacao$nome_deputado))
-colnames(deputados_sem_acentuacao) <- "name_lower"
-
-# acrescentamos nova coluna ao antigo dataframe
-deputados[,'name_lower'] <- deputados_sem_acentuacao
+# filtrar pela atual legislatura
+# tirar acentos e colocar em caixa baixa
+# substituir espaço por traço
+deputados_new <- deputados %>%
+  filter(idLegislaturaFinal == 56) %>%
+  mutate(nome = iconv(str_to_lower(nome), from = "UTF-8", to = "ascii//translit")) %>%
+  mutate(nome = str_replace_all(nome, " ", "-"))
 
 
 # deletamos colunas desnecessárias
@@ -81,7 +74,7 @@ setwd("~/Downloads/deputados-new")
 i <- 1
 while(i <= 514) {
   tryCatch({
-    url <- deputados$uri[i]
+    url <- deputados_new$uri[i]
     api_content <- rawToChar(GET(url)$content)
     pessoa_info <- jsonlite::fromJSON(api_content)
     pessoa_foto <- pessoa_info$dados$ultimoStatus$urlFoto
@@ -104,11 +97,10 @@ photos <- list.files(
 for (p in photos) {
   id <- basename(p)
   id <- gsub(".jpg$", "", id)
-  name <- deputados$name_lower[match(id, basename(deputados$uri))]
+  name <- deputados_new$nome[match(id, basename(deputados_new$uri))]
   fname <- paste0(dirname(p), "/", name, ".jpg")
   file.rename(p, fname)
   
   #optional
   cat("renaming", basename(p), "to", name, "\n")
 }
-
