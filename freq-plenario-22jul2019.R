@@ -518,7 +518,7 @@ lista_sessao <- lista_plenario %>%
   filter(descricao %like% "SESSÃO") %>%
   mutate(tipo = "sessao") %>%
   mutate(codigo = case_when(n_votacao < 10 ~ "CD19000",
-                            n_votacao > 100 ~ "CD190",
+                            n_votacao >= 100 ~ "CD190",
                             n_votacao < 100 | n_votacao > 10 ~ "CD1900")) %>%
   unite(df, c("codigo", "n_votacao"), sep = "", remove = F)
 
