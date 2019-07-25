@@ -3,7 +3,7 @@ library(tidyverse)
 library(foreign)
 library(data.table)
 
-# definir diretório
+# definir diretÃ³rio
 setwd("~/Downloads/votacoes-nominais")
 
 orientacao_partidos <- fread("orientacao_partidos.csv", encoding = "UTF-8", header = T)
@@ -22,7 +22,7 @@ votos_deputados$partido[votos_deputados$partido == "S.Part."] <- "S/Partido"
 
 # padronizar nome que vem com erros
 votos_deputados$nome[votos_deputados$nome == "Chico D`Angelo"] <- "Chico D'Angelo"
-votos_deputados$nome[votos_deputados$nome == "Flávio Nogueira"] <- "Flavio Nogueira"
+votos_deputados$nome[votos_deputados$nome == "FlÃ¡vio Nogueira"] <- "Flavio Nogueira"
 votos_deputados$nome[votos_deputados$nome == "Jhc"] <- "JHC"
 
 # agrupar 
@@ -30,7 +30,7 @@ votos_deputados_n <- votos_deputados %>%
   group_by(nome, partido, voto, id) %>%
   summarise() 
 
-# corrigindo os dados de orientação por partido
+# corrigindo os dados de orientaÃ§Ã£o por partido
 orientacao_partidos_n <- orientacao_partidos %>%
   distinct() %>%
   mutate(partido = str_replace_all(partido, ":", "")) %>%
@@ -49,7 +49,7 @@ orientacao_partidos_n <- orientacao_partidos %>%
   mutate(partido = str_replace_all(partido, "Podemos", "PODE")) %>%
   arrange(id)
 
-# selecionando apenas linhas que precisam de alteração
+# selecionando apenas linhas que precisam de alteraÃ§Ã£o
 orientacao_partidos_tidy <- orientacao_partidos_n  %>%
   filter(partido %like% " - ") %>%
   separate(partido, c("partido1", "partido2", "partido3"), " - ")
@@ -81,7 +81,7 @@ df_final <- orientacao_partidos_n %>%
 
 ###### 
 # dar merge considerando partido e id
-# df com voto e df com orientação
+# df com voto e df com orientaÃ§Ã£o
 ######
 
 joined_data <- votos_deputados_n %>%
@@ -108,3 +108,15 @@ joined_data_3 <- joined_data_2 %>%
   mutate(not_match_perc = (not_match / total) * 100) %>%
   arrange(desc(not_match_perc))
 
+# agrupar por partido e contabilizar match e not_match
+
+joined_data_4 <- joined_data_2 %>%
+  group_by(partido, check) %>%
+  summarise(int = n()) %>%
+  spread(check, int) %>%
+  mutate(not_match = replace_na(not_match, 0)) %>%
+  mutate(total = match + not_match) %>%
+  mutate(total = replace_na(total, 0)) %>%
+  mutate(match_perc = (match / total) * 100) %>%
+  mutate(not_match_perc = (not_match / total) * 100) %>%
+  arrange(desc(not_match_perc))
