@@ -19,6 +19,8 @@ votos_deputados$partido[votos_deputados$partido == "REDE"] <- "Rede"
 votos_deputados$partido[votos_deputados$partido == "Solidaried"] <- "SD"
 votos_deputados$partido[votos_deputados$partido == "NOVO"] <- "Novo"
 votos_deputados$partido[votos_deputados$partido == "S.Part."] <- "S/Partido"
+votos_deputados$partido[votos_deputados$partido == "PPS"] <- "Cidadania"
+votos_deputados$partido[votos_deputados$partido == "CIDADANIA"] <- "Cidadania"
 
 # padronizar nome que vem com erros
 votos_deputados$nome[votos_deputados$nome == "Chico D`Angelo"] <- "Chico D'Angelo"
@@ -98,15 +100,17 @@ joined_data_2 <- joined_data %>%
 # agrupar por deputado e contabilizar match e not-match
 
 joined_data_3 <- joined_data_2 %>%
-  group_by(nome, check) %>%
+  group_by(nome, partido, check) %>%
   summarise(int = n()) %>%
   spread(check, int) %>%
-  mutate(total = match + not_match) %>%
   mutate(not_match = replace_na(not_match, 0)) %>%
+  mutate(total = match + not_match) %>%
   mutate(total = replace_na(total, 0)) %>%
   mutate(match_perc = (match / total) * 100) %>%
   mutate(not_match_perc = (not_match / total) * 100) %>%
   arrange(desc(not_match_perc))
+
+write.csv(joined_data_3, "dados_infidelidade_por_deputado.csv")
 
 # agrupar por partido e contabilizar match e not_match
 
@@ -120,3 +124,46 @@ joined_data_4 <- joined_data_2 %>%
   mutate(match_perc = (match / total) * 100) %>%
   mutate(not_match_perc = (not_match / total) * 100) %>%
   arrange(desc(not_match_perc))
+
+write.csv(joined_data_4, "dados_infidelidade_por_partido.csv")
+
+# checar a taxa de governabilidade por partido
+
+orientacao_governo <- orientacao_partidos_n %>%
+  filter(partido == "Governo") 
+  
+taxa_governismo_partido <- votos_deputados_n %>%
+  left_join(orientacao_governo, by = "id") %>%
+  mutate(check = ifelse(voto == orientacao, "match", "not_match")) %>%
+  mutate(`partido.y` = replace_na(`partido.y`, "nao-orientou")) %>%
+  mutate(orientacao = replace_na(orientacao, "nao-orientou")) %>%
+  mutate(check = replace_na(check, "nao-orientou")) %>%
+  filter(!check == "nao-orientou") %>%
+  `colnames<-`(c("nome", "partido", "voto", "id", "governo", "orientacao", "check")) %>%
+  group_by(partido, check) %>%
+  summarise(int = n()) %>%
+  spread(check, int) %>%
+  mutate(match = replace_na(match, 0)) %>%
+  mutate(not_match = replace_na(not_match, 0)) %>%
+  mutate(total = match + not_match) %>%
+  mutate(match_perc = (match / total) * 100) %>%
+  mutate(not_match_perc = (not_match / total) * 100)
+ 
+
+# checar a taxa de governabilidade por deputado
+
+taxa_governismo_deputado <- votos_deputados_n %>%
+  left_join(orientacao_governo, by = "id") %>%
+  mutate(check = ifelse(voto == orientacao, "match", "not_match")) %>%
+  mutate(`partido.y` = replace_na(`partido.y`, "nao-orientou")) %>%
+  mutate(orientacao = replace_na(orientacao, "nao-orientou")) %>%
+  mutate(check = replace_na(check, "nao-orientou")) %>%
+  filter(!check == "nao-orientou") %>%
+  group_by(nome, check) %>%
+  summarise(int = n()) %>%
+  spread(check, int) %>%
+  mutate(match = replace_na(match, 0)) %>%
+  mutate(not_match = replace_na(not_match, 0)) %>%
+  mutate(total = match + not_match) %>%
+  mutate(match_perc = (match / total) * 100) %>%
+  mutate(not_match_perc = (not_match / total) * 100)
