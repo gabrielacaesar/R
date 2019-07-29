@@ -1,1 +1,1 @@
-code created during my R classes 
+working and studying R
