@@ -21,6 +21,7 @@ votos_deputados$partido[votos_deputados$partido == "NOVO"] <- "Novo"
 votos_deputados$partido[votos_deputados$partido == "S.Part."] <- "S/Partido"
 votos_deputados$partido[votos_deputados$partido == "PPS"] <- "Cidadania"
 votos_deputados$partido[votos_deputados$partido == "CIDADANIA"] <- "Cidadania"
+votos_deputados$partido[votos_deputados$partido == "PR"] <- "PL"
 
 # padronizar nome que vem com erros
 votos_deputados$nome[votos_deputados$nome == "Chico D`Angelo"] <- "Chico D'Angelo"
@@ -41,7 +42,7 @@ orientacao_partidos_n <- orientacao_partidos %>%
   mutate(partido = str_replace_all(partido, "PdtSdPode...", "PDT - SD - PODE")) %>%
   mutate(partido = str_replace_all(partido, "PdtPodePros...", "PDT - PODE - PROS")) %>%
   mutate(partido = str_replace_all(partido, "PdtPros...", "PDT - PROS")) %>%
-  mutate(partido = str_replace_all(partido, "PpPrPsd", "PP - PR - PSD")) %>%
+  mutate(partido = str_replace_all(partido, "PpPrPsd", "PP - PL - PSD")) %>%
   mutate(partido = str_replace_all(partido, "PpMdbPtb", "PP - MDB - PTB")) %>%
   mutate(partido = str_replace_all(partido, "PdtAvante", "PDT - Avante")) %>%
   mutate(partido = str_replace_all(partido, "GOV.", "Governo")) %>%
@@ -131,7 +132,7 @@ write.csv(joined_data_4, "dados_infidelidade_por_partido.csv")
 
 orientacao_governo <- orientacao_partidos_n %>%
   filter(partido == "Governo") 
-  
+
 taxa_governismo_partido <- votos_deputados_n %>%
   left_join(orientacao_governo, by = "id") %>%
   mutate(check = ifelse(voto == orientacao, "match", "not_match")) %>%
@@ -148,7 +149,7 @@ taxa_governismo_partido <- votos_deputados_n %>%
   mutate(total = match + not_match) %>%
   mutate(match_perc = (match / total) * 100) %>%
   mutate(not_match_perc = (not_match / total) * 100)
- 
+
 
 # checar a taxa de governabilidade por deputado
 
