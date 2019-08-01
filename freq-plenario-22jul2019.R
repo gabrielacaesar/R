@@ -1,4 +1,3 @@
-
 # carregar as bibliotecas
 library(tidyverse)
 library(foreign)
