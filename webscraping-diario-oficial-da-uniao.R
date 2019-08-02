@@ -82,6 +82,8 @@ conteudo_tidy <- conteudo %>%
          n_portaria = str_replace_all(n_portaria, "95 CONCEDER", "95 - CONCEDER")) %>%
   separate(n_portaria, c("num_portaria", "texto_portaria"), sep = " - ")
 
+write.csv(conteudo_tidy, "conteudo_tidy.csv")
+
 # limpeza do conteudo - 2
 # fazendo ajustes e corrigindo erros
 conteudo_tidy_2 <- conteudo_tidy %>%
@@ -113,4 +115,6 @@ conteudo_tidy_2 <- conteudo_tidy %>%
          data_nascimento = str_replace_all(data_nascimento, " de outubro de ", "/10/"),
          data_nascimento = str_replace_all(data_nascimento, " de novembro de ", "/11/"),
          data_nascimento = str_replace_all(data_nascimento, " de dezembro de ", "/12/"))
+
+write.csv(conteudo_tidy_2, "conteudo_tidy_2.csv")
   
