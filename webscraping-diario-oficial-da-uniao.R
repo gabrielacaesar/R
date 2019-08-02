@@ -6,9 +6,9 @@ library(zoo)
 
 # coleta de links de portarias
 
-url <- "http://www.in.gov.br/consulta?q=%22CONCEDER%20a%20nacionalidade%20brasileira%22&publishFrom=2019-01-01&publishTo=2019-07-31&start=1"
+url <- "http://www.in.gov.br/consulta?q=%22CONCEDER%20a%20nacionalidade%20brasileira%22&publishFrom=2019-01-01&publishTo=2019-07-31&start=5"
 
-urls_portaria <- url %>%
+urls_portaria5 <- url %>%
   read_html() %>%
   html_nodes("a") %>%
   html_attr("href") %>%
@@ -18,15 +18,17 @@ urls_portaria <- url %>%
   ungroup() %>%
   filter(!str_detect(links, "\\?inheritRedirect=true"))
 
+url_portaria_total <- rbind(urls_portaria1, urls_portaria2, urls_portaria3,
+                            urls_portaria4, urls_portaria5)
 
 # coleta de conteúdo das portarias
 
 conteudo <- NULL
 i <- 1
 
-while(i < 20) {
+while(i < 200) {
   tryCatch({
-  portaria <- as.character(urls_portaria$links[i])
+  portaria <- as.character(url_portaria_total$links[i])
   data_conteudo <- read_html(portaria) %>%
     html_nodes("p.identifica") %>%
     html_text() %>%
@@ -62,7 +64,10 @@ while(i < 20) {
 # separando em colunas
 conteudo_tidy <- conteudo %>%
   mutate(conteudo = str_replace_all(conteudo, "CESAR AUGUSTO SANCHEZ ALARCON, ", 
-                                    "CESAR AUGUSTO SANCHEZ ALARCON - sem numero de processo, ")) %>%
+                                    "CESAR AUGUSTO SANCHEZ ALARCON - sem numero de processo, "),
+         conteudo = str_replace_all(conteudo, "CAMILA ANTONIA DANZER ARMOA, ",
+                                    "CAMILA ANTONIA DANZER ARMOA - sem numero de processo, "),
+         conteudo = str_replace_all(conteudo, " -", " - ")) %>%
   separate(conteudo, c("nome", "restante"), sep = " - ") %>%
   separate(restante, c("processo", "restante"), sep = ", natural") %>%
   mutate(restante = str_replace_all(restante, "nascida", "nascido")) %>%
@@ -108,7 +113,4 @@ conteudo_tidy_2 <- conteudo_tidy %>%
          data_nascimento = str_replace_all(data_nascimento, " de outubro de ", "/10/"),
          data_nascimento = str_replace_all(data_nascimento, " de novembro de ", "/11/"),
          data_nascimento = str_replace_all(data_nascimento, " de dezembro de ", "/12/"))
-  
-  
-  
   
