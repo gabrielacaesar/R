@@ -5,10 +5,10 @@ library(janitor)
 library(zoo)
 
 # coleta de links de portarias
+# replace number 'start=', update df name and run before rbind()
+url <- "http://www.in.gov.br/consulta?q=%22CONCEDER%20a%20nacionalidade%20brasileira%22&publishFrom=2019-01-01&publishTo=2019-07-31&start=1"
 
-url <- "http://www.in.gov.br/consulta?q=%22CONCEDER%20a%20nacionalidade%20brasileira%22&publishFrom=2019-01-01&publishTo=2019-07-31&start=5"
-
-urls_portaria5 <- url %>%
+urls_portaria1 <- url %>%
   read_html() %>%
   html_nodes("a") %>%
   html_attr("href") %>%
