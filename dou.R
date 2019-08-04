@@ -81,7 +81,7 @@ conteudo_tidy <- conteudo %>%
   mutate(restante = str_replace_all(restante, "RESIDETE", "RESIDENTE"),
          restante = str_replace_all(restante, "RESDIDENTE", "RESIDENTE")) %>%
   separate(restante, c("genitores", "restante"), sep = "RESIDENTE") %>%
-  mutate(restante = str_replace_all(restante, "ROCSSO", "ROCESSO")) %>%
+  mutate(restante = str_replace_all(restante, "PROCSSO", "PROCESSO")) %>%
   separate(restante, c("uf", "processo"), sep = "\\(P")
   
   
