@@ -242,4 +242,4 @@ portarias_faltantes_2 <- teste %>%
 ###  checar se ha pessoas duplicadas
 ###  por conta de portarias erradas
 ##   e checar retificacoes
-
+# calcular idade com base na data da portaria?
