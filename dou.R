@@ -7,7 +7,7 @@ library(abjutils)
 
 # coleta de links de portarias
 # replace number 'start=', update df name and run before rbind()
-url <- "http://www.in.gov.br/consulta?q=%22CONCEDER%20a%20nacionalidade%20brasileira%22&publishFrom=2019-01-01&publishTo=2019-07-31&start=1"
+url <- "http://www.in.gov.br/consulta?q=%22CONCEDER%20a%20nacionalidade%20brasileira%22&publishFrom=2016-01-01&publishTo=2019-08-03&start=1"
 
 urls_portaria1 <- url %>%
   read_html() %>%
@@ -18,10 +18,17 @@ urls_portaria1 <- url %>%
   filter(str_detect(links, "http://www.in.gov.br/web/dou/")) %>%
   ungroup() %>%
   filter(!str_detect(links, "\\?inheritRedirect=true"),
-         !str_detect(links, "retifica"))
+         !str_detect(links, "retifica"),
+         !str_detect(links, "resolucao"),
+         !str_detect(links, "despachos"))
 
 url_portaria_total <- rbind(urls_portaria1, urls_portaria2, urls_portaria3,
-                            urls_portaria4, urls_portaria5)
+                            urls_portaria4, urls_portaria5, urls_portaria6,
+                            urls_portaria7, urls_portaria8, urls_portaria9,
+                            urls_portaria10, urls_portaria11, urls_portaria12,
+                            urls_portaria13, urls_portaria14, urls_portaria15,
+                            urls_portaria16)
+
 
 # OBS: ANALISAR URLs DE 'RETIFICAO' SEPARADO
 
@@ -30,7 +37,7 @@ url_portaria_total <- rbind(urls_portaria1, urls_portaria2, urls_portaria3,
 conteudo <- NULL
 i <- 1
 
-while(i < 100) {
+while(i < 300) {
   tryCatch({
   portaria <- as.character(url_portaria_total$links[i])
   conteudo <- read_html(portaria) %>%
@@ -151,6 +158,88 @@ conteudo_tidy_3 <- conteudo_tidy_2 %>%
          codigo = str_trim(codigo),
          codigo = str_replace_all(codigo, "", "sem-codigo"))
 
-# download
 
-write.csv(conteudo_tidy_3, "conteudo_tidy_3.csv")
+################################################################
+###               novo loop para pegar portarias             ###
+################################################################
+
+# identificar quais portarias nao estao em 'conteudo'
+
+# conteudo$url_portaria
+# url_portaria_total$links
+
+teste <- url_portaria_total %>%
+  `colnames<-`("url_portaria") 
+
+teste <- as.character(teste$url_portaria)
+teste <- as.data.frame(teste, stringsAsFactors = FALSE)
+
+teste <- teste %>%
+  `colnames<-`("url_portaria") 
+
+teste2 <- unique(conteudo$url_portaria)
+teste2 <- as.data.frame(teste2)
+
+teste2 <- teste2 %>%
+  `colnames<-`("url_portaria") %>%
+  mutate(port = "teste2")
+
+length(unique(teste$url_portaria))
+length(unique(teste2$url_portaria))
+
+portarias_faltantes <- teste %>%
+  left_join(teste2, by = "url_portaria") %>%
+  filter(is.na(port))
+
+
+# novo loop para pegar dados de portarias faltantes
+# HTML do site do DOU foi alterado
+# p.corpo.pdf-JUSTIFY
+# descobrir intervalo em que HTML está diferente
+
+i <- 1
+
+while(i < 300) {
+  tryCatch({
+    portaria <- as.character(url_portaria_total$links[i])
+    conteudo2 <- read_html(portaria) %>%
+      html_nodes("p.corpo.pdf-JUSTIFY") %>%
+      html_text() %>%
+      str_trim() %>%
+      as.data.frame(stringsAsFactors = FALSE) %>%
+      `colnames<-`("txt_portaria") %>%
+      mutate(txt_portaria = toupper(txt_portaria)) %>%
+      filter(str_detect(txt_portaria, "CONCEDER") |
+               str_detect(txt_portaria, "NATURAL")) %>%
+      mutate(n_portaria = ifelse(str_detect(txt_portaria, "CONCEDER A NACIONALIDADE"), 
+                                 txt_portaria, NA)) %>%
+      mutate(n_portaria = na.locf(n_portaria)) %>%
+      filter(!str_detect(txt_portaria, "CONCEDER A NACIONALIDADE"),
+             !str_detect(txt_portaria, "TORNAR"),
+             !str_detect(txt_portaria, "DECLARA")) %>%
+      mutate(url_portaria = portaria) %>%
+      rbind(conteudo2)
+  }, error = function(e) return(NULL)
+  )
+  i <- i + 1
+}
+
+# checar quais portarias estao faltando
+
+teste4 <- unique(conteudo2$url_portaria)
+teste4 <- as.data.frame(teste4)
+
+teste4 <- teste4 %>%
+  `colnames<-`("url_portaria") %>%
+  mutate(port = "teste4") 
+
+teste4 <- rbind(teste4, teste2)
+
+portarias_faltantes_2 <- teste %>%
+  left_join(teste4, by = "url_portaria") %>%
+  filter(is.na(port))
+
+###  checar se ha pessoas duplicadas
+###  por conta de portarias erradas
+##   e checar retificacoes
+
