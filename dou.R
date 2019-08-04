@@ -3,6 +3,7 @@ library(rvest)
 library(xml2)
 library(janitor)
 library(zoo)
+library(abjutils)
 
 # coleta de links de portarias
 # replace number 'start=', update df name and run before rbind()
@@ -66,73 +67,90 @@ conteudo_tidy <- conteudo %>%
          txt_portaria = str_replace_all(txt_portaria, "NATURAL EM ", "NATURAL DE")) %>%
   separate(txt_portaria, c("nome", "restante"), sep = "NATURAL DE") %>%
   mutate(restante = str_replace_all(restante, "NASCIDA", "NASCIDO")) %>%
-  separate(restante, c("pais", "restante"), sep = "NASCIDO") 
+  separate(restante, c("pais", "restante"), sep = "NASCIDO") %>%
+  mutate(restante = str_replace_all(restante, "FILHA DE", "FILHO DE"),
+         restante = str_replace_all(restante, "FILHO EM", "FILHO DE")) %>%
+  separate(restante, c("data_nascimento", "restante"), sep = "FILHO DE") %>%
+  mutate(restante = str_replace_all(restante, "RESIDETE", "RESIDENTE"),
+         restante = str_replace_all(restante, "RESDIDENTE", "RESIDENTE")) %>%
+  separate(restante, c("genitores", "restante"), sep = "RESIDENTE") %>%
+  mutate(restante = str_replace_all(restante, "ROCSSO", "ROCESSO")) %>%
+  separate(restante, c("uf", "processo"), sep = "\\(P")
   
   
-  # correção de nome e número do processo
-  mutate(conteudo = str_replace_all(conteudo, "CESAR AUGUSTO SANCHEZ ALARCON, ", 
-                                    "CESAR AUGUSTO SANCHEZ ALARCON - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "CAMILA ANTONIA DANZER ARMOA, ",
-                                    "CAMILA ANTONIA DANZER ARMOA - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "ALAN DOUGLAS BORGES DE CARVALHO, ",
-                                    "ALAN DOUGLAS BORGES DE CARVALHO - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "ALOISIO DOS SANTOS GONÇALVES, ",
-                                    "ALOISIO DOS SANTOS GONÇALVES - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "CLAUDIA DAMIANE DOS SANTOS SILVA, ",
-                                    "CLAUDIA DAMIANE DOS SANTOS SILVA - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "ELKESON DE OLIVEIRA CARDOSO, ",
-                                    "ELKESON DE OLIVEIRA CARDOSO - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "RICARDO GOULART PEREIRA, ",
-                                    "RICARDO GOULART PEREIRA - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "VINICIUS SANTOS REIS SÉRGIO, ",
-                                    "VINICIUS SANTOS REIS SÉRGIO - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, "LINA ADNAN DAOU, ",
-                                    "LINA ADNAN DAOU - sem numero de processo, "),
-         conteudo = str_replace_all(conteudo, " -", " - ")) %>%
-  separate(conteudo, c("nome", "restante"), sep = " - ") %>%
-  separate(restante, c("processo", "restante"), sep = ", natural") %>%
-  
-  separate(restante, c("pais", "restante"), sep = ", nascido em ") %>%
-  mutate(restante = str_replace_all(restante, "filha", "filho")) %>%
-  separate(restante, c("data_nascimento", "restante"), sep = ", filho de") %>%
-  separate(restante, c("genitores", "restante"), sep = ", residente ") %>%
-  mutate(restante = str_replace_all(restante, "do Pará", "do Pará "),
-         restante = str_replace_all(restante, " Processo", "Processo")) %>%
-  separate(restante, c("uf", "processo"), sep = "\\(Processo ") %>%
-  mutate(n_portaria = str_replace_all(n_portaria, "96 CONCEDER", "96 - CONCEDER"),
-         n_portaria = str_replace_all(n_portaria, "95 CONCEDER", "95 - CONCEDER")) %>%
-  separate(n_portaria, c("num_portaria", "texto_portaria"), sep = " - ")
-
-
 
 # limpeza do conteudo - 2
 # fazendo ajustes e corrigindo erros
 conteudo_tidy_2 <- conteudo_tidy %>%
-  mutate(pais = str_remove_all(pais, "de "),
-         pais = str_remove_all(pais, "do "),
-         pais = str_remove_all(pais, "da "),
-         pais = str_remove_all(pais, "dos "),
+  # limpeza na coluna do país
+  mutate(pais = str_remove_all(pais, "DE "),
+         pais = str_remove_all(pais, "DO "),
+         pais = str_remove_all(pais, "DA "),
+         pais = str_remove_all(pais, "DOS "),
+         pais = str_remove_all(pais, ","),
          pais = str_trim(pais),
-         pais = str_replace_all(pais, "Guiné Bissau", "Guiné-Bissau"),
-         uf = str_remove_all(uf, "no Estado de "),
-         uf = str_remove_all(uf, "no Estado do "),
-         uf = str_remove_all(uf, "no Estado da "),
-         num_portaria = str_remove_all(num_portaria, "Nº"),
-         processo = str_remove_all(processo, "\\) e"),
-         processo = str_remove_all(processo, "\\)."),
-         processo = str_remove_all(processo, "\\);")) %>%
-  mutate(genitores = str_replace_all(genitores, " e de ", "; "),
-         genitores = str_replace_all(genitores, " e ", "; "),
-         pais = str_replace_all(pais, "EmiraÁrabes", "Emirados Árabes"),
-         data_nascimento = str_replace_all(data_nascimento, " de janeiro de ", "/01/"),
-         data_nascimento = str_replace_all(data_nascimento, " de fevereiro de ", "/02/"),
-         data_nascimento = str_replace_all(data_nascimento, " de março de ", "/03/"),
-         data_nascimento = str_replace_all(data_nascimento, " de abril de ", "/04/"),
-         data_nascimento = str_replace_all(data_nascimento, " de maio de ", "/05/"),
-         data_nascimento = str_replace_all(data_nascimento, " de junho de ", "/06/"),
-         data_nascimento = str_replace_all(data_nascimento, " de julho de ", "/07/"),
-         data_nascimento = str_replace_all(data_nascimento, " de agosto de ", "/08/"),
-         data_nascimento = str_replace_all(data_nascimento, " de setembro de ", "/09/"),
-         data_nascimento = str_replace_all(data_nascimento, " de outubro de ", "/10/"),
-         data_nascimento = str_replace_all(data_nascimento, " de novembro de ", "/11/"),
-         data_nascimento = str_replace_all(data_nascimento, " de dezembro de ", "/12/"))
+         pais = abjutils::rm_accent(pais)) %>%
+  # limpeza na coluna de data de nascimento
+  mutate(data_nascimento = str_remove_all(data_nascimento, "EM"),
+         data_nascimento = str_remove_all(data_nascimento, ","),
+         data_nascimento = str_replace_all(data_nascimento, " DE JANEIRO DE ", "/01/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE FEVEREIRO DE ", "/02/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE MARÇO DE ", "/03/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE MAÇO DE ", "/03/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE ABRIL DE ", "/04/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE MAIO DE ", "/05/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE JUNHO DE ", "/06/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE JULHO DE ", "/07/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE AGOSTO DE ", "/08/"),
+         data_nascimento = str_replace_all(data_nascimento, " E AGOSTO DE ", "/08/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE SETEMBRO DE ", "/09/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE SETBRO DE ", "/09/"),
+         data_nascimento = str_replace_all(data_nascimento, " DER SETBRO DE ", "/09/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE OUTUBRO DE ", "/10/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE NOVEMBRO DE ", "/11/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE NOVBRO DE ", "/11/"),
+         data_nascimento = str_replace_all(data_nascimento, " NOVBRO DE ", "/11/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE DEZEMBRO DE ", "/12/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE DEZBRO DE ", "/12/"),
+         data_nascimento = str_replace_all(data_nascimento, " DE DEZBRO ", "/12/")) %>%
+  # limpeza na coluna de genitores
+  mutate(genitores = str_replace_all(genitores, " E DE ", "; "),
+         genitores = str_remove_all(genitores, ",")) %>%
+  # limpeza na coluna de uf
+  mutate(uf = str_remove_all(uf, "NO ESTADO DE "),
+         uf = str_remove_all(uf, "NO ESTADO DO "),
+         uf = str_remove_all(uf, "NO ESTADO DA "),
+         uf = str_remove_all(uf, "MO ESTADO DE "),
+         uf = str_remove_all(uf, "NO "),
+         uf = str_remove_all(uf, "O ESTADO DE "),
+         uf = str_remove_all(uf, "ESTADO "),
+         uf = str_remove_all(uf, "\\."),
+         uf = str_remove_all(uf, "\\|"),
+         uf = abjutils::rm_accent(uf),
+         uf = str_trim(uf)) %>%
+  # limpeza na coluna processo
+  mutate(processo = str_remove_all(processo, "ROCESSO N°"),
+         processo = str_remove_all(processo, "ROCESSO Nº"),
+         processo = str_remove_all(processo, "E"),
+         processo = str_remove_all(processo, "\\."),
+         processo = str_remove_all(processo, "\\)"),
+         processo = str_remove_all(processo, ";"))
+
+
+# limpeza do conteudo - 3
+# limpeza na coluna nome
+# para identificar linhas duplicadas
+# o DOU publicou portarias publicadas, que inflam os dados
+
+conteudo_tidy_3 <- conteudo_tidy_2 %>%
+  mutate(nome = str_replace_all(nome, " -", " - "),
+         nome = str_replace_all(nome, "- ", " - "),
+         codigo = ifelse(str_detect(nome, " - "), nome, "sem-codigo")) %>%
+  separate(codigo, c("nome_n", "codigo"), " - ") %>%
+  mutate(codigo = str_remove_all(codigo, ","),
+         codigo = str_trim(codigo),
+         codigo = str_replace_all(codigo, "", "sem-codigo"))
+
+# download
+
+write.csv(conteudo_tidy_3, "conteudo_tidy_3.csv")
