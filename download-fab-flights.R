@@ -1,9 +1,10 @@
 library(tidyverse)
 library(rvest)
-# install.packages(downloader)
+#install.packages("downloader")
 library(downloader)
 
-setwd("~/Downloads/teste")
+dir.create("~/Downloads/PDFvoosFAB")
+setwd("~/Downloads/PDFvoosFAB")
 
 url <- "http://www.fab.mil.br/voos"
 
@@ -37,15 +38,11 @@ while(i < 142) {
   i <- i + 1
 }
 
-#################################################
-#### ler as tabelas do PDF e empilha-las     ####
-#################################################
+# empilhar PDFs e converter em site
+# https://www.pdftoexcel.com/
 
-# install.packages("tabulizer")
-library(tabulizer)
-# install.packages("pdftools")
-library(pdftools)
-
-files <- list.files(pattern = "*.pdf") 
+teste_merged_2 <- pdf_combine(files[1:50], output = "joined.pdf")
+teste_merged_2 <- pdf_combine(files[50:100], output = "joined.pdf")
+teste_merged_2 <- pdf_combine(files[101:141], output = "joined.pdf")
 
 
