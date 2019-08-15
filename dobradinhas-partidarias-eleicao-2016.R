@@ -1,6 +1,4 @@
 library(tidyverse)
-library(rvest)
-library(downloader)
 library(data.table)
 
 setwd("~/Downloads/consulta_cand_2016_15ago2019")
@@ -38,5 +36,5 @@ consulta_merged_partido <- consulta_merged %>%
   group_by(chapa) %>%
   summarise(int = n())
 
-# as chapas 'puro sangue' s„o as mais frequentes
+# as chapas 'puro sangue' s√£o as mais frequentes
 # PT-PSL 15 vezes e PSL-PT 3 vezes
