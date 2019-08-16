@@ -40,6 +40,7 @@ while(i < 142) {
 
 # empilhar PDFs e converter em site
 # https://www.pdftoexcel.com/
+files <- list.files(pattern = "*.pdf") 
 
 teste_merged_2 <- pdf_combine(files[1:50], output = "joined.pdf")
 teste_merged_2 <- pdf_combine(files[50:100], output = "joined.pdf")
