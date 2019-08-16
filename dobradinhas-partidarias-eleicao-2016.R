@@ -48,7 +48,7 @@ consulta_merged_partido <- consulta_merged %>%
 consulta_partido_psl <- consulta_merged_partido %>%
   filter(str_detect(chapa, "PSL"))
 
-# quais foram as chapas PT-PSL e PSL-PT?
+# quais foram as chapas PSL-PT e PT-PSL?
 consulta_chapa_psl <- consulta_merged %>%
   filter(SG_PARTIDO_PREFEITO == "PSL" & SG_PARTIDO_VICE_PREFEITO == "PT" |
          SG_PARTIDO_PREFEITO == "PT" & SG_PARTIDO_VICE_PREFEITO == "PSL")
