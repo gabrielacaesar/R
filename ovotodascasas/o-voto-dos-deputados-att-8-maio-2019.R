@@ -93,6 +93,9 @@ votacao_nova_dbf$partido[votacao_nova_dbf$partido == "REDE"] <- "Rede"
 votacao_nova_dbf$partido[votacao_nova_dbf$partido == "Solidaried"] <- "SD"
 votacao_nova_dbf$partido[votacao_nova_dbf$partido == "Podemos"] <- "PODE"
 votacao_nova_dbf$partido[votacao_nova_dbf$partido == "S.Part."] <- "S/Partido"
+votacao_nova_dbf$partido[votacao_nova_dbf$partido == "Republican"] <- "Republicanos"
+votacao_nova_dbf$partido[votacao_nova_dbf$partido == "REPUBLICAN"] <- "Republicanos"
+
 
 unique(votacao_nova_dbf$partido)
 
