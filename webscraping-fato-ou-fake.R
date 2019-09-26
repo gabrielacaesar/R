@@ -8,21 +8,20 @@
 ################################################################
 
 ################################################################
-###                 Inclusão de checagem nova                ###
+###                 Inclusï¿½o de checagem nova                ###
 ################################################################
 
 
 library(tidyverse)
 library(rvest)
 library(xml2)
+library(abjutils)
 
-
-# xpath
-# /html/body/div[2]/main/div[4]/article/div[4]/div[52]/blockquote
-# /html/body/div[2]/main/div[4]/article/div[4]/div[17]/p
-# /html/body/div[2]/main/div[4]/article/div[4]/div[24]/p
+# informar a url
 
 url <- "https://g1.globo.com/fato-ou-fake/noticia/2018/10/05/veja-o-que-e-fato-ou-fake-nas-falas-dos-presidenciaveis-no-debate-da-globo.ghtml"
+
+# titulo da materia
 
 titulo <- url %>%
   read_html() %>%
@@ -31,7 +30,7 @@ titulo <- url %>%
 
 titulo
 
-#
+# data da materia
 
 data <- url %>%
   read_html() %>%
@@ -45,8 +44,8 @@ data <- url %>%
 
 data
 
-#
-#
+# hora da materia
+
 hora <- url %>%
   read_html() %>%
   html_nodes("p.content-publication-data__updated") %>%
@@ -59,15 +58,16 @@ hora <- url %>%
 
 hora
 
-#
+# autor das frases
 
 autor <- url %>%
   read_html() %>%
   html_nodes("h2") %>%
   html_text()
+
 autor
 
-#
+# frases
 
 frase <- url %>%
   read_html() %>%
@@ -75,32 +75,46 @@ frase <- url %>%
   html_text() %>%
   str_remove_all('\"') %>%
   str_remove_all('"')
+
 frase
 
-#
+# rotulos
 
 rotulo <- url %>%
   read_html() %>%
   html_nodes("strong") %>%
   html_text() %>%
-  str_remove_all("A declaração é ") %>%
-  str_remove_all(". Veja o porquê:") %>%
+  str_remove_all("A declaraÃ§Ã£o Ã© ") %>%
+  str_remove_all(". Veja o porquÃª:") %>%
   str_trim() %>%
+  as.data.frame() %>%
   `colnames<-`("rotulo") %>%
-  filter(rotulo == "#FATO",
-         rotulo == "#FAKE",
-         rotulo == "#NÃOÉBEMASSIM")
+  filter(rotulo == "#FATO" |
+         rotulo == "#FAKE" |
+         rotulo == "#NÃƒOÃ‰BEMASSIM")
+
 rotulo
 
-# ou pegar textos / p / div que aparecem depois de quote ou img
+# contagem de rotulos
+
+count_rotulo <- rotulo %>%
+  group_by(rotulo) %>%
+  summarise(int = n()) %>%
+  mutate(total = sum(int)) %>%
+  mutate(perc_int = (int / total) * 100)
+
+# texto da checagem
 
 texto <- url %>%
   read_html() %>%
   html_nodes("p.content-text__container") %>%
   html_text() %>%
-  str_remove_all("A declaração é #FAKE. Veja o porquê:") %>%
-  str_remove_all("A declaração é #FATO. Veja o porquê:") %>%
-  str_remove_all("#NÃOÉBEMASSIM. Veja o porquê:") %>%
   str_trim() %>%
-  as.data.frame()
+  as.data.frame() %>%
+  `colnames<-`("checagem") %>%
+  mutate(checagem = toupper(checagem),
+         checagem = rm_accent(checagem)) %>%
+  mutate(rotulo = ifelse(str_detect(checagem, "VEJA O PORQUE:"), 
+                         checagem, NA))
+
 texto
