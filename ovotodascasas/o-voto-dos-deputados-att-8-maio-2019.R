@@ -30,7 +30,7 @@ library(foreign)
 
 #3. importar o arquivo novo de votação
 setwd("~/Downloads/")
-votacao_nova_dbf <- read.dbf("CD190102.dbf")
+votacao_nova_dbf <- read.dbf("CD190358.dbf")
 
 
 #4. mudar os nomes de colunas
@@ -105,7 +105,7 @@ unique(votacao_nova_dbf$partido)
 
 #8. importar o arquivo com os IDs (aba 'politicos')
 
-id_politicos <- read.csv("plenario2019_CD_politicos.csv", encoding = "UTF-8", stringsAsFactors = F)
+id_politicos <- read.csv("plenario2019_CD-10set2019.csv", encoding = "UTF-8", stringsAsFactors = F)
 
 #9. dar um join para pegar os IDs e os nomes em caixa alta e baixa
 
@@ -124,7 +124,10 @@ votacao_nova_dbf$nome_upper <- as.character(votacao_nova_dbf$nome_upper)
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "PROFESSORA DORINHA SEABRA REZEN"] <- "PROFESSORA DORINHA SEABRA REZENDE"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "CHICO D`ANGELO"] <- "CHICO D'ANGELO"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "LUIZ PHILIPPE DE ORLEANS E BRAG"] <- "LUIZ PHILIPPE DE ORLEANS E BRAGANCA"
-
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "VITOR HUGO"] <- "MAJOR VITOR HUGO"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "GILDENEMYR"] <- "PASTOR GILDENEMYR"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "JUNIO AMARAL"] <- "CABO JUNIO AMARAL"
+  
 #11. fazer novamente o left_join
 
 joined_data_2 <- left_join(votacao_nova_dbf, id_politicos, by = "nome_upper")
@@ -146,15 +149,15 @@ colnames(votacao_final) <- c("nome_upper", "voto", "partido", "uf", "nome_politi
 
 #15. inserir coluna com o ID da proposição
 
-votacao_final$id_proposicao <- "4"
+votacao_final$id_proposicao <- "26"
 
 #16. inserir coluna com o nome da proposição
 
-votacao_final$proposicao <- "PLP55-2019"
+votacao_final$proposicao <- "PEC372-2017-1t"
 
 #17. inserir coluna com o permalink da proposição
 
-votacao_final$permalink <- "prorrogacao-de-beneficios-fiscais-a-igrejas-e-instituicoes-beneficentes"
+votacao_final$permalink <- "criacao-da-policia-penitenciaria-1-turno"
 
 
 #18. definir a ordem das colunas
