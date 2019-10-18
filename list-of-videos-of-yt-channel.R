@@ -40,12 +40,3 @@ stats_video_list <- fromJSON(url_video_stats) %>%
   as.data.frame()
   
 stats_video_list
-
-# teste
-
-n <- "https://www.googleapis.com/youtube/v3/commentThreads?part=snippet,replies&videoId=tBdcmN3lOIw&key={API_KEY}&maxResults=100&nextPageToken=2"
-
-comment_list_n <- fromJSON(n) %>%
-  as.data.frame()
-
-comment_list_n
