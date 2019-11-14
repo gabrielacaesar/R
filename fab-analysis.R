@@ -1,4 +1,5 @@
 
+
 library(tidyverse)
 library(data.table)
 library(abjutils)
@@ -35,7 +36,7 @@ tidy_fab_2018 <- tidy_fab %>%
   arrange(desc(int))
 
 # quais foram as cidades mais frequentes em 2019
-# quais foram as ponte-a�reas mais frequentes em 2019
+# quais foram as ponte-aéreas mais frequentes em 2019
 trajeto_2019 <- tidy_fab %>%
   filter(decolagem_ano == "2019") %>%
   unite("trajeto", "origem", "destino", sep = " - ") %>%
@@ -56,6 +57,8 @@ viajantes_2019 <- tidy_fab %>%
   arrange(desc(int))
 
 # quantas horas de voo em 2019
+# NAO É POSSÍVEL FAZER POR CAUSA DO FUSO HORÁRIO
+# ALGUNS HORÁRIOS NÃO BATEM DIREITO
 voos_2019 <- tidy_fab %>%
   filter(decolagem_ano == "2019") %>%
   unite("decolagem_data", "decolagem_dia", "decolagem_mes", "decolagem_ano", sep = "/") %>%
@@ -64,4 +67,5 @@ voos_2019 <- tidy_fab %>%
   unite("pouso_data", "pouso_data", "pouso_hora", sep = " ") %>%
   mutate(duracao_voo = difftime(dmy_hm(pouso_data), dmy_hm(decolagem_data), units = "mins"))
 
+# calcular a quilometragem por trecho
 
