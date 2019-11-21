@@ -128,6 +128,7 @@ votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "VITOR HUGO"] <- "MAJ
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "GILDENEMYR"] <- "PASTOR GILDENEMYR"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "JUNIO AMARAL"] <- "CABO JUNIO AMARAL"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "ROMAN"] <- "EVANDRO ROMAN"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "FABIANO TOLENTINO"] <- "FABIANO GALLETTI TOLENTINO"
   
 #11. fazer novamente o left_join
 
