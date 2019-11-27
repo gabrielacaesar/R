@@ -31,7 +31,7 @@ merged_UF_faltante <- site_TSE %>%
   filter(obrigatoria == "sim") %>%
   select("UF", "MUNICIPIO_UPPER", "Situação.do.município", "Eleitorado", "Eleitorado.com.biometria", "X.", "obrigatoria")
   
-# UFs que terão a biometria obrigatória em todas as UFs
+# UFs que terão a biometria obrigatória em todas as cidades
 uf_completo <- c("TO",
                  "PI",
                  "SE",
