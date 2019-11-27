@@ -3,13 +3,13 @@ library(data.table)
 library(tidyverse)
 library(abjutils)
 
-# lista de municÌpios que j· completaram a biometria e onde houve tÌtulos cancelados e regularizados
+# lista de munic√≠pios que j√° completaram a biometria e onde houve t√≠tulos cancelados e regularizados
 consolidado_LAI <- fread("C:/Users/acaesar/Downloads/biometria-tse-21nov2019-consolidado-LAI.csv", encoding = "UTF-8")
 
-# lista municÌpio e os respectivos dados de eleitorado e eleitorado com biometria
-site_TSE <- read.csv("C:/Users/acaesar/Downloads/site-tse-2.csv", sep = ";", encoding = "Latin-1", dec = ".", colClasses=c('character'))
+# lista munic√≠pio e os respectivos dados de eleitorado e eleitorado com biometria
+site_TSE <- read.csv("C:/Users/acaesar/Downloads/site-tse-5.csv", sep = ";", encoding = "Latin-1", dec = ".", colClasses=c('character'))
 
-# lista de municÌpios em que a biometria ser· obrigatÛria
+# lista de munic√≠pios em que a biometria ser√° obrigat√≥ria
 bio_list <- fread("C:/Users/acaesar/Downloads/bio-lista-lista-municipios-4.csv", encoding="UTF-8")
 
 
@@ -21,17 +21,17 @@ consolidado_LAI <- consolidado_LAI %>%
   mutate(MUNICIPIO_UPPER = toupper(rm_accent(MUNICIPIO)))  
 
 site_TSE <- site_TSE %>%
-  mutate(MUNICIPIO_UPPER = toupper(rm_accent(MunicÌpio))) %>%
+  mutate(MUNICIPIO_UPPER = toupper(rm_accent(Munic√≠pio))) %>%
   filter(UF != "ZZ" & UF != "Total")
 
-# cruzamento de lista de cidades com biometria obrigatÛria e dados do site do TSE
+# cruzamento de lista de cidades com biometria obrigat√≥ria e dados do site do TSE
 merged_UF_faltante <- site_TSE %>%
   left_join(bio_list, by = c("MUNICIPIO_UPPER", "UF")) %>%
   arrange(MUNICIPIO_UPPER, UF) %>%
   filter(obrigatoria == "sim") %>%
-  select("UF", "MUNICIPIO_UPPER", "SituaÁ„o.do.municÌpio", "Eleitorado", "Eleitorado.com.biometria", "X.", "obrigatoria")
+  select("UF", "MUNICIPIO_UPPER", "Situa√ß√£o.do.munic√≠pio", "Eleitorado", "Eleitorado.com.biometria", "X.", "obrigatoria")
   
-# UFs que ter„o a biometria obrigatÛria em todas as UFs
+# UFs que ter√£o a biometria obrigat√≥ria em todas as UFs
 uf_completo <- c("TO",
                  "PI",
                  "SE",
@@ -59,12 +59,29 @@ uf_completo <- uf_completo %>%
 merged_UF_completo <- site_TSE %>%
   left_join(uf_completo, by = ("UF")) %>%
   filter(obrigatoria == "sim") %>%
-  select("UF", "MUNICIPIO_UPPER", "SituaÁ„o.do.municÌpio", "Eleitorado", "Eleitorado.com.biometria", "X.", "obrigatoria")
+  select("UF", "MUNICIPIO_UPPER", "Situa√ß√£o.do.munic√≠pio", "Eleitorado", "Eleitorado.com.biometria", "X.", "obrigatoria")
 
 
-# arquivo com todos os municÌpios em que a biometria ser· obrigatÛria
+# arquivo com todos os munic√≠pios em que a biometria ser√° obrigat√≥ria
 # e o estado da biometria em cada lugar
 merged_uf <- rbind(merged_UF_completo, merged_UF_faltante)
 
 
 write.csv(merged_uf, "merged_uf.csv")
+
+# cruzar meged_uf com consolidado_lai
+
+merged_uf_lai <- merged_uf %>%
+  left_join(consolidado_LAI, by = c("UF", "MUNICIPIO_UPPER")) %>%
+  filter(MUNICIPIO_UPPER != "BRASILIA" & MUNICIPIO_UPPER != "FERNANDO DE NORONHA") %>%
+  arrange(desc(QTD_TITULOS_CANCELADOS))
+
+write.csv(merged_uf_lai, "merged_uf_lai.csv")
+
+
+# cruzar site_TSE com merged_uf_lai
+
+lista_obrigatoriedade <- site_TSE %>%
+  left_join(merged_uf, by = c("UF", "MUNICIPIO_UPPER"))
+
+write.csv(lista_obrigatoriedade, "lista_obrigatoriedade.csv")
