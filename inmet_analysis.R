@@ -15,7 +15,7 @@ convencional_tidy <- convencional %>%
   group_by(NOME, UF, ano) %>%
   summarise(int = n()) %>%
   arrange(desc(int)) %>%
-  filter(int > 10)
+  filter(int > 10 & int < 13)
 
 #######
 # TMAX
@@ -96,7 +96,7 @@ joined_convencional_tmed <- convencional_tmed %>%
   spread(ano, mean_temp)
 
 ########################################################
-# autom·ticas
+# autom√°ticas
 # http://www.inmet.gov.br/portal/index.php?r=estacoes/estacoesAutomaticas
 ########################################################
 
@@ -186,7 +186,7 @@ joined_automaticas_tmed <- automaticas_tmed %>%
 
 
 ########################################################
-##### por regi„o
+##### por regi√£o
 ########################################################
 
 # criar coluna com regiao
