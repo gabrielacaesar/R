@@ -3,186 +3,65 @@ library(data.table)
 
 convencional <- fread("~/inmet/TMAX, TMED, TMIN, MENSAL, 1989 -2019 CONVENCIONAL.CSV")
 
-automaticas <- fread("~/inmet/TMAX, TMED, TMIN, MENSAL, 2000 -2019 AUTOMATICAS.CSV")
-
-########################################################
-# convencional
 # http://www.inmet.gov.br/portal/index.php?r=estacoes/estacoesConvencionais
-########################################################
 
 convencional_tidy <- convencional %>%
   separate(ANO, c("ano", "mes"), sep = "/") %>%
-  group_by(NOME, UF, ano) %>%
-  summarise(int = n()) %>%
-  arrange(desc(int)) %>%
-  filter(int > 10 & int < 13)
-
-#######
-# TMAX
-convencional_tmax <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
   filter(ano != "2019") %>%
   mutate(TMAX = str_replace_all(TMAX, "\\,", "\\.")) %>%
-  group_by(NOME, UF, ano) %>%
-  summarise(int = sum(as.integer(TMAX))) %>%
-  arrange(desc(int))
-
-# TMAX JOIN
-joined_convencional_tmax <- convencional_tmax %>%
-  left_join(convencional_tidy, by = c("NOME", "UF", "ano")) %>%
-  rename("sum_temp" = `int.x`,
-         "count_temp" = `int.y`) %>%
-  filter(count_temp != "NA") %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(NOME, UF, ano, mean_temp) %>%
-  group_by(UF, ano) %>%
-  summarise(sum_temp = sum(mean_temp),
-            count_temp = n()) %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(UF, ano, mean_temp) %>%
-  spread(ano, mean_temp)
-
-  
-#######
-# TMIN
-convencional_tmin <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
-  filter(ano != "2019") %>%
   mutate(TMIN = str_replace_all(TMIN, "\\,", "\\.")) %>%
-  group_by(NOME, UF, ano) %>%
-  summarise(int = sum(as.integer(TMIN))) %>%
-  arrange(desc(int))
+  mutate(TMED = str_replace_all(TMED, "\\,", "\\.")) 
 
-# TMIN JOIN
-joined_convencional_tmin <- convencional_tmin %>%
-  left_join(convencional_tidy, by = c("NOME", "UF", "ano")) %>%
-  rename("sum_temp" = `int.x`,
-         "count_temp" = `int.y`) %>%
-  filter(count_temp != "NA") %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(NOME, UF, ano, mean_temp) %>%
-  group_by(UF, ano) %>%
-  summarise(sum_temp = sum(mean_temp),
-            count_temp = n()) %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(UF, ano, mean_temp) %>%
-  spread(ano, mean_temp)
-
-
-
-#######
-# TMED
-convencional_tmed <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
-  filter(ano != "2019") %>%
-  mutate(TMED = str_replace_all(TMED, "\\,", "\\.")) %>%
-  group_by(NOME, UF, ano) %>%
-  summarise(int = sum(as.integer(TMED))) %>%
-  arrange(desc(int))
-
-# TMED JOIN
-joined_convencional_tmed <- convencional_tmed %>%
-  left_join(convencional_tidy, by = c("NOME", "UF", "ano")) %>%
-  rename("sum_temp" = `int.x`,
-         "count_temp" = `int.y`) %>%
-  filter(count_temp != "NA") %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(NOME, UF, ano, mean_temp) %>%
-  group_by(UF, ano) %>%
-  summarise(sum_temp = sum(mean_temp),
-            count_temp = n()) %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(UF, ano, mean_temp) %>%
-  spread(ano, mean_temp)
 
 ########################################################
-# automáticas
-# http://www.inmet.gov.br/portal/index.php?r=estacoes/estacoesAutomaticas
+##### por UF
 ########################################################
 
-automaticas_tidy <- automaticas %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
+# TMAX - uf
+convencional_tidy_tmax <- convencional_tidy %>%
   group_by(NOME, UF, ano) %>%
-  summarise(int = n()) %>%
-  arrange(desc(int)) %>%
-  filter(int > 10)
-
-
-#######
-# TMAX
-automaticas_tmax <- automaticas %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
-  filter(ano != "2019") %>%
-  mutate(TMAX = str_replace_all(TMAX, "\\,", "\\.")) %>%
-  group_by(NOME, UF, ano) %>%
-  summarise(int = sum(as.integer(TMAX))) %>%
-  arrange(desc(int))
-
-# TMAX JOIN
-joined_automaticas_tmax <- automaticas_tmax %>%
-  left_join(automaticas_tidy, by = c("NOME", "UF", "ano")) %>%
-  rename("sum_temp" = `int.x`,
-         "count_temp" = `int.y`) %>%
-  filter(count_temp != "NA") %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(NOME, UF, ano, mean_temp) %>%
+  summarise(soma = sum(as.integer(TMAX)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(UF, ano, media) %>%
   group_by(UF, ano) %>%
-  summarise(sum_temp = sum(mean_temp),
-            count_temp = n()) %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(UF, ano, mean_temp) %>%
-  spread(ano, mean_temp)
+  summarise(soma = sum(media),
+            contagem = n()) %>%
+  mutate(media = soma / contagem) %>%
+  select(UF, ano, media) %>%
+  spread(ano, media)
 
-
-#######
-# TMIN
-automaticas_tmin <- automaticas %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
-  filter(ano != "2019") %>%
-  mutate(TMIN = str_replace_all(TMIN, "\\,", "\\.")) %>%
+# TMIN - uf
+convencional_tidy_tmin <- convencional_tidy %>%
   group_by(NOME, UF, ano) %>%
-  summarise(int = sum(as.integer(TMIN))) %>%
-  arrange(desc(int))
-
-# TMIN JOIN
-joined_automaticas_tmin <- automaticas_tmin %>%
-  left_join(automaticas_tidy, by = c("NOME", "UF", "ano")) %>%
-  rename("sum_temp" = `int.x`,
-         "count_temp" = `int.y`) %>%
-  filter(count_temp != "NA") %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(NOME, UF, ano, mean_temp) %>%
+  summarise(soma = sum(as.integer(TMIN)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(UF, ano, media) %>%
   group_by(UF, ano) %>%
-  summarise(sum_temp = sum(mean_temp),
-            count_temp = n()) %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(UF, ano, mean_temp) %>%
-  spread(ano, mean_temp)
+  summarise(soma = sum(media),
+            contagem = n()) %>%
+  mutate(media = soma / contagem) %>%
+  select(UF, ano, media) %>%
+  spread(ano, media)
 
-#######
-# TMED
-automaticas_tmed <- automaticas %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
-  filter(ano != "2019") %>%
-  mutate(TMED = str_replace_all(TMED, "\\,", "\\.")) %>%
+
+# TMED - uf
+convencional_tidy_tmed <- convencional_tidy %>%
   group_by(NOME, UF, ano) %>%
-  summarise(int = sum(as.integer(TMED))) %>%
-  arrange(desc(int))
-
-# TMED JOIN
-joined_automaticas_tmed <- automaticas_tmed %>%
-  left_join(automaticas_tidy, by = c("NOME", "UF", "ano")) %>%
-  rename("sum_temp" = `int.x`,
-         "count_temp" = `int.y`) %>%
-  filter(count_temp != "NA") %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(NOME, UF, ano, mean_temp) %>%
+  summarise(soma = sum(as.integer(TMED)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(UF, ano, media) %>%
   group_by(UF, ano) %>%
-  summarise(sum_temp = sum(mean_temp),
-            count_temp = n()) %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(UF, ano, mean_temp) %>%
-  spread(ano, mean_temp)
+  summarise(soma = sum(media),
+            contagem = n()) %>%
+  mutate(media = soma / contagem) %>%
+  select(UF, ano, media) %>%
+  spread(ano, media)
 
 
 ########################################################
@@ -191,89 +70,103 @@ joined_automaticas_tmed <- automaticas_tmed %>%
 
 # criar coluna com regiao
 # sudeste
-convencional$regiao[convencional$UF == "SP"] <- "Sudeste"
-convencional$regiao[convencional$UF == "RJ"] <- "Sudeste"
-convencional$regiao[convencional$UF == "ES"] <- "Sudeste"
-convencional$regiao[convencional$UF == "MG"] <- "Sudeste"
+convencional_tidy$regiao[convencional_tidy$UF == "SP"] <- "Sudeste"
+convencional_tidy$regiao[convencional_tidy$UF == "RJ"] <- "Sudeste"
+convencional_tidy$regiao[convencional_tidy$UF == "ES"] <- "Sudeste"
+convencional_tidy$regiao[convencional_tidy$UF == "MG"] <- "Sudeste"
 # sul
-convencional$regiao[convencional$UF == "RS"] <- "Sul"
-convencional$regiao[convencional$UF == "SC"] <- "Sul"
-convencional$regiao[convencional$UF == "PR"] <- "Sul"
+convencional_tidy$regiao[convencional_tidy$UF == "RS"] <- "Sul"
+convencional_tidy$regiao[convencional_tidy$UF == "SC"] <- "Sul"
+convencional_tidy$regiao[convencional_tidy$UF == "PR"] <- "Sul"
 # centro-oeste
-convencional$regiao[convencional$UF == "MT"] <- "Centro-Oeste"  
-convencional$regiao[convencional$UF == "MS"] <- "Centro-Oeste" 
-convencional$regiao[convencional$UF == "GO"] <- "Centro-Oeste" 
-convencional$regiao[convencional$UF == "DF"] <- "Centro-Oeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "MT"] <- "Centro-Oeste"  
+convencional_tidy$regiao[convencional_tidy$UF == "MS"] <- "Centro-Oeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "GO"] <- "Centro-Oeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "DF"] <- "Centro-Oeste" 
 # norte
-convencional$regiao[convencional$UF == "AM"] <- "Norte" 
-convencional$regiao[convencional$UF == "AC"] <- "Norte" 
-convencional$regiao[convencional$UF == "RO"] <- "Norte" 
-convencional$regiao[convencional$UF == "RR"] <- "Norte" 
-convencional$regiao[convencional$UF == "AP"] <- "Norte" 
-convencional$regiao[convencional$UF == "TO"] <- "Norte"
-convencional$regiao[convencional$UF == "PA"] <- "Norte" 
+convencional_tidy$regiao[convencional_tidy$UF == "AM"] <- "Norte" 
+convencional_tidy$regiao[convencional_tidy$UF == "AC"] <- "Norte" 
+convencional_tidy$regiao[convencional_tidy$UF == "RO"] <- "Norte" 
+convencional_tidy$regiao[convencional_tidy$UF == "RR"] <- "Norte" 
+convencional_tidy$regiao[convencional_tidy$UF == "AP"] <- "Norte" 
+convencional_tidy$regiao[convencional_tidy$UF == "TO"] <- "Norte"
+convencional_tidy$regiao[convencional_tidy$UF == "PA"] <- "Norte" 
 # nordeste
-convencional$regiao[convencional$UF == "MA"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "PI"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "CE"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "RN"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "PB"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "PE"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "AL"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "SE"] <- "Nordeste" 
-convencional$regiao[convencional$UF == "BA"] <- "Nordeste" 
-
-convencional_tidy_regiao <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
-  group_by(NOME, UF, ano) %>%
-  summarise(int = n()) %>%
-  arrange(desc(int)) %>%
-  filter(int > 10)
+convencional_tidy$regiao[convencional_tidy$UF == "MA"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "PI"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "CE"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "RN"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "PB"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "PE"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "AL"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "SE"] <- "Nordeste" 
+convencional_tidy$regiao[convencional_tidy$UF == "BA"] <- "Nordeste" 
 
 
-convencional_tmed_regiao <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
-  filter(ano != "2019") %>%
-  mutate(TMED = str_replace_all(TMED, "\\,", "\\.")) %>%
+# TMAX - região
+convencional_tidy_tmax_REGIAO <- convencional_tidy %>%
   group_by(NOME, UF, regiao, ano) %>%
-  summarise(int = sum(as.integer(TMED))) %>%
-  arrange(desc(int))
-
-# TMED JOIN
-joined_convencional_tmed_regiao <- convencional_tmed_regiao %>%
-  left_join(convencional_tidy_regiao, by = c("NOME", "UF", "ano")) %>%
-  rename("sum_temp" = `int.x`,
-         "count_temp" = `int.y`) %>%
-  filter(count_temp != "NA") %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(NOME, UF, regiao, ano, mean_temp) %>%
+  summarise(soma = sum(as.integer(TMAX)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(regiao, ano, media) %>%
   group_by(regiao, ano) %>%
-  summarise(sum_temp = sum(mean_temp),
-            count_temp = n()) %>%
-  mutate(mean_temp = sum_temp / count_temp) %>%
-  select(regiao, ano, mean_temp) %>%
-  spread(ano, mean_temp)
+  summarise(soma = sum(media),
+            contagem = n()) %>%
+  mutate(media = soma / contagem) %>%
+  select(regiao, ano, media) %>%
+  spread(ano, media)
 
 
-# Estação: CANARANA-MT
+# TMIN - região
+convencional_tidy_tmin_REGIAO <- convencional_tidy %>%
+  group_by(NOME, UF, regiao, ano) %>%
+  summarise(soma = sum(as.integer(TMIN)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(regiao, ano, media) %>%
+  group_by(regiao, ano) %>%
+  summarise(soma = sum(media),
+            contagem = n()) %>%
+  mutate(media = soma / contagem) %>%
+  select(regiao, ano, media) %>%
+  spread(ano, media)
 
-convencional_CANARANA_tmax <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
+
+# TMED - região
+convencional_tidy_tmed_REGIAO <- convencional_tidy %>%
+  group_by(NOME, UF, regiao, ano) %>%
+  summarise(soma = sum(as.integer(TMED)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(regiao, ano, media) %>%
+  group_by(regiao, ano) %>%
+  summarise(soma = sum(media),
+            contagem = n()) %>%
+  mutate(media = soma / contagem) %>%
+  select(regiao, ano, media) %>%
+  spread(ano, media)
+
+########################################################
+##### Estação: CANARANA-MT
+########################################################
+
+convencional_CANARANA_tmax <- convencional_tidy %>%
   filter(NOME == "CANARANA") %>%
-  mutate(TMAX = str_replace_all(TMAX, "\\,", "\\.")) %>%
   group_by(NOME, UF, ano) %>%
   summarise(soma = sum(as.integer(TMAX)),
-    contagem = n()) %>%
+            contagem = n()) %>%
   filter(contagem > 10 & contagem < 13) %>%
   mutate(media = soma / contagem) %>%
   select(NOME, UF, ano, media)
 
 write.csv(convencional_CANARANA_tmax, "convencional_CANARANA_tmax.csv")
 
-convencional_CANARANA_tmin <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
+convencional_CANARANA_tmin <- convencional_tidy %>%
   filter(NOME == "CANARANA") %>%
-  mutate(TMIN = str_replace_all(TMIN, "\\,", "\\.")) %>%
   group_by(NOME, UF, ano) %>%
   summarise(soma = sum(as.integer(TMIN)),
             contagem = n()) %>%
@@ -283,10 +176,8 @@ convencional_CANARANA_tmin <- convencional %>%
 
 write.csv(convencional_CANARANA_tmin, "convencional_CANARANA_tmin.csv")
 
-convencional_CANARANA_tmed <- convencional %>%
-  separate(ANO, c("ano", "mes"), sep = "/") %>%
+convencional_CANARANA_tmed <- convencional_tidy %>%
   filter(NOME == "CANARANA") %>%
-  mutate(TMED = str_replace_all(TMED, "\\,", "\\.")) %>%
   group_by(NOME, UF, ano) %>%
   summarise(soma = sum(as.integer(TMED)),
             contagem = n()) %>%
@@ -295,4 +186,3 @@ convencional_CANARANA_tmed <- convencional %>%
   select(NOME, UF, ano, media)
 
 write.csv(convencional_CANARANA_tmed, "convencional_CANARANA_tmed.csv")
-
