@@ -29,6 +29,7 @@ convencional_tidy_tmax <- convencional_tidy %>%
   summarise(soma = sum(media),
             contagem = n()) %>%
   mutate(media = soma / contagem) %>%
+  mutate(media = str_replace_all(media, "\\.", "\\,")) %>%
   select(UF, ano, media) %>%
   spread(ano, media)
 
@@ -44,6 +45,7 @@ convencional_tidy_tmin <- convencional_tidy %>%
   summarise(soma = sum(media),
             contagem = n()) %>%
   mutate(media = soma / contagem) %>%
+  mutate(media = str_replace_all(media, "\\.", "\\,")) %>%
   select(UF, ano, media) %>%
   spread(ano, media)
 
@@ -60,6 +62,7 @@ convencional_tidy_tmed <- convencional_tidy %>%
   summarise(soma = sum(media),
             contagem = n()) %>%
   mutate(media = soma / contagem) %>%
+  mutate(media = str_replace_all(media, "\\.", "\\,")) %>%
   select(UF, ano, media) %>%
   spread(ano, media)
 
