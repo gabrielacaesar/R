@@ -253,3 +253,46 @@ joined_convencional_tmed_regiao <- convencional_tmed_regiao %>%
   mutate(mean_temp = sum_temp / count_temp) %>%
   select(regiao, ano, mean_temp) %>%
   spread(ano, mean_temp)
+
+
+# Estação: CANARANA-MT
+
+convencional_CANARANA_tmax <- convencional %>%
+  separate(ANO, c("ano", "mes"), sep = "/") %>%
+  filter(NOME == "CANARANA") %>%
+  mutate(TMAX = str_replace_all(TMAX, "\\,", "\\.")) %>%
+  group_by(NOME, UF, ano) %>%
+  summarise(soma = sum(as.integer(TMAX)),
+    contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(NOME, UF, ano, media)
+
+write.csv(convencional_CANARANA_tmax, "convencional_CANARANA_tmax.csv")
+
+convencional_CANARANA_tmin <- convencional %>%
+  separate(ANO, c("ano", "mes"), sep = "/") %>%
+  filter(NOME == "CANARANA") %>%
+  mutate(TMIN = str_replace_all(TMIN, "\\,", "\\.")) %>%
+  group_by(NOME, UF, ano) %>%
+  summarise(soma = sum(as.integer(TMIN)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(NOME, UF, ano, media)
+
+write.csv(convencional_CANARANA_tmin, "convencional_CANARANA_tmin.csv")
+
+convencional_CANARANA_tmed <- convencional %>%
+  separate(ANO, c("ano", "mes"), sep = "/") %>%
+  filter(NOME == "CANARANA") %>%
+  mutate(TMED = str_replace_all(TMED, "\\,", "\\.")) %>%
+  group_by(NOME, UF, ano) %>%
+  summarise(soma = sum(as.integer(TMED)),
+            contagem = n()) %>%
+  filter(contagem > 10 & contagem < 13) %>%
+  mutate(media = soma / contagem) %>%
+  select(NOME, UF, ano, media)
+
+write.csv(convencional_CANARANA_tmed, "convencional_CANARANA_tmed.csv")
+
