@@ -1,4 +1,3 @@
-
 ################################################################
 ###                                                          ###
 ###                       Fato ou Fake                       ###
@@ -40,7 +39,8 @@ data <- url %>%
   as.data.frame() %>%
   `colnames<-`("data") %>%
   .[3,] %>%
-  as.data.frame()
+  as.data.frame() %>%
+  `colnames<-`("data")
 
 data
 
@@ -54,7 +54,8 @@ hora <- url %>%
   as.data.frame() %>%
   `colnames<-`("hora") %>%
   .[4,] %>%
-  as.data.frame()
+  as.data.frame() %>%
+  `colnames<-`("hora")
 
 hora
 
@@ -90,8 +91,8 @@ rotulo <- url %>%
   as.data.frame() %>%
   `colnames<-`("rotulo") %>%
   filter(rotulo == "#FATO" |
-         rotulo == "#FAKE" |
-         rotulo == "#NÃOÉBEMASSIM")
+           rotulo == "#FAKE" |
+           rotulo == "#NÃOÉBEMASSIM")
 
 rotulo
 
@@ -101,7 +102,9 @@ count_rotulo <- rotulo %>%
   group_by(rotulo) %>%
   summarise(int = n()) %>%
   mutate(total = sum(int)) %>%
-  mutate(perc_int = (int / total) * 100)
+  mutate(perc_int = round((int / total) * 100, 1))
+
+count_rotulo
 
 # texto da checagem
 
@@ -114,7 +117,9 @@ texto <- url %>%
   `colnames<-`("checagem") %>%
   mutate(checagem = toupper(checagem),
          checagem = rm_accent(checagem)) %>%
-  mutate(rotulo = ifelse(str_detect(checagem, "VEJA O PORQUE:"), 
-                         checagem, NA))
+  mutate(rotulo = case_when(
+          str_detect(checagem, "#FATO") ~ "#FATO", 
+          str_detect(checagem, "#FAKE") ~ "#FAKE", 
+          str_detect(checagem, "#NAOEBEMASSIM") ~ "#NAOEBEMASSIM"))
 
 texto
