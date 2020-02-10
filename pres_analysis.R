@@ -52,9 +52,9 @@ min_PR_tidy_min$velezCount <- stri_count_fixed(min_PR_tidy_min$texto_2, "RICARDO
 min_PR_tidy_min$santosCruzCount <- stri_count_fixed(min_PR_tidy_min$texto_2, "SANTOS CRUZ")
 
 min_PR_tidy_min_new <- min_PR_tidy_min %>%
-  select(1:3, 10:29) %>%
-  gather("ministro", "int", 4:23) %>%
-  group_by(mes, ministro) %>%
+  select(1:3, 10:35) %>%
+  gather("ministro", "int", 4:29) %>%
+  group_by(ministro) %>%
   summarise(soma = sum(int))
 
 
