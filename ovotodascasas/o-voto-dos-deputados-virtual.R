@@ -35,7 +35,7 @@ library(abjutils)
 #3. importar o arquivo novo de votação
 deputados_id <- fread("~/Downloads/plenario2019_CD-politicos-4abr2020-2.csv")
 
-resultado_votacao <- fread("~/Downloads/votacao-pec10-2020-1t.csv")
+resultado_votacao <- fread("~/Downloads/votacao_final_PEC10-2020-2t.csv")
 
 
 #3. ou pegar o resultado via HTML
@@ -176,14 +176,26 @@ votacao_final <- joined_data %>%
          "partido" = partido.y,
          "uf" = uf.y,
          "id_politico" = id) %>%
-  mutate(id_proposicao = "44",
-         proposicao = "PEC10-2020-1t",
-         permalink = "pec-do-orcamento-de-guerra-1-turno") %>%
+  mutate(id_proposicao = "45",
+         proposicao = "PEC10-2020-2t",
+         permalink = "pec-do-orcamento-de-guerra-2-turno") %>%
   select("id_proposicao", "proposicao", "partido", "id_politico", 
          "nome_upper", "nome_politico", "uf", "voto", "permalink") %>% 
   arrange(nome_upper)
 
 #11. fazer o download
 
-write.csv(votacao_final, "votacao_final_PEC10-2020-1t.csv")
+write.csv(votacao_final, "votacao_final_PEC10-2020-2t-ESTE.csv")
 
+#12. checar exercicio
+joined_data <- deputados_id %>%
+  left_join(resultado_votacao, by = "nome_upper") %>%
+  arrange(desc(id)) %>%
+  filter(!is.na(voto),
+         exercicio != "sim")
+
+joined_data <- deputados_id %>%
+  left_join(resultado_votacao, by = "nome_upper") %>%
+  arrange(desc(id)) %>%
+  filter(is.na(voto),
+         exercicio != "nao")
