@@ -42,7 +42,7 @@ deputados_id <- fread("~/Downloads/plenario2019_CD-politicos-4abr2020-2.csv")
 resultado_votacao <- fread("~/Downloads/votacao-nova-7abr2020.csv")
 
 #4-B. ****ou pegar o resultado direto via HTML****
-# ATENÇÃO: APENAS caso não importe o resultado via arquivo (etapa 4A)
+# ATENÇÃO: APENAS caso não importe o resultado via arquivo (etapa 4-A)
 # caminho para achar a URL: Atividade legislativa > Agenda > (selecionar o dia) > (selecionar a sessão) > Votação > (selecionar a votação)
 # indicar NOVA URL abaixo
 url <- "https://www.camara.leg.br/presenca-comissoes/votacao-portal?reuniao=59543&itemVotacao=28632"
