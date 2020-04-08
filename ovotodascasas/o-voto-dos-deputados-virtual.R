@@ -33,7 +33,7 @@ library(abjutils)
 deputados_id <- fread("~/Downloads/plenario2019_CD-politicos-4abr2020-2.csv")
 
 #4-A. importar o arquivo com o resultado da votação 
-# usar IMPORTHTML() no Spreadsheet e separar em colunas
+# usar IMPORTHTML() no Spreadsheet, selecionar a lista 13 e separar em colunas
 # opcional
 resultado_votacao <- fread("~/Downloads/votacao-nova-7abr2020.csv")
 
