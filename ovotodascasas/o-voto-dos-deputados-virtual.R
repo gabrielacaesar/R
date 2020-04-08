@@ -32,14 +32,19 @@ library(rvest)
 library(data.table)
 library(abjutils)
 
-#3. importar o arquivo novo de votação
+#3. importar o nosso arquivo com o registro de todos os deputados
+# fazer o download da aba 'politicos' da planilha
 deputados_id <- fread("~/Downloads/plenario2019_CD-politicos-4abr2020-2.csv")
 
-resultado_votacao <- fread("~/Downloads/votacao_final_PEC10-2020-2t.csv")
+#4-A. importar o arquivo com o resultado da votação 
+# usar IMPORTHTML() no Spreadsheet e separar em colunas
+# opcional
+resultado_votacao <- fread("~/Downloads/votacao-nova-7abr2020.csv")
 
-
-#3. ou pegar o resultado via HTML
-# caso nao importe o resultado via arquivo
+#4-B. ****ou pegar o resultado direto via HTML****
+# ATENÇÃO: APENAS caso não importe o resultado via arquivo (etapa 4A)
+# caminho para achar a URL: Atividade legislativa > Agenda > (selecionar o dia) > (selecionar a sessão) > Votação > (selecionar a votação)
+# indicar NOVA URL abaixo
 url <- "https://www.camara.leg.br/presenca-comissoes/votacao-portal?reuniao=59543&itemVotacao=28632"
 
 resultado_url <- url %>%
@@ -50,11 +55,19 @@ resultado_url <- url %>%
   as.data.frame() %>%
   `colnames<-`("info")
 
-### e separar por colunas
-### no IMPORTHMTL eh a lista 13
+resultado_url_split <- resultado_url %>%
+  separate(info, into = c("nome", "info"), sep = "\\(") %>%
+  separate(info, into = c("partido", "uf", "voto"), sep = "-") %>%
+  mutate(uf = str_remove_all(uf, " *\\)")) %>%
+  mutate(voto = str_trim(voto),
+         voto = str_remove_all(voto, "votou"),
+         voto = str_replace_na(voto, "ausente"),
+         voto = str_replace_all(voto, "Sim", "sim"),
+         voto = str_replace_all(voto, "Não", "nao"))
 
-#4. padronizar nomes
+resultado_votacao <- resultado_url_split
 
+#5. padronizar nomes
 resultado_votacao$nome[resultado_votacao$nome == "Alencar S. Braga"] <- "Alencar Santana Braga"
 resultado_votacao$nome[resultado_votacao$nome == "AlexandreSerfiotis"] <- "Alexandre Serfiotis"
 resultado_votacao$nome[resultado_votacao$nome == "Arthur O. Maia"] <- "Arthur Oliveira Maia"
@@ -132,8 +145,7 @@ resultado_votacao$nome[resultado_votacao$nome == "Vitor Hugo"] <- "Major Vitor H
 resultado_votacao$nome[resultado_votacao$nome == "Wellington"] <- "Wellington Roberto"
 resultado_votacao$nome[resultado_votacao$nome == "WladimirGarotinho"] <- "Wladimir Garotinho"
 
-#5. padronizar partidos
-
+#6. padronizar partidos
 resultado_votacao$partido[resultado_votacao$partido == "NOVO"] <- "Novo"
 resultado_votacao$partido[resultado_votacao$partido == "CIDADANIA"] <- "Cidadania"
 resultado_votacao$partido[resultado_votacao$partido == "REDE"] <- "Rede"
@@ -144,50 +156,42 @@ resultado_votacao$partido[resultado_votacao$partido == "AVANTE"] <- "Avante"
 resultado_votacao$partido[resultado_votacao$partido == "REPUBLICANOS"] <- "Republicanos"
 
 
-
-#6. tirar acentos e colocar caixa alta
-
+#7. tirar acentos e colocar caixa alta
 resultado_votacao <- resultado_votacao %>%
   mutate(nome_upper = toupper(rm_accent(nome)))
 
 
-#7. cruzar planilhas
+#8. cruzar planilhas
 joined_data <- resultado_votacao %>%
   left_join(deputados_id, by = "nome_upper") %>%
   arrange(desc(id))
 
-#8. checar PARTIDO
+#9. checar PARTIDO
+# verificar se houve mudança de partido
 check_partido <- joined_data %>%
   mutate(check = ifelse(`partido.x` == `partido.y`, "match", "not_match")) %>%
   filter(check == "not_match") %>%
   select(nome_upper, `partido.x`, `partido.y`, `uf.y`, `uf.x`, check)
 
-#9. checar UF
-check_uf <- joined_data %>%
-  mutate(check = ifelse(`uf.x` == `uf.y`, "match", "not_match")) %>%
-  filter(check == "not_match") %>%
-  select(nome_upper, `partido.x`, `partido.y`, `uf.y`, `uf.x`, check)
-
-
 #10. selecionar as colunas que queremos no nosso arquivo
-
+# é necessário informar abaixo: ID_PROPOSICAO, PROPOSICAO, PERMALINK
 votacao_final <- joined_data %>%
   rename("nome_politico" = nome.y,
          "partido" = partido.y,
          "uf" = uf.y,
          "id_politico" = id) %>%
-  mutate(id_proposicao = "45",
-         proposicao = "PEC10-2020-2t",
-         permalink = "pec-do-orcamento-de-guerra-2-turno") %>%
+  mutate(id_proposicao = "46",
+         proposicao = "PLP232-2019",
+         permalink = "remanejamento-de-verbas-para-a-saude") %>%
   select("id_proposicao", "proposicao", "partido", "id_politico", 
          "nome_upper", "nome_politico", "uf", "voto", "permalink") %>% 
   arrange(nome_upper)
 
 #11. fazer o download
-
-write.csv(votacao_final, "votacao_final_PEC10-2020-2t-ESTE.csv")
+write.csv(votacao_final, "votacao_final_PLP232-2019.csv")
 
 #12. checar exercicio
+# opcional: checar se houve mudança nos deputados em exercício
 joined_data <- deputados_id %>%
   left_join(resultado_votacao, by = "nome_upper") %>%
   arrange(desc(id)) %>%
