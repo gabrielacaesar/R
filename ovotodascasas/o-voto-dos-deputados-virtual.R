@@ -55,7 +55,8 @@ resultado_url_split <- resultado_url %>%
   separate(info, into = c("nome", "info"), sep = "\\(") %>%
   separate(info, into = c("partido", "uf", "voto"), sep = "-") %>%
   mutate(uf = str_remove_all(uf, " *\\)")) %>%
-  mutate(voto = str_trim(voto),
+  mutate(nome = str_trim(nome),
+         voto = str_trim(voto),
          voto = str_remove_all(voto, "votou"),
          voto = str_replace_na(voto, "ausente"),
          voto = str_replace_all(voto, "Sim", "sim"),
