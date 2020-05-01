@@ -27,7 +27,7 @@ while(i < 11) {
 id <- as.data.frame(id)
 
 
-###### download de JSON/XML/HTML
+###### download de HTML
 
 #length(id)
 i <- 1
@@ -46,6 +46,8 @@ while(i < 2) {
   )
   i <- i + 1
 }
+
+###### get json
 
 get_json <- paste0("arquivo", i, ".html") %>%
         read_html() %>%
