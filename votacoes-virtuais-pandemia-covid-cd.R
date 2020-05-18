@@ -5,10 +5,10 @@ library(rvest)
 library(data.table)
 library(abjutils)
 
-# file with list of urls
+# read file with list of urls
 url_list <- fread("~/Downloads/votacoes-camara-18052020.csv")
 
-# number of urls
+# get number of urls
 url_list_length <- length(unique(url_list$link_votacao))
 
 # get votings name
