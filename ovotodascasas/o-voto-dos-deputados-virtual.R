@@ -60,7 +60,10 @@ resultado_url_split <- resultado_url %>%
          voto = str_remove_all(voto, "votou"),
          voto = str_replace_na(voto, "ausente"),
          voto = str_replace_all(voto, "Sim", "sim"),
-         voto = str_replace_all(voto, "Não", "nao"))
+         voto = str_replace_all(voto, "Não", "nao"),
+         voto = str_replace_all(voto, "Abstenção", "abstencao"),
+         voto = str_replace_all(voto, "Obstrução", "obstrucao"),
+         voto = str_replace_all(voto, "Presidente", "naovotou"))
 
 resultado_votacao <- resultado_url_split
 
