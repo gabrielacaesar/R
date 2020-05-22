@@ -266,7 +266,8 @@ type3_full_content <- type3_header %>%
   left_join(type3_question, by = "poll_id") %>%
   rename("category" = "answer.x",
          "answer" = "answer.y") %>%
-  select(question, category, answer, value, poll_id, id_cross)
+  separate(category, c("category_type", "category_answer"), sep = "\\|") %>%
+  select(question, category_type, category_answer, answer, value, poll_id, id_cross)
 
 # downloading type 3 tables CSV
 write.csv(type3_full_content, "type3_full_content.csv")
