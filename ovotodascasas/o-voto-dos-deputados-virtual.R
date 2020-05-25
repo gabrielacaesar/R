@@ -223,15 +223,23 @@ resultado_votacao <- resultado_url_split %>%
          "WladimirGarotinho", "Wladimir Garotinho"))
 
 #6. padronizar partidos
-resultado_votacao$partido[resultado_votacao$partido == "NOVO"] <- "Novo"
-resultado_votacao$partido[resultado_votacao$partido == "CIDADANIA"] <- "Cidadania"
-resultado_votacao$partido[resultado_votacao$partido == "REDE"] <- "Rede"
-resultado_votacao$partido[resultado_votacao$partido == "SOLIDARIEDADE"] <- "SD"
-resultado_votacao$partido[resultado_votacao$partido == "PODEMOS"] <- "PODE"
-resultado_votacao$partido[resultado_votacao$partido == "PATRIOTA"] <- "Patriota"
-resultado_votacao$partido[resultado_votacao$partido == "AVANTE"] <- "Avante"
-resultado_votacao$partido[resultado_votacao$partido == "REPUBLICANOS"] <- "Republicanos"
-
+resultado_votacao <- resultado_votacao %>%
+  mutate(partido = str_replace_all(partido,
+         "NOVO", "Novo"),
+         partido = str_replace_all(partido,
+         "CIDADANIA", "Cidadania"),
+         partido = str_replace_all(partido,
+         "REDE", "Rede"),     
+         partido = str_replace_all(partido,
+         "SOLIDARIEDADE", "SD"),
+         partido = str_replace_all(partido,
+         "PODEMOS", "PODE"),
+         partido = str_replace_all(partido,
+         "PATRIOTA", "Patriota"),
+         partido = str_replace_all(partido,
+         "AVANTE", "Avante"),
+         partido = str_replace_all(partido,
+         "REPUBLICANOS", "Republicanos"))
 
 #7. tirar acentos e colocar caixa alta
 resultado_votacao <- resultado_votacao %>%
