@@ -68,82 +68,159 @@ resultado_url_split <- resultado_url %>%
 resultado_votacao <- resultado_url_split
 
 #5. padronizar nomes
-resultado_votacao$nome[resultado_votacao$nome == "Alencar S. Braga"] <- "Alencar Santana Braga"
-resultado_votacao$nome[resultado_votacao$nome == "AlexandreSerfiotis"] <- "Alexandre Serfiotis"
-resultado_votacao$nome[resultado_votacao$nome == "Arthur O. Maia"] <- "Arthur Oliveira Maia"
-resultado_votacao$nome[resultado_votacao$nome == "Cap. Alberto Neto"] <- "Capitão Alberto Neto"
-resultado_votacao$nome[resultado_votacao$nome == "Carlos Gaguim"] <- "Carlos Henrique Gaguim"
-resultado_votacao$nome[resultado_votacao$nome == "Cezinha Madureira"] <- "Cezinha de Madureira"
-resultado_votacao$nome[resultado_votacao$nome == "Charlles Evangelis"] <- "Charlles Evangelista"
-resultado_votacao$nome[resultado_votacao$nome == "Chico D´Angelo"] <- "Chico D'Angelo"
-resultado_votacao$nome[resultado_votacao$nome == "Christiane Yared"] <- "Christiane de Souza Yared"
-resultado_votacao$nome[resultado_votacao$nome == "CoronelChrisóstom"] <- "Coronel Chrisóstomo"
-resultado_votacao$nome[resultado_votacao$nome == "Daniela Waguinho"] <- "Daniela do Waguinho"
-resultado_votacao$nome[resultado_votacao$nome == "Danrlei"] <- "Danrlei de Deus Hinterholz"
-resultado_votacao$nome[resultado_votacao$nome == "DelAntônioFurtado"] <- "Delegado Antônio Furtado"
-resultado_votacao$nome[resultado_votacao$nome == "Deleg. Éder Mauro"] <- "Delegado Éder Mauro"
-resultado_votacao$nome[resultado_votacao$nome == "Delegado Marcelo"] <- "Delegado Marcelo Freitas"
-resultado_votacao$nome[resultado_votacao$nome == "Dr Zacharias Calil"] <- "Dr. Zacharias Calil"
-resultado_votacao$nome[resultado_votacao$nome == "Dr. Sinval"] <- "Dr. Sinval Malheiros"
-resultado_votacao$nome[resultado_votacao$nome == "Dr.Luiz Antonio Jr"] <- "Dr. Luiz Antonio Teixeira Jr."
-resultado_votacao$nome[resultado_votacao$nome == "Dra.Soraya Manato"] <- "Dra. Soraya Manato"
-resultado_votacao$nome[resultado_votacao$nome == "EdmilsonRodrigues"] <- "Edmilson Rodrigues"
-resultado_votacao$nome[resultado_votacao$nome == "EduardoBolsonaro"] <- "Eduardo Bolsonaro"
-resultado_votacao$nome[resultado_votacao$nome == "Emanuel Pinheiro N"] <- "Emanuel Pinheiro Neto"
-resultado_votacao$nome[resultado_votacao$nome == "EuclydesPettersen"] <- "Euclydes Pettersen"
-resultado_votacao$nome[resultado_votacao$nome == "Evair de Melo"] <- "Evair Vieira de Melo"
-resultado_votacao$nome[resultado_votacao$nome == "FelipeFrancischini"] <- "Felipe Francischini"
-resultado_votacao$nome[resultado_votacao$nome == "Félix Mendonça Jr"] <- "Félix Mendonça Júnior"
-resultado_votacao$nome[resultado_votacao$nome == "FernandaMelchionna"] <- "Fernanda Melchionna"
-resultado_votacao$nome[resultado_votacao$nome == "Fernando Coelho"] <- "Fernando Coelho Filho"
-resultado_votacao$nome[resultado_votacao$nome == "FernandoMonteiro"] <- "Fernando Monteiro"
-resultado_votacao$nome[resultado_votacao$nome == "FernandoRodolfo"] <- "Fernando Rodolfo"
-resultado_votacao$nome[resultado_votacao$nome == "Frei Anastacio"] <- "Frei Anastacio Ribeiro"
-resultado_votacao$nome[resultado_votacao$nome == "GilbertoNasciment"] <- "Gilberto Nascimento"
-resultado_votacao$nome[resultado_votacao$nome == "Gildenemyr"] <- "Pastor Gildenemyr"
-resultado_votacao$nome[resultado_votacao$nome == "Hercílio Diniz"] <- "Hercílio Coelho Diniz"
-resultado_votacao$nome[resultado_votacao$nome == "HermesParcianello"] <- "Hermes Parcianello"
-resultado_votacao$nome[resultado_votacao$nome == "Isnaldo Bulhões Jr"] <- "Isnaldo Bulhões Jr."
-resultado_votacao$nome[resultado_votacao$nome == "Israel Batista"] <- "Professor Israel Batista"
-resultado_votacao$nome[resultado_votacao$nome == "João C. Bacelar"] <- "João Carlos Bacelar"
-resultado_votacao$nome[resultado_votacao$nome == "João Marcelo S."] <- "João Marcelo Souza"
-resultado_votacao$nome[resultado_votacao$nome == "JoaquimPassarinho"] <- "Joaquim Passarinho"
-resultado_votacao$nome[resultado_votacao$nome == "José Airton"] <- "José Airton Cirilo"
-resultado_votacao$nome[resultado_votacao$nome == "Jose Mario Schrein"] <- "Jose Mario Schreiner"
-resultado_votacao$nome[resultado_votacao$nome == "Julio Cesar Ribeir"] <- "Julio Cesar Ribeiro"
-resultado_votacao$nome[resultado_votacao$nome == "Junio Amaral"] <- "Cabo Junio Amaral"
-resultado_votacao$nome[resultado_votacao$nome == "Lafayette Andrada"] <- "Lafayette de Andrada"
-resultado_votacao$nome[resultado_votacao$nome == "Leur Lomanto Jr."] <- "Leur Lomanto Júnior"
-resultado_votacao$nome[resultado_votacao$nome == "Luiz P. O.Bragança"] <- "Luiz Philippe de Orleans e Bragança"
-resultado_votacao$nome[resultado_votacao$nome == "LuizAntônioCorrêa"] <- "Luiz Antônio Corrêa"
-resultado_votacao$nome[resultado_votacao$nome == "Marcos A. Sampaio"] <- "Marcos Aurélio Sampaio"
-resultado_votacao$nome[resultado_votacao$nome == "MargaridaSalomão"] <- "Margarida Salomão"
-resultado_votacao$nome[resultado_votacao$nome == "MárioNegromonte Jr"] <- "Mário Negromonte Jr."
-resultado_votacao$nome[resultado_votacao$nome == "Maurício Dziedrick"] <- "Maurício Dziedricki"
-resultado_votacao$nome[resultado_votacao$nome == "Mauro Benevides Fº"] <- "Mauro Benevides Filho"
-resultado_votacao$nome[resultado_votacao$nome == "Nivaldo Albuquerq"] <- "Nivaldo Albuquerque"
-resultado_votacao$nome[resultado_votacao$nome == "Ottaci Nascimento"] <- "Otaci Nascimento"
-resultado_votacao$nome[resultado_votacao$nome == "Otto Alencar"] <- "Otto Alencar Filho"
-resultado_votacao$nome[resultado_votacao$nome == "Pastor Isidório"] <- "Pastor Sargento Isidório"
-resultado_votacao$nome[resultado_votacao$nome == "Paulo Martins"] <- "Paulo Eduardo Martins"
-resultado_votacao$nome[resultado_votacao$nome == "Paulo Pereira"] <- "Paulo Pereira da Silva"
-resultado_votacao$nome[resultado_votacao$nome == "Pedro A Bezerra"] <- "Pedro Augusto Bezerra"
-resultado_votacao$nome[resultado_votacao$nome == "Pedro Lucas Fernan"] <- "Pedro Lucas Fernandes"
-resultado_votacao$nome[resultado_votacao$nome == "Policial Sastre"] <- "Policial Katia Sastre"
-resultado_votacao$nome[resultado_votacao$nome == "Pr Marco Feliciano"] <- "Pr. Marco Feliciano"
-resultado_votacao$nome[resultado_votacao$nome == "Prof Marcivania"] <- "Professora Marcivania"
-resultado_votacao$nome[resultado_votacao$nome == "Profª Dorinha"] <- "Professora Dorinha Seabra Rezende"
-resultado_votacao$nome[resultado_votacao$nome == "Profª Rosa Neide"] <- "Professora Rosa Neide"
-resultado_votacao$nome[resultado_votacao$nome == "Professora Dayane"] <- "Professora Dayane Pimentel"
-resultado_votacao$nome[resultado_votacao$nome == "Rogério Peninha"] <- "Rogério Peninha Mendonça"
-resultado_votacao$nome[resultado_votacao$nome == "Roman"] <- "Evandro Roman"
-resultado_votacao$nome[resultado_votacao$nome == "SóstenesCavalcante"] <- "Sóstenes Cavalcante"
-resultado_votacao$nome[resultado_votacao$nome == "Stephanes Junior"] <- "Reinhold Stephanes Junior"
-resultado_votacao$nome[resultado_votacao$nome == "SubtenenteGonzaga"] <- "Subtenente Gonzaga"
-resultado_votacao$nome[resultado_votacao$nome == "ToninhoWandscheer"] <- "Toninho Wandscheer"
-resultado_votacao$nome[resultado_votacao$nome == "Vitor Hugo"] <- "Major Vitor Hugo"
-resultado_votacao$nome[resultado_votacao$nome == "Wellington"] <- "Wellington Roberto"
-resultado_votacao$nome[resultado_votacao$nome == "WladimirGarotinho"] <- "Wladimir Garotinho"
+resultado_votacao <- resultado_url_split %>%
+  mutate(nome = str_replace_all(nome,
+        "Alencar S. Braga", "Alencar Santana Braga"), 
+         nome = str_replace_all(nome,
+         "AlexandreSerfiotis", "Alexandre Serfiotis"),
+         nome = str_replace_all(nome,
+         "Arthur O. Maia", "Arthur Oliveira Maia"),
+         nome = str_replace_all(nome,
+         "Cap. Alberto Neto", "Capitão Alberto Neto"),
+         nome = str_replace_all(nome,
+         "Carlos Gaguim", "Carlos Henrique Gaguim"),
+         nome = str_replace_all(nome,
+         "Cezinha Madureira", "Cezinha de Madureira"),
+         nome = str_replace_all(nome,
+         "Charlles Evangelis", "Charlles Evangelista"),
+         nome = str_replace_all(nome,
+         "Chico D´Angelo", "Chico D'Angelo"),
+         nome = str_replace_all(nome,
+         "Christiane Yared", "Christiane de Souza Yared"),
+         nome = str_replace_all(nome,
+         "CoronelChrisóstom", "Coronel Chrisóstomo"),
+         nome = str_replace_all(nome,
+         "Daniela Waguinho", "Daniela do Waguinho"),
+         nome = str_replace_all(nome,
+         "Danrlei", "Danrlei de Deus Hinterholz"),
+         nome = str_replace_all(nome,
+         "DelAntônioFurtado", "Delegado Antônio Furtado"),
+         nome = str_replace_all(nome,
+         "Deleg. Éder Mauro", "Delegado Éder Mauro"),
+         nome = str_replace_all(nome,
+         "Delegado Marcelo", "Delegado Marcelo Freitas"),
+         nome = str_replace_all(nome,
+         "Dr Zacharias Calil", "Dr. Zacharias Calil"),
+         nome = str_replace_all(nome,
+         "Dr. Sinval", "Dr. Sinval Malheiros"),
+         nome = str_replace_all(nome,
+         "Dr.Luiz Antonio Jr", "Dr. Luiz Antonio Teixeira Jr."),
+         nome = str_replace_all(nome,
+         "Dra.Soraya Manato", "Dra. Soraya Manato"),
+         nome = str_replace_all(nome,
+         "EdmilsonRodrigues", "Edmilson Rodrigues"),
+         nome = str_replace_all(nome,
+         "EduardoBolsonaro", "Eduardo Bolsonaro"),
+         nome = str_replace_all(nome,
+         "Emanuel Pinheiro N", "Emanuel Pinheiro Neto"),
+         nome = str_replace_all(nome,
+         "EuclydesPettersen", "Euclydes Pettersen"),
+         nome = str_replace_all(nome,
+         "Evair de Melo", "Evair Vieira de Melo"),
+         nome = str_replace_all(nome,
+         "FelipeFrancischini", "Felipe Francischini"),
+         nome = str_replace_all(nome,
+         "Félix Mendonça Jr", "Félix Mendonça Júnior"),
+         nome = str_replace_all(nome,
+         "FernandaMelchionna", "Fernanda Melchionna"),
+         nome = str_replace_all(nome,
+         "Fernando Coelho", "Fernando Coelho Filho"),
+         nome = str_replace_all(nome,
+         "FernandoMonteiro", "Fernando Monteiro"),
+         nome = str_replace_all(nome,
+         "FernandoRodolfo", "Fernando Rodolfo"),
+         nome = str_replace_all(nome,
+         "Frei Anastacio", "Frei Anastacio Ribeiro"),
+         nome = str_replace_all(nome,
+         "GilbertoNasciment", "Gilberto Nascimento"),
+         nome = str_replace_all(nome,
+         "Gildenemyr", "Pastor Gildenemyr"),
+         nome = str_replace_all(nome,
+         "Hercílio Diniz", "Hercílio Coelho Diniz"),
+         nome = str_replace_all(nome,
+         "HermesParcianello", "Hermes Parcianello"),
+         nome = str_replace_all(nome,
+         "Isnaldo Bulhões Jr", "Isnaldo Bulhões Jr."),
+         nome = str_replace_all(nome,
+         "Israel Batista", "Professor Israel Batista"),
+         nome = str_replace_all(nome,
+         "João C. Bacelar", "João Carlos Bacelar"),
+         nome = str_replace_all(nome,
+         "João Marcelo S.", "João Marcelo Souza"),
+         nome = str_replace_all(nome,
+         "JoaquimPassarinho", "Joaquim Passarinho"),
+         nome = str_replace_all(nome,
+         "José Airton", "José Airton Cirilo"),
+         nome = str_replace_all(nome,
+         "Jose Mario Schrein", "Jose Mario Schreiner"),
+         nome = str_replace_all(nome,
+         "Julio Cesar Ribeir", "Julio Cesar Ribeiro"),
+         nome = str_replace_all(nome,
+         "Junio Amaral", "Cabo Junio Amaral"),
+         nome = str_replace_all(nome,
+         "Lafayette Andrada", "Lafayette de Andrada"),
+         nome = str_replace_all(nome,
+         "Leur Lomanto Jr.", "Leur Lomanto Júnior"),     
+         nome = str_replace_all(nome,
+         "Luiz P. O.Bragança", "Luiz Philippe de Orleans e Bragança"),
+         nome = str_replace_all(nome,
+         "LuizAntônioCorrêa", "Luiz Antônio Corrêa"),
+         nome = str_replace_all(nome,
+         "Marcos A. Sampaio", "Marcos Aurélio Sampaio"),
+         nome = str_replace_all(nome,
+         "MargaridaSalomão", "Margarida Salomão"),
+         nome = str_replace_all(nome,
+         "MárioNegromonte Jr", "Mário Negromonte Jr."),
+         nome = str_replace_all(nome,
+         "Maurício Dziedrick", "Maurício Dziedricki"),
+         nome = str_replace_all(nome,
+         "Mauro Benevides Fº", "Mauro Benevides Filho"),
+         nome = str_replace_all(nome,
+         "Nivaldo Albuquerq", "Nivaldo Albuquerque"),
+         nome = str_replace_all(nome,
+         "Ottaci Nascimento", "Otaci Nascimento"),
+         nome = str_replace_all(nome,
+         "Otto Alencar", "Otto Alencar Filho"),
+         nome = str_replace_all(nome,
+         "Pastor Isidório", "Pastor Sargento Isidório"),
+         nome = str_replace_all(nome,
+         "Paulo Martins", "Paulo Eduardo Martins"),
+         nome = str_replace_all(nome,
+         "Paulo Pereira", "Paulo Pereira da Silva"),
+         nome = str_replace_all(nome,
+         "Pedro A Bezerra", "Pedro Augusto Bezerra"),
+         nome = str_replace_all(nome,
+         "Pedro Lucas Fernan", "Pedro Lucas Fernandes"),
+         nome = str_replace_all(nome,
+         "Policial Sastre", "Policial Katia Sastre"),
+         nome = str_replace_all(nome,
+         "Pr Marco Feliciano", "Pr. Marco Feliciano"),
+         nome = str_replace_all(nome,
+         "Prof Marcivania", "Professora Marcivania"),
+         nome = str_replace_all(nome,
+         "Profª Dorinha", "Professora Dorinha Seabra Rezende"),
+         nome = str_replace_all(nome,
+         "Profª Rosa Neide", "Professora Rosa Neide"),
+         nome = str_replace_all(nome,
+         "Professora Dayane", "Professora Dayane Pimentel"),
+         nome = str_replace_all(nome,
+         "Rogério Peninha", "Rogério Peninha Mendonça"),
+         nome = str_replace_all(nome,
+         "Roman", "Evandro Roman"),
+         nome = str_replace_all(nome,
+         "SóstenesCavalcante", "Sóstenes Cavalcante"),
+         nome = str_replace_all(nome,
+         "Stephanes Junior", "Reinhold Stephanes Junior"),
+         nome = str_replace_all(nome,
+         "SubtenenteGonzaga", "Subtenente Gonzaga"),
+         nome = str_replace_all(nome,
+         "ToninhoWandscheer", "Toninho Wandscheer"),
+         nome = str_replace_all(nome,
+         "Vitor Hugo", "Major Vitor Hugo"),
+         nome = str_replace_all(nome,
+         "Wellington", "Wellington Roberto"),
+         nome = str_replace_all(nome,
+         "WladimirGarotinho", "Wladimir Garotinho"))
 
 #6. padronizar partidos
 resultado_votacao$partido[resultado_votacao$partido == "NOVO"] <- "Novo"
