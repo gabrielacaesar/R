@@ -6,7 +6,7 @@ library(data.table)
 library(abjutils)
 
 # read file with list of urls
-url_list <- fread("~/Downloads/votacoes-camara-18052020.csv")
+url_list <- fread("~/Downloads/votacoes-camara-18052020-list_urls.csv")
 
 # get number of urls
 url_list_length <- length(unique(url_list$link_votacao))
@@ -14,12 +14,12 @@ url_list_length <- length(unique(url_list$link_votacao))
 # get votings name
 nome_votacao <- function(x){
   url_list$link_votacao[x] %>%
-  read_html() %>%
-  html_node(".tituloNomePauta") %>%
-  html_text() %>%
-  as.data.frame() %>%
-  `colnames<-`("nome_votacao") %>%
-  mutate(id = x)
+    read_html() %>%
+    html_node(".tituloNomePauta") %>%
+    html_text() %>%
+    as.data.frame() %>%
+    `colnames<-`("nome_votacao") %>%
+    mutate(id = x)
 }
 
 nome <- map_dfr(1:url_list_length, nome_votacao)
@@ -27,12 +27,12 @@ nome <- map_dfr(1:url_list_length, nome_votacao)
 # get votings date and hour
 hora_votacao <- function(x){
   url_list$link_votacao[x] %>%
-  read_html() %>%
-  html_nodes(".boxMensagem.info") %>%
-  html_text() %>%
-  as.data.frame() %>%
-  `colnames<-`("hora_votacao") %>%
-  mutate(id = x)
+    read_html() %>%
+    html_nodes(".boxMensagem.info") %>%
+    html_text() %>%
+    as.data.frame() %>%
+    `colnames<-`("hora_votacao") %>%
+    mutate(id = x)
 }
 
 hora <-  map_dfr(1:url_list_length, hora_votacao) 
@@ -40,14 +40,14 @@ hora <-  map_dfr(1:url_list_length, hora_votacao)
 # get votings result
 votos_votacao <- function(x){
   url_list$link_votacao[x] %>%
-  read_html() %>%
-  html_nodes(".titulares") %>%
-  html_nodes("li") %>%
-  html_text() %>%
-  as.data.frame() %>%
-  `colnames<-`("info") %>%
-  mutate(data_url = url_list$dia[x],
-        id = x) 
+    read_html() %>%
+    html_nodes(".titulares") %>%
+    html_nodes("li") %>%
+    html_text() %>%
+    as.data.frame() %>%
+    `colnames<-`("info") %>%
+    mutate(data_url = url_list$dia[x],
+           id = x) 
 }
 
 votos <-  map_dfr(1:url_list_length, votos_votacao)
@@ -161,9 +161,14 @@ resultado_votacao$partido[resultado_votacao$partido == "PATRIOTA"] <- "Patriota"
 resultado_votacao$partido[resultado_votacao$partido == "AVANTE"] <- "Avante"
 resultado_votacao$partido[resultado_votacao$partido == "REPUBLICANOS"] <- "Republicanos"
 
+# create new dataframe to highlight important votings
+votacoes_importantes <- data.frame(id = c(11, 17, 59, 61, 
+                          62, 64), obs = "importante", stringsAsFactors = FALSE)
+
 # create new column with names
 resultado_votacao <- resultado_votacao %>%
-  mutate(nome_upper = toupper(rm_accent(nome)))
+  mutate(nome_upper = toupper(rm_accent(nome))) %>%
+  left_join(votacoes_importantes, by = "id")
 
 # create absents ranking 
 ranking_votacao <- resultado_votacao %>%
@@ -172,10 +177,13 @@ ranking_votacao <- resultado_votacao %>%
   spread(voto, int) %>%
   replace(is.na(.), 0) %>%
   mutate(total = abstencao + obstrucao + ausente + sim + nao + naovotou) %>%
+  mutate(ausente_perc = round(ausente / total * 100, digits = 1)) %>%
   arrange(desc(ausente))
+  
 
 # downlod full data
 write.csv(resultado_votacao, "resultado_votacao.csv")
 
 # download ranking
 write.csv(ranking_votacao, "ranking_votacao.csv")
+
