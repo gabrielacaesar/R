@@ -29,7 +29,3 @@ tidy_dados_2019 <- dados_2019 %>%
 
 
 write.csv(tidy_dados_2019, "tidy_dados_2019.csv")
-
-
-
-            
