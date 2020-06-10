@@ -74,6 +74,3 @@ pop_auxilio_joined <- pop_auxilio %>%
 
 
 write.csv(pop_auxilio_joined, "pop_auxilio_joined.csv")
-## cruzar com casos do novo coronavirus??
-## populacao ocupada??
-
