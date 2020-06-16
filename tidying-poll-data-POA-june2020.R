@@ -1,6 +1,9 @@
 # manually with Sublime
 # 1. deleted CSS code
 #-------------------------------------------
+# trying to solve replacement problem: 
+# https://stackoverflow.com/questions/62411034/how-to-get-html-element-considering-later-content-of-another-tag-and-not-the-cla
+#
 # 2. correcting class
 #
 ##### before
