@@ -1,4 +1,4 @@
- # manually with Sublime
+# manually with Sublime
 # 1. deleted CSS code
 #-------------------------------------------
 # 2. correcting class
@@ -83,7 +83,7 @@ poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
 #-------------------------------------------
 # type 2 tables
 
-# getting all questions for type 2 tables
+# getting all questions for each type tables
 # https://stackoverflow.com/questions/62390373/how-to-get-html-element-that-is-before-a-certain-class
 type2_question <- poll_data %>%
   html_nodes(xpath = "//th[@class = 'string type2']/ancestor::td/preceding-sibling::th") %>%
@@ -100,6 +100,7 @@ wrong_answer <- poll_data %>%
   rename("answer" = ".") %>%
   mutate(answer = unfactor(answer)) %>%
   unique()
+
 
 # getting right answers for related name type 2 tables
 names_answer <- poll_data %>%
@@ -144,7 +145,10 @@ type2_answer <- map_dfr(1:count_type2_poll, get_type2_poll_answer)
 
 # joining questions and answers for type 2 tables
 type2_full_content <- type2_question %>%
-  left_join(type2_answer, by = "poll_id")
+  left_join(type2_answer, by = "poll_id") %>%
+  select(question, related_name, answer, value, poll_id)
+
+write.csv(type2_full_content, "type2_full_content.csv")
 
 #-------------------------------------------
 # type 3 tables
@@ -162,16 +166,17 @@ type3_names_answer <- poll_data %>%
   html_nodes(xpath = "//table[@class = 'type3']//thead//tr[@class = 'type3']//th") %>%
   html_text() %>%
   as.data.frame() %>%
-  rename("answer" = ".") %>%
-  mutate(answer = unfactor(answer)) %>%
-  group_by(answer) %>%
-  mutate(poll_id = ifelse(str_detect(str_trim(answer), "Reference"), 1:n(), NA)) %>%
+  rename("related_answer" = ".") %>%
+  mutate(related_answer = unfactor(related_answer)) %>%
+  group_by(related_answer) %>%
+  mutate(poll_id = ifelse(str_detect(str_trim(related_answer), "Reference"), 1:n(), NA)) %>%
   ungroup() %>%
   fill(poll_id, .direction = "down") %>%
-  filter(answer != "Reference") %>%
+  filter(related_answer != "Reference") %>%
   group_by(poll_id) %>%
   mutate(id_cross = row_number()) %>%
-  ungroup()
+  ungroup() %>%
+  separate(related_answer, c("category_type", "category_answer"), sep = "\\|")
 
 # getting possible answer for type 3 tables
 type3_possible_answer <- poll_data %>%
@@ -214,18 +219,21 @@ type3_answer <- map_dfr(1:count_type3_poll, get_type3_poll_answer)
 # joining questions and answers for type 3 tables
 type3_full_content <- type3_answer %>%
   left_join(type3_question, by = "poll_id") %>%
-  left_join(type3_names_answer, by = c("poll_id", "id_cross"))
+  left_join(type3_names_answer, by = c("poll_id", "id_cross")) %>%
+  select(question, category_type, category_answer, answer, value, poll_id, id_cross)
+
+write.csv(type3_full_content, "type3_full_content.csv")
 
 #-------------------------------------------
 # type 1 tables
 
-# getting all questions for type 1 tables
+# getting all questions for each type tables
 type1_question <- poll_data %>%
   html_nodes(xpath = "//tbody[@class = 'type1']/ancestor::table/ancestor::td/preceding-sibling::th") %>%
   html_text() %>%
   as.data.frame() %>%
-  rename("answer" = ".") %>%
-  mutate(answer = unfactor(answer)) %>%
+  rename("question" = ".") %>%
+  mutate(question = unfactor(question)) %>%
   mutate(poll_id = row_number())
 
 # counting number of type 1 tables
@@ -257,4 +265,7 @@ type1_answer <- map_dfr(1:count_type1_poll, get_type1_poll_answer)
 
 # joining questions and answers for type 1 tables
 type1_full_content <- type1_question %>%
-  left_join(type1_answer, by = "poll_id")
+  left_join(type1_answer, by = "poll_id") %>%
+  select(question, answer, value, poll_id)
+
+write.csv(type1_full_content, "type1_full_content.csv")
