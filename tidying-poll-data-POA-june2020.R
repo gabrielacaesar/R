@@ -86,7 +86,7 @@ poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
 #-------------------------------------------
 # type 2 tables
 
-# getting all questions for each type tables
+# getting all questions for type 2 tables
 # https://stackoverflow.com/questions/62390373/how-to-get-html-element-that-is-before-a-certain-class
 type2_question <- poll_data %>%
   html_nodes(xpath = "//th[@class = 'string type2']/ancestor::td/preceding-sibling::th") %>%
