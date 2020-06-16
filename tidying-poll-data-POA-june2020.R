@@ -83,7 +83,7 @@ poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
 #-------------------------------------------
 # type 2 tables
 
-# getting all questions for each type tables
+# getting all questions for type 2 tables
 # https://stackoverflow.com/questions/62390373/how-to-get-html-element-that-is-before-a-certain-class
 type2_question <- poll_data %>%
   html_nodes(xpath = "//th[@class = 'string type2']/ancestor::td/preceding-sibling::th") %>%
@@ -100,7 +100,6 @@ wrong_answer <- poll_data %>%
   rename("answer" = ".") %>%
   mutate(answer = unfactor(answer)) %>%
   unique()
-
 
 # getting right answers for related name type 2 tables
 names_answer <- poll_data %>%
@@ -220,7 +219,7 @@ type3_full_content <- type3_answer %>%
 #-------------------------------------------
 # type 1 tables
 
-# getting all questions for each type tables
+# getting all questions for type 1 tables
 type1_question <- poll_data %>%
   html_nodes(xpath = "//tbody[@class = 'type1']/ancestor::table/ancestor::td/preceding-sibling::th") %>%
   html_text() %>%
