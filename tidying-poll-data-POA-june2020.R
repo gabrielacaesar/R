@@ -101,7 +101,6 @@ wrong_answer <- poll_data %>%
   mutate(answer = unfactor(answer)) %>%
   unique()
 
-
 # getting right answers for related name type 2 tables
 names_answer <- poll_data %>%
   html_nodes(xpath = "//tbody[@class = 'type2']//tr//td[1]") %>%
