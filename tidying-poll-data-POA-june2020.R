@@ -224,9 +224,20 @@ type3_full_content <- type3_answer %>%
 
 write.csv(type3_full_content, "type3_full_content.csv")
 
-### CREATE CODE TO GENERATE JPG FOR PIVOT TABLE
-### CROSSCOL 
+# creating pivot table for cross_col questions
+# generating JPEG of these tables
 
+type3_pivot <- type3_full_content %>%
+  filter(poll_id == 1) %>%
+  arrange(category_type) %>%
+  mutate(value_perc = round(value * 100)) %>%
+  select(category_type, category_answer, answer, value_perc)
+
+library(rpivotTable)
+rpivotTable(type3_pivot,rows="answer", 
+            cols=c("category_type","category_answer"),
+            vals = "value_perc", aggregatorName = "Sum",
+            width="100%", height="400px") 
 
 #-------------------------------------------
 # type 1 tables
