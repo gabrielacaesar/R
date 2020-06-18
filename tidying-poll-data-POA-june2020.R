@@ -1,9 +1,6 @@
 # manually with Sublime
 # 1. deleted CSS code
 #-------------------------------------------
-# trying to solve replacement problem: 
-# https://stackoverflow.com/questions/62411034/how-to-get-html-element-considering-later-content-of-another-tag-and-not-the-cla
-#
 # 2. correcting class
 #
 ##### before
@@ -86,7 +83,7 @@ poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
 #-------------------------------------------
 # type 2 tables
 
-# getting all questions for type 2 tables
+# getting all questions for each type tables
 # https://stackoverflow.com/questions/62390373/how-to-get-html-element-that-is-before-a-certain-class
 type2_question <- poll_data %>%
   html_nodes(xpath = "//th[@class = 'string type2']/ancestor::td/preceding-sibling::th") %>%
@@ -103,6 +100,7 @@ wrong_answer <- poll_data %>%
   rename("answer" = ".") %>%
   mutate(answer = unfactor(answer)) %>%
   unique()
+
 
 # getting right answers for related name type 2 tables
 names_answer <- poll_data %>%
@@ -138,7 +136,7 @@ get_type2_poll_answer <- function(x){
     fill(value, .direction = "up") %>%
     filter(answer != related_name &
            answer != value) %>%
-    mutate(value = as.numeric(value) * 100,
+    mutate(value = round(as.numeric(value), digits = 3),
            poll_id = x) %>%
     select(poll_id, related_name, answer, value)
 }
@@ -209,7 +207,7 @@ get_type3_poll_answer <- function(x){
                            value, NA)) %>%
     fill(answer, .direction = "down") %>%
     filter(value != answer) %>%
-    mutate(value = as.numeric(value) * 100) %>%
+    mutate(value = round(as.numeric(value), digits = 3)) %>%
     replace(is.na(.), 0) %>%
     group_by(answer) %>%
     mutate(id_cross = row_number(),
@@ -225,6 +223,10 @@ type3_full_content <- type3_answer %>%
   select(question, category_type, category_answer, answer, value, poll_id, id_cross)
 
 write.csv(type3_full_content, "type3_full_content.csv")
+
+### CREATE CODE TO GENERATE JPG FOR PIVOT TABLE
+### CROSSCOL 
+
 
 #-------------------------------------------
 # type 1 tables
@@ -259,7 +261,7 @@ get_type1_poll_answer <- function(x){
                           answer, NA)) %>%
     fill(value, .direction = "up") %>%
     filter(answer != value) %>%
-    mutate(value = as.numeric(value) * 100,
+    mutate(value = round(as.numeric(value), digits = 3),
            poll_id = x)
 }
 
