@@ -76,6 +76,7 @@
 library(rvest)
 library(tidyverse)
 library(varhandle)
+library(rpivotTable)
 
 # reading HTML file without CSS
 poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
@@ -231,13 +232,41 @@ type3_pivot <- type3_full_content %>%
   filter(poll_id == 1) %>%
   arrange(category_type) %>%
   mutate(value_perc = round(value * 100)) %>%
-  select(category_type, category_answer, answer, value_perc)
+  rename("Categoria" = "category_type",
+         "Opções da categoria" = "category_answer",
+         "Resposta" = "answer") %>%
+  select(Categoria, `Opções da categoria`, Resposta, value_perc)
+ 
+type3_pivot$Categoria[type3_pivot$Categoria == "educational_level"] <- "Nível educacional"
+type3_pivot$Categoria[type3_pivot$Categoria == "gender"] <- "Gênero"
+type3_pivot$Categoria[type3_pivot$Categoria == "region"] <- "IDH"
+type3_pivot$Categoria[type3_pivot$Categoria == "religion"] <- "Religião"
+type3_pivot$Categoria[type3_pivot$Categoria == "vote_2018_second_round"] <- "Voto 2018 - 2º turno"
 
-library(rpivotTable)
-rpivotTable(type3_pivot,rows="answer", 
-            cols=c("category_type","category_answer"),
-            vals = "value_perc", aggregatorName = "Sum",
-            width="100%", height="400px") 
+# defining categories for table
+type3_pivot_1 <- type3_pivot %>%
+  filter(Categoria == "Gênero" 
+         | Categoria == "Religião")
+
+type3_pivot_2 <- type3_pivot %>%
+  filter(Categoria == "IDH" 
+         | Categoria == "Nível educacional" 
+         | Categoria == "Voto 2018 - 2º turno")
+
+# plotting tables
+rpivotTable(type3_pivot_1,rows="Resposta", 
+            cols=c("Categoria","Opções da categoria"),
+            vals = "value_perc", 
+            aggregatorName = "Sum",
+            width="100%", 
+            height="400px")
+
+rpivotTable(type3_pivot_2,rows="Resposta", 
+            cols=c("Categoria","Opções da categoria"),
+            vals = "value_perc", 
+            aggregatorName = "Sum",
+            width="100%", 
+            height="400px")
 
 #-------------------------------------------
 # type 1 tables
