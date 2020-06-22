@@ -87,7 +87,7 @@ poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
 # getting all questions for each type tables
 # https://stackoverflow.com/questions/62390373/how-to-get-html-element-that-is-before-a-certain-class
 type2_question <- poll_data %>%
-  html_nodes(xpath = "//th[@class = 'string type2']/ancestor::td/preceding-sibling::th") %>%
+  html_nodes(xpath = "//td[table[./thead/tr/th/text() = 'answers']]/preceding-sibling::th") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("question" = ".") %>%
@@ -136,7 +136,7 @@ get_type2_poll_answer <- function(x){
                           answer, NA)) %>%
     fill(value, .direction = "up") %>%
     filter(answer != related_name &
-           answer != value) %>%
+             answer != value) %>%
     mutate(value = round(as.numeric(value), digits = 3),
            poll_id = x) %>%
     select(poll_id, related_name, answer, value)
@@ -156,7 +156,7 @@ write.csv(type2_full_content, "type2_full_content.csv")
 
 # getting all questions for type 3 tables
 type3_question <- poll_data %>%
-  html_nodes(xpath = "//table[@class = 'type3']/ancestor::td/preceding-sibling::th") %>%
+  html_nodes(xpath = "//td[table[./thead/tr/th/text() = 'Reference']]/preceding-sibling::th") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("question" = ".") %>%
@@ -228,6 +228,45 @@ write.csv(type3_full_content, "type3_full_content.csv")
 # creating pivot table for cross_col questions
 # generating JPEG of these tables
 
+#### 1
+library(knitr)
+library(kableExtra)
+dt <- type3_pivot %>%
+  group_by(Resposta) %>%
+  spread(`Opções da categoria`, value_perc)
+
+
+g <- dt %>%
+        kable() %>%
+        kable_styling()
+g
+
+#### 2
+library(expss)
+
+my_table <- type3_pivot %>%
+  tab_cells(Resposta) %>%
+  tab_weight(value_perc) %>% 
+  tab_cols(Opcoes_da_categoria, Categoria) %>%
+  tab_stat_cpct(total_label = NULL) %>%
+  tab_pivot()
+  
+my_table
+
+library(gridExtra)
+png("my_table.png", height = 50*nrow(my_table), width = 200*ncol(my_table))
+grid.table(my_table)
+dev.off()
+
+
+teste <- type3_pivot %>%
+  calc_cro_cpct(
+    cell_vars = list(Resposta),
+    col_vars = list(Categoria, `Opções da categoria`)) %>% 
+  set_caption("Table 1")
+
+
+#### 3
 type3_pivot <- type3_full_content %>%
   filter(poll_id == 1) %>%
   arrange(category_type) %>%
@@ -236,7 +275,7 @@ type3_pivot <- type3_full_content %>%
          "Opções da categoria" = "category_answer",
          "Resposta" = "answer") %>%
   select(Categoria, `Opções da categoria`, Resposta, value_perc)
- 
+
 type3_pivot$Categoria[type3_pivot$Categoria == "educational_level"] <- "Nível educacional"
 type3_pivot$Categoria[type3_pivot$Categoria == "gender"] <- "Gênero"
 type3_pivot$Categoria[type3_pivot$Categoria == "region"] <- "IDH"
@@ -273,7 +312,7 @@ rpivotTable(type3_pivot_2,rows="Resposta",
 
 # getting all questions for each type tables
 type1_question <- poll_data %>%
-  html_nodes(xpath = "//tbody[@class = 'type1']/ancestor::table/ancestor::td/preceding-sibling::th") %>%
+  html_nodes(xpath = "//td[table[./thead/tr/th/text() = 'stdev']]/preceding-sibling::th") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("question" = ".") %>%
