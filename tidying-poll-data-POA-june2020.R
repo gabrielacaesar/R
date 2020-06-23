@@ -102,7 +102,6 @@ wrong_answer <- poll_data %>%
   mutate(answer = unfactor(answer)) %>%
   unique()
 
-
 # getting right answers for related name type 2 tables
 names_answer <- poll_data %>%
   html_nodes(xpath = "//tbody[@class = 'type2']//tr//td[1]") %>%
@@ -225,88 +224,6 @@ type3_full_content <- type3_answer %>%
 
 write.csv(type3_full_content, "type3_full_content.csv")
 
-# creating pivot table for cross_col questions
-# generating JPEG of these tables
-
-#### 1
-library(knitr)
-library(kableExtra)
-dt <- type3_pivot %>%
-  group_by(Resposta) %>%
-  spread(`Opções da categoria`, value_perc)
-
-
-g <- dt %>%
-        kable() %>%
-        kable_styling()
-g
-
-#### 2
-library(expss)
-
-my_table <- type3_pivot %>%
-  tab_cells(Resposta) %>%
-  tab_weight(value_perc) %>% 
-  tab_cols(Opcoes_da_categoria, Categoria) %>%
-  tab_stat_cpct(total_label = NULL) %>%
-  tab_pivot()
-  
-my_table
-
-library(gridExtra)
-png("my_table.png", height = 50*nrow(my_table), width = 200*ncol(my_table))
-grid.table(my_table)
-dev.off()
-
-
-teste <- type3_pivot %>%
-  calc_cro_cpct(
-    cell_vars = list(Resposta),
-    col_vars = list(Categoria, `Opções da categoria`)) %>% 
-  set_caption("Table 1")
-
-
-#### 3
-type3_pivot <- type3_full_content %>%
-  filter(poll_id == 1) %>%
-  arrange(category_type) %>%
-  mutate(value_perc = round(value * 100)) %>%
-  rename("Categoria" = "category_type",
-         "Opções da categoria" = "category_answer",
-         "Resposta" = "answer") %>%
-  select(Categoria, `Opções da categoria`, Resposta, value_perc)
-
-type3_pivot$Categoria[type3_pivot$Categoria == "educational_level"] <- "Nível educacional"
-type3_pivot$Categoria[type3_pivot$Categoria == "gender"] <- "Gênero"
-type3_pivot$Categoria[type3_pivot$Categoria == "region"] <- "IDH"
-type3_pivot$Categoria[type3_pivot$Categoria == "religion"] <- "Religião"
-type3_pivot$Categoria[type3_pivot$Categoria == "vote_2018_second_round"] <- "Voto 2018 - 2º turno"
-
-# defining categories for table
-type3_pivot_1 <- type3_pivot %>%
-  filter(Categoria == "Gênero" 
-         | Categoria == "Religião")
-
-type3_pivot_2 <- type3_pivot %>%
-  filter(Categoria == "IDH" 
-         | Categoria == "Nível educacional" 
-         | Categoria == "Voto 2018 - 2º turno")
-
-# plotting tables
-rpivotTable(type3_pivot_1,rows="Resposta", 
-            cols=c("Categoria","Opções da categoria"),
-            vals = "value_perc", 
-            aggregatorName = "Sum",
-            width="100%", 
-            height="400px")
-
-rpivotTable(type3_pivot_2,rows="Resposta", 
-            cols=c("Categoria","Opções da categoria"),
-            vals = "value_perc", 
-            aggregatorName = "Sum",
-            width="100%", 
-            height="400px")
-
 #-------------------------------------------
 # type 1 tables
 
@@ -352,3 +269,61 @@ type1_full_content <- type1_question %>%
   select(question, answer, value, poll_id)
 
 write.csv(type1_full_content, "type1_full_content.csv")
+
+
+#-------------------------------------------
+# cross_col tables
+
+# generating PNG of these tables
+
+type3_pivot <- type3_full_content
+
+type3_pivot$category_type[type3_pivot$category_type == "educational_level"] <- "Nível educacional"
+type3_pivot$category_type[type3_pivot$category_type == "gender"] <- "Gênero"
+type3_pivot$category_type[type3_pivot$category_type == "region"] <- "IDH"
+type3_pivot$category_type[type3_pivot$category_type == "religion"] <- "Religião"
+type3_pivot$category_type[type3_pivot$category_type == "vote_2018_second_round"] <- "Voto 2018 - 2º turno"
+
+type3_pivot_id <- split(type3_pivot, type3_pivot$poll_id)
+
+n1_type3_pivot <- type3_pivot_id[[1]] %>%
+  group_by(category_type) %>%
+  filter(category_type == "Gênero" | 
+           category_type == "Religião") %>%
+  mutate(value_perc = round(value * 100)) %>%
+  select(category_type, category_answer,
+         answer, value_perc)
+
+n2_type3_pivot <- type3_pivot_id[[1]] %>%
+  group_by(category_type) %>%
+  filter(category_type == "IDH" | 
+           category_type == "Nível educacional" |
+           category_type == "Voto 2018 - 2º turno") %>%
+  mutate(value_perc = round(value * 100)) %>%
+  select(category_type, category_answer,
+         answer, value_perc)
+
+n_type3_pivot <- list(n1_type3_pivot, n2_type3_pivot)
+
+#### 1
+# https://stackoverflow.com/questions/62516763/how-to-create-two-headers-table-with-expss/62523904#62523904
+library(knitr)
+library(kableExtra)
+
+df_wide <- n_type3_pivot[[1]] %>% # transform data to wide format, "drop" name for Resposta
+  pivot_wider(names_from = c(category_type, category_answer), 
+              values_from = value_perc, names_sep = "_") %>%
+  rename(" " = answer)
+
+cols <- sub("(.*?)_(.*)", "\\2", names(df_wide)) # grab everything after the _
+grps <- sub("(.*?)_(.*)", "\\1", names(df_wide)) # grab everything before the _
+
+df_wide %>%
+  kable(col.names = cols, align = "c") %>% 
+  kable_styling(c("striped"), full_width = FALSE, bootstrap_options = "basic") %>%
+  add_header_above(table(grps)[unique(grps)]) %>%
+  column_spec(1:ncol(df_wide), border_left = T, border_right = T) %>%
+  save_kable(paste0("table",
+                    2,
+                    Sys.time(),
+                    ".png"), zoom = 4)
