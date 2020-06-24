@@ -248,9 +248,16 @@ grps <- sub("(.*?)_(.*)", "\\1", names(df_wide)) # grab everything before the _
 
 df_wide %>%
   kable(col.names = cols, align = "c") %>% 
-  kable_styling(c("striped"), full_width = FALSE, bootstrap_options = "basic") %>%
-  add_header_above(table(grps)[unique(grps)]) %>%
-  column_spec(1:ncol(df_wide), border_left = T, border_right = T) %>%
+  kable_styling(full_width = F, font_size = 13) %>%
+  add_header_above(table(grps)[unique(grps)], color = "black", bold = T, 
+                   font_size = 15, 
+                   extra_css = "border-bottom:1px solid black;
+                   border-right:1px solid black;
+                   border-top:1px solid black;") %>%
+  column_spec(1, bold = T) %>%
+  column_spec(1:ncol(df_wide), color = "black", width = "20em",
+              extra_css = "border-bottom:1px solid black; border-top:1px solid black;
+              border-left:1px solid black; border-right:1px solid black;") %>%
   save_kable(paste0("table",
                     2,
                     Sys.time(),
