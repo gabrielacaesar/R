@@ -1,81 +1,11 @@
 # manually with Sublime
 # 1. deleted CSS code
 #-------------------------------------------
-# 2. correcting class
-#
-##### before
-# \"array\"
-##### after
-# "array"
-#-------------------------------------------
-# 3. added class for type 1 tables:
-#
-##### before
-#<table>
-#	<thead>
-#		<tr>
-#			<th class=\"string\">name</th>
-#			<th class=\"string\">mean</th>
-#			<th class=\"string\">stdev</th>
-#		</tr>
-#	</thead>
-#	<tbody>
-#		<tr>
-#
-##### after
-#<table>
-#	<thead>
-#		<tr>
-#			<th class="string">name</th>
-#			<th class="string">mean</th>
-#			<th class="string">stdev</th>
-#		</tr>
-#	</thead>
-#	<tbody class="type1">
-#		<tr>
-#-------------------------------------------
-# 4. added class for type 2 tables:
-#
-##### before
-#<table>
-#	<thead>
-#		<tr>
-#			<th class=\"string\">name</th>
-#			<th class=\"array\">answers</th>
-#		</tr>
-#	</thead>
-#	<tbody>
-#			<tr>
-#
-##### after
-#<table>
-#	<thead>
-#		<tr>
-#			<th class="string type2">name</th>
-#			<th class="array type2">answers</th>
-#		</tr>
-#	</thead>
-#	<tbody class="type2">
-#			<tr>
-#-------------------------------------------
-# 5. added class for type 3 tables:
-#
-##### before
-#<table>
-#	<thead>
-#		<tr>
-#			<th class=\"string\">Reference</th>
-#
-##### after
-#<table class="type3">
-#  <thead>
-#  	<tr class="type3">
-#    	<th class="string type3">Reference</th>
-#-------------------------------------------
 # reading libraries
 library(rvest)
 library(tidyverse)
 library(varhandle)
+library(rpivotTable)
 
 # reading HTML file without CSS
 poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
@@ -84,7 +14,6 @@ poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
 # type 2 tables
 
 # getting all questions for each type tables
-# https://stackoverflow.com/questions/62390373/how-to-get-html-element-that-is-before-a-certain-class
 type2_question <- poll_data %>%
   html_nodes(xpath = "//td[table[./thead/tr/th/text() = 'answers']]/preceding-sibling::th") %>%
   html_text() %>%
@@ -94,7 +23,7 @@ type2_question <- poll_data %>%
 
 # naming wrong answers for related name type 2 tables
 wrong_answer <- poll_data %>%
-  html_nodes(xpath = "//tbody[@class = 'type2']//tr//td//table//tbody//tr//td[1]") %>%
+  html_nodes(xpath = "//table[./thead/tr/th/text() = 'answers']/tbody/tr/td/table/tbody/tr/td[1]") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("answer" = ".") %>%
@@ -103,7 +32,7 @@ wrong_answer <- poll_data %>%
 
 # getting right answers for related name type 2 tables
 names_answer <- poll_data %>%
-  html_nodes(xpath = "//tbody[@class = 'type2']//tr//td[1]") %>%
+  html_nodes(xpath = "//table[./thead/tr/th/text() = 'answers']/tbody/tr/td[1]") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("answer" = ".") %>%
@@ -112,13 +41,13 @@ names_answer <- poll_data %>%
 
 # counting number of each type tables
 count_type2_poll <- poll_data %>%
-  html_nodes("tbody.type2") %>%
+  html_nodes(xpath = "//table[./thead/tr/th/text() = 'answers']/tbody") %>%
   length()
 
 # getting answer for type 2 tables
 get_type2_poll_answer <- function(x){
   poll_data %>%
-    html_nodes("tbody.type2") %>%
+    html_nodes(xpath = "//table[./thead/tr/th/text() = 'answers']/tbody") %>%
     .[x] %>%
     html_nodes("tr > td") %>%
     html_text() %>%
@@ -147,7 +76,10 @@ type2_full_content <- type2_question %>%
   left_join(type2_answer, by = "poll_id") %>%
   select(question, related_name, answer, value, poll_id)
 
-write.csv(type2_full_content, "type2_full_content.csv")
+dir.create(paste0("~/Downloads/poll_data_", Sys.Date()))
+setwd(paste0("~/Downloads/poll_data_", Sys.Date()))
+
+write.csv(type2_full_content, paste0("type2_full_content", Sys.time(), ".csv"))
 
 #-------------------------------------------
 # type 3 tables
@@ -162,7 +94,7 @@ type3_question <- poll_data %>%
 
 # getting related answer for type 3 tables
 type3_names_answer <- poll_data %>%
-  html_nodes(xpath = "//table[@class = 'type3']//thead//tr[@class = 'type3']//th") %>%
+  html_nodes(xpath = "//table[./thead/tr/th/text() = 'Reference']/thead/tr/th") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("related_answer" = ".") %>%
@@ -179,7 +111,7 @@ type3_names_answer <- poll_data %>%
 
 # getting possible answer for type 3 tables
 type3_possible_answer <- poll_data %>%
-  html_nodes(xpath = "//table[@class = 'type3']//tbody//tr//td[1]") %>%
+  html_nodes(xpath = "//table[./thead/tr/th/text() = 'Reference']/tbody/tr/td[1]") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("answer" = ".") %>%
@@ -188,13 +120,13 @@ type3_possible_answer <- poll_data %>%
 
 # counting number of type 3 tables
 count_type3_poll <- poll_data %>%
-  html_nodes("table.type3") %>%
+  html_nodes(xpath = "//table[./thead/tr/th/text() = 'Reference']") %>%
   length()
 
 # getting answer for type 3 tables
 get_type3_poll_answer <- function(x){
   poll_data %>%
-    html_nodes("table.type3") %>%
+    html_nodes(xpath = "//table[./thead/tr/th/text() = 'Reference']") %>%
     .[x] %>%
     html_nodes("tr > td") %>%
     html_text() %>%
@@ -221,7 +153,7 @@ type3_full_content <- type3_answer %>%
   left_join(type3_names_answer, by = c("poll_id", "id_cross")) %>%
   select(question, category_type, category_answer, answer, value, poll_id, id_cross)
 
-write.csv(type3_full_content, "type3_full_content.csv")
+write.csv(type3_full_content, paste0("type3_full_content", Sys.time(), ".csv"))
 
 #-------------------------------------------
 # type 1 tables
@@ -237,15 +169,13 @@ type1_question <- poll_data %>%
 
 # counting number of type 1 tables
 count_type1_poll <- poll_data %>%
-  html_nodes("table") %>%
-  html_nodes("tbody.type1") %>%
+  html_nodes(xpath = "//td[table[./thead/tr/th/text() = 'stdev']]/preceding-sibling::th/following-sibling::td/table/tbody") %>%
   length()
 
 # getting answer for type 1 tables
 get_type1_poll_answer <- function(x){
   poll_data %>%
-    html_nodes("table") %>%
-    html_nodes("tbody.type1") %>%
+    html_nodes(xpath = "//td[table[./thead/tr/th/text() = 'stdev']]/preceding-sibling::th/following-sibling::td/table/tbody") %>%
     .[x] %>%
     html_nodes("tr > td") %>%
     html_text() %>%
@@ -267,8 +197,7 @@ type1_full_content <- type1_question %>%
   left_join(type1_answer, by = "poll_id") %>%
   select(question, answer, value, poll_id)
 
-write.csv(type1_full_content, "type1_full_content.csv")
-
+write.csv(type1_full_content, paste0("type1_full_content", Sys.time(), ".csv"))
 
 #-------------------------------------------
 # cross_col tables
@@ -326,3 +255,4 @@ df_wide %>%
                     2,
                     Sys.time(),
                     ".png"), zoom = 4)
+
