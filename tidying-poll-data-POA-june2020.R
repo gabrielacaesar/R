@@ -5,7 +5,6 @@
 library(rvest)
 library(tidyverse)
 library(varhandle)
-library(rpivotTable)
 
 # reading HTML file without CSS
 poll_data <- read_html("~/Downloads/Porto Alegre.html", encoding = "UTF-8")
