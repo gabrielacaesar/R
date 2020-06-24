@@ -75,6 +75,7 @@ type2_full_content <- type2_question %>%
   left_join(type2_answer, by = "poll_id") %>%
   select(question, related_name, answer, value, poll_id)
 
+# creating file and setting it as environment
 dir.create(paste0("~/Downloads/poll_data_", Sys.Date()))
 setwd(paste0("~/Downloads/poll_data_", Sys.Date()))
 
