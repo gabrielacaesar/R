@@ -200,10 +200,9 @@ type1_full_content <- type1_question %>%
 write.csv(type1_full_content, paste0("type1_full_content", Sys.time(), ".csv"))
 
 #-------------------------------------------
-# cross_col tables
+# cross_col tables - generating PNG of these tables
 
-# generating PNG of these tables
-
+# organizing data for PNG
 type3_pivot <- type3_full_content
 
 type3_pivot$category_type[type3_pivot$category_type == "educational_level"] <- "Nível educacional"
@@ -233,8 +232,7 @@ n2_type3_pivot <- type3_pivot_id[[1]] %>%
 
 n_type3_pivot <- list(n1_type3_pivot, n2_type3_pivot)
 
-#### 1
-# https://stackoverflow.com/questions/62516763/how-to-create-two-headers-table-with-expss/62523904#62523904
+# generating PNG images
 library(knitr)
 library(kableExtra)
 
