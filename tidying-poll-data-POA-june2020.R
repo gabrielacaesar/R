@@ -205,13 +205,25 @@ write.csv(type1_full_content, paste0("type1_full_content", Sys.time(), ".csv"))
 # organizing data for PNG
 type3_pivot <- type3_full_content
 
+# pt - poll data
 type3_pivot$category_type[type3_pivot$category_type == "educational_level"] <- "Nível educacional"
 type3_pivot$category_type[type3_pivot$category_type == "gender"] <- "Gênero"
 type3_pivot$category_type[type3_pivot$category_type == "region"] <- "IDH"
 type3_pivot$category_type[type3_pivot$category_type == "religion"] <- "Religião"
 type3_pivot$category_type[type3_pivot$category_type == "vote_2018_second_round"] <- "Voto 2018 - 2º turno"
+type3_pivot$category_type[type3_pivot$category_type == "family_income"] <- "Faixa de renda"
+type3_pivot$category_type[type3_pivot$category_type == "age"] <- "Faixa etária"
+
+# es - poll data
+#type3_pivot$category_type[type3_pivot$category_type == "family_income"] <- "Rendimiento"
+#type3_pivot$category_type[type3_pivot$category_type == "gender"] <- "Sexo"
+#type3_pivot$category_type[type3_pivot$category_type == "vote_last_election"] <- "Voto 2019"
+#type3_pivot$category_type[type3_pivot$category_type == "age"] <- "Edad"
+#type3_pivot$category_type[type3_pivot$category_type == "macroregion"] <- "Región"
+
 
 type3_pivot_id <- split(type3_pivot, type3_pivot$poll_id)
+count_type3_pivot <- type3_pivot_id %>% length()
 
 n1_type3_pivot <- type3_pivot_id[[1]] %>%
   group_by(category_type) %>%
@@ -245,19 +257,22 @@ cols <- sub("(.*?)_(.*)", "\\2", names(df_wide)) # grab everything after the _
 grps <- sub("(.*?)_(.*)", "\\1", names(df_wide)) # grab everything before the _
 
 df_wide %>%
-  kable(col.names = cols, align = "c") %>% 
-  kable_styling(full_width = F, font_size = 13) %>%
-  add_header_above(table(grps)[unique(grps)], color = "black", bold = T, 
-                   font_size = 15, 
+  kable(col.names = cols, align = "c") %>%
+  kable_styling(full_width = F, font_size = 11) %>%
+  add_header_above(table(grps)[unique(grps)], color = "black", 
+                   bold = F, 
+                   font_size = 13, 
+                   line = F,
                    extra_css = "border-bottom:1px solid black;
                    border-right:1px solid black;
-                   border-top:1px solid black;") %>%
-  column_spec(1, bold = T) %>%
-  column_spec(1:ncol(df_wide), color = "black", width = "20em",
+                   border-top:1px solid black;
+                   border-left:1px solid black;") %>%
+  column_spec(1:ncol(df_wide), color = "black", width = "4em", include_thead = T,
               extra_css = "border-bottom:1px solid black; border-top:1px solid black;
-              border-left:1px solid black; border-right:1px solid black;") %>%
+              border-right:1px solid black; vertical-align: middle;") %>%
+  column_spec(1, bold = T, width = "7em", include_thead = F, 
+              extra_css = "border-left:1px solid black;") %>%
   save_kable(paste0("table",
                     2,
                     Sys.time(),
                     ".png"), zoom = 4)
-
