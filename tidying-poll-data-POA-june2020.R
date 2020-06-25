@@ -199,13 +199,18 @@ type1_full_content <- type1_question %>%
 
 write.csv(type1_full_content, paste0("type1_full_content", Sys.time(), ".csv"))
 
+
 #-------------------------------------------
 # cross_col tables - generating PNG of these tables
+# reading libraries
+library(knitr)
+library(kableExtra)
 
-# organizing data for PNG
+# creating copy of daframe
 type3_pivot <- type3_full_content
 
-# pt - poll data
+# translating categories to portuguese and spanish
+# portugues - pt-br
 type3_pivot$category_type[type3_pivot$category_type == "educational_level"] <- "Nível educacional"
 type3_pivot$category_type[type3_pivot$category_type == "gender"] <- "Gênero"
 type3_pivot$category_type[type3_pivot$category_type == "region"] <- "IDH"
@@ -214,25 +219,35 @@ type3_pivot$category_type[type3_pivot$category_type == "vote_2018_second_round"]
 type3_pivot$category_type[type3_pivot$category_type == "family_income"] <- "Faixa de renda"
 type3_pivot$category_type[type3_pivot$category_type == "age"] <- "Faixa etária"
 
-# es - poll data
+# spanish - es-arg
 #type3_pivot$category_type[type3_pivot$category_type == "family_income"] <- "Rendimiento"
 #type3_pivot$category_type[type3_pivot$category_type == "gender"] <- "Sexo"
 #type3_pivot$category_type[type3_pivot$category_type == "vote_last_election"] <- "Voto 2019"
 #type3_pivot$category_type[type3_pivot$category_type == "age"] <- "Edad"
 #type3_pivot$category_type[type3_pivot$category_type == "macroregion"] <- "Región"
 
-
+# creating list of data considering poll_id
 type3_pivot_id <- split(type3_pivot, type3_pivot$poll_id)
+
+#counting number of items in list
 count_type3_pivot <- type3_pivot_id %>% length()
 
+# getting cross_col - poll name
+poll_name <- as.character(unique(type3_pivot_id[[1]]$question))
+
+# defining cross_col we pick - gender + religion
 n1_type3_pivot <- type3_pivot_id[[1]] %>%
   group_by(category_type) %>%
   filter(category_type == "Gênero" | 
            category_type == "Religião") %>%
   mutate(value_perc = round(value * 100)) %>%
   select(category_type, category_answer,
-         answer, value_perc)
+         answer, value_perc) %>%
+  pivot_wider(names_from = c(category_type, category_answer), 
+              values_from = value_perc, names_sep = "_") %>%
+  rename(" " = answer)
 
+# defining cross_col we pick - region + educational level + vote second round
 n2_type3_pivot <- type3_pivot_id[[1]] %>%
   group_by(category_type) %>%
   filter(category_type == "IDH" | 
@@ -240,26 +255,23 @@ n2_type3_pivot <- type3_pivot_id[[1]] %>%
            category_type == "Voto 2018 - 2º turno") %>%
   mutate(value_perc = round(value * 100)) %>%
   select(category_type, category_answer,
-         answer, value_perc)
-
-n_type3_pivot <- list(n1_type3_pivot, n2_type3_pivot)
-
-# generating PNG images
-library(knitr)
-library(kableExtra)
-
-df_wide <- n_type3_pivot[[1]] %>% # transform data to wide format, "drop" name for Resposta
+         answer, value_perc) %>%
   pivot_wider(names_from = c(category_type, category_answer), 
               values_from = value_perc, names_sep = "_") %>%
   rename(" " = answer)
 
-cols <- sub("(.*?)_(.*)", "\\2", names(df_wide)) # grab everything after the _
-grps <- sub("(.*?)_(.*)", "\\1", names(df_wide)) # grab everything before the _
+n_type3_pivot <- list(n1_type3_pivot, n2_type3_pivot)
 
-df_wide %>%
-  kable(col.names = cols, align = "c") %>%
+## SMALL TABLE
+# defining number of list
+cols_1 <- sub("(.*?)_(.*)", "\\2", names(n_type3_pivot[[1]])) # grab everything after the _
+grps_1 <- sub("(.*?)_(.*)", "\\1", names(n_type3_pivot[[1]])) # grab everything before the _
+
+# generating small table
+n_type3_pivot[[1]] %>%
+  kable(col.names = cols_1, align = "c") %>%
   kable_styling(full_width = F, font_size = 11) %>%
-  add_header_above(table(grps)[unique(grps)], color = "black", 
+  add_header_above(table(grps_1)[unique(grps_1)], color = "black", 
                    bold = F, 
                    font_size = 13, 
                    line = F,
@@ -267,12 +279,39 @@ df_wide %>%
                    border-right:1px solid black;
                    border-top:1px solid black;
                    border-left:1px solid black;") %>%
-  column_spec(1:ncol(df_wide), color = "black", width = "4em", include_thead = T,
+  column_spec(1:ncol(n_type3_pivot[[1]]), color = "black", width = "4em", include_thead = T,
               extra_css = "border-bottom:1px solid black; border-top:1px solid black;
               border-right:1px solid black; vertical-align: middle;") %>%
   column_spec(1, bold = T, width = "7em", include_thead = F, 
               extra_css = "border-left:1px solid black;") %>%
-  save_kable(paste0("table",
-                    2,
+  save_kable(paste0("table_",
+                    poll_name,
+                    Sys.time(),
+                    ".png"), zoom = 4)
+
+## LARGE TABLE
+# defining number of list
+cols_2 <- sub("(.*?)_(.*)", "\\2", names(n_type3_pivot[[2]])) # grab everything after the _
+grps_2 <- sub("(.*?)_(.*)", "\\1", names(n_type3_pivot[[2]])) # grab everything before the _
+
+# generating large table
+n_type3_pivot[[2]] %>%
+  kable(col.names = cols_2, align = "c") %>%
+  kable_styling(full_width = F, font_size = 11) %>%
+  add_header_above(table(grps_2)[unique(grps_2)], color = "black", 
+                   bold = F, 
+                   font_size = 13, 
+                   line = F,
+                   extra_css = "border-bottom:1px solid black;
+                   border-right:1px solid black;
+                   border-top:1px solid black;
+                   border-left:1px solid black;") %>%
+  column_spec(1:ncol(n_type3_pivot[[2]]), color = "black", width = "10em", include_thead = T,
+              extra_css = "border-bottom:1px solid black; border-top:1px solid black;
+              border-right:1px solid black; vertical-align: middle;") %>%
+  column_spec(1, bold = T, width = "7em", include_thead = F, 
+              extra_css = "border-left:1px solid black;") %>%
+  save_kable(paste0("table_",
+                    poll_name,
                     Sys.time(),
                     ".png"), zoom = 4)
