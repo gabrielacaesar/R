@@ -199,7 +199,6 @@ type1_full_content <- type1_question %>%
 
 write.csv(type1_full_content, paste0("type1_full_content", Sys.time(), ".csv"))
 
-
 #-------------------------------------------
 # cross_col tables - generating PNG of these tables
 # reading libraries
@@ -232,11 +231,15 @@ type3_pivot_id <- split(type3_pivot, type3_pivot$poll_id)
 #counting number of items in list
 count_type3_pivot <- type3_pivot_id %>% length()
 
+# informing which poll we want
+### ONLY PLACE TO DEFINE THE CROSS_COL
+i <- 1 # could be 2, 3, 4...
+
 # getting cross_col - poll name
-poll_name <- as.character(unique(type3_pivot_id[[1]]$question))
+poll_name <- as.character(unique(type3_pivot_id[[i]]$question))
 
 # defining cross_col we pick - gender + religion
-n1_type3_pivot <- type3_pivot_id[[1]] %>%
+n1_type3_pivot <- type3_pivot_id[[i]] %>%
   group_by(category_type) %>%
   filter(category_type == "Gênero" | 
            category_type == "Religião") %>%
@@ -248,7 +251,7 @@ n1_type3_pivot <- type3_pivot_id[[1]] %>%
   rename(" " = answer)
 
 # defining cross_col we pick - region + educational level + vote second round
-n2_type3_pivot <- type3_pivot_id[[1]] %>%
+n2_type3_pivot <- type3_pivot_id[[i]] %>%
   group_by(category_type) %>%
   filter(category_type == "IDH" | 
            category_type == "Nível educacional" |
