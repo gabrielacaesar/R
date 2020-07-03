@@ -287,7 +287,9 @@ n_type3_pivot[[1]] %>%
               border-right:1px solid black; vertical-align: middle;") %>%
   column_spec(1, bold = T, width = "7em", include_thead = F, 
               extra_css = "border-left:1px solid black;") %>%
-  save_kable(paste0("table_",
+  save_kable(paste0("table_id_",
+                    i,
+                    "_",
                     poll_name,
                     Sys.time(),
                     ".png"), zoom = 4)
@@ -314,7 +316,9 @@ n_type3_pivot[[2]] %>%
               border-right:1px solid black; vertical-align: middle;") %>%
   column_spec(1, bold = T, width = "7em", include_thead = F, 
               extra_css = "border-left:1px solid black;") %>%
-  save_kable(paste0("table_",
+  save_kable(paste0("table_id_",
+                    i,
+                    "_",
                     poll_name,
                     Sys.time(),
                     ".png"), zoom = 4)
