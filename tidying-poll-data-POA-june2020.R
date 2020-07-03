@@ -292,7 +292,7 @@ n_type3_pivot[[1]] %>%
                     "_",
                     poll_name,
                     Sys.time(),
-                    ".png"), zoom = 4)
+                    ".png"), zoom = 10)
 
 ## LARGE TABLE
 # defining number of list
@@ -321,4 +321,4 @@ n_type3_pivot[[2]] %>%
                     "_",
                     poll_name,
                     Sys.time(),
-                    ".png"), zoom = 4)
+                    ".png"), zoom = 10)
