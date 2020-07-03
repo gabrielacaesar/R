@@ -250,12 +250,11 @@ n1_type3_pivot <- type3_pivot_id[[i]] %>%
               values_from = value_perc, names_sep = "_") %>%
   rename(" " = answer)
 
-# defining cross_col we pick - region + educational level + vote second round
+# defining cross_col we pick - region + educational level
 n2_type3_pivot <- type3_pivot_id[[i]] %>%
   group_by(category_type) %>%
   filter(category_type == "IDH" | 
-           category_type == "Nível educacional" |
-           category_type == "Voto 2018 - 2º turno") %>%
+           category_type == "Nível educacional") %>%
   mutate(value_perc = round(value * 100)) %>%
   select(category_type, category_answer,
          answer, value_perc) %>%
@@ -263,9 +262,20 @@ n2_type3_pivot <- type3_pivot_id[[i]] %>%
               values_from = value_perc, names_sep = "_") %>%
   rename(" " = answer)
 
-n_type3_pivot <- list(n1_type3_pivot, n2_type3_pivot)
+# defining cross_col we pick - vote second round
+n3_type3_pivot <- type3_pivot_id[[i]] %>%
+  group_by(category_type) %>%
+  filter(category_type == "Voto 2018 - 2º turno") %>%
+  mutate(value_perc = round(value * 100)) %>%
+  select(category_type, category_answer,
+         answer, value_perc) %>%
+  pivot_wider(names_from = c(category_type, category_answer), 
+              values_from = value_perc, names_sep = "_") %>%
+  rename(" " = answer)
 
-## SMALL TABLE
+n_type3_pivot <- list(n1_type3_pivot, n2_type3_pivot, n3_type3_pivot)
+
+## FIRST TABLE
 # defining number of list
 cols_1 <- sub("(.*?)_(.*)", "\\2", names(n_type3_pivot[[1]])) # grab everything after the _
 grps_1 <- sub("(.*?)_(.*)", "\\1", names(n_type3_pivot[[1]])) # grab everything before the _
@@ -275,26 +285,28 @@ n_type3_pivot[[1]] %>%
   kable(col.names = cols_1, align = "c") %>%
   kable_styling(full_width = F, font_size = 11) %>%
   add_header_above(table(grps_1)[unique(grps_1)], color = "black", 
-                   bold = F, 
-                   font_size = 13, 
+                   font_size = 11, 
                    line = F,
-                   extra_css = "border-bottom:1px solid black;
+                   extra_css = "font-weight: normal;
+                   border-bottom:1px solid black;
                    border-right:1px solid black;
                    border-top:1px solid black;
-                   border-left:1px solid black;") %>%
+                   border-left:1px solid black;
+                   padding: 0px 2px") %>%
   column_spec(1:ncol(n_type3_pivot[[1]]), color = "black", width_min = "10em", include_thead = T,
               extra_css = "border-bottom:1px solid black; border-top:1px solid black;
-              border-right:1px solid black; vertical-align: middle;") %>%
+              border-right:1px solid black; vertical-align: middle; padding: 0px 2px") %>%
   column_spec(1, bold = T, width = "7em", include_thead = F, 
-              extra_css = "border-left:1px solid black;") %>%
+              extra_css = "border-left:1px solid black; padding: 0px 2px") %>%
+  row_spec(0, extra_css = "padding:0px 2px; width:10em") %>%
   save_kable(paste0("table_id_",
                     i,
-                    "_",
+                    "_1_",
                     poll_name,
                     Sys.time(),
                     ".png"), zoom = 10)
 
-## LARGE TABLE
+## SECOND TABLE
 # defining number of list
 cols_2 <- sub("(.*?)_(.*)", "\\2", names(n_type3_pivot[[2]])) # grab everything after the _
 grps_2 <- sub("(.*?)_(.*)", "\\1", names(n_type3_pivot[[2]])) # grab everything before the _
@@ -304,21 +316,55 @@ n_type3_pivot[[2]] %>%
   kable(col.names = cols_2, align = "c") %>%
   kable_styling(full_width = F, font_size = 11) %>%
   add_header_above(table(grps_2)[unique(grps_2)], color = "black", 
-                   bold = F, 
-                   font_size = 13, 
+                   font_size = 11, 
                    line = F,
-                   extra_css = "border-bottom:1px solid black;
+                   extra_css = "font-weight: normal;
+                   border-bottom:1px solid black;
                    border-right:1px solid black;
                    border-top:1px solid black;
-                   border-left:1px solid black;") %>%
+                   border-left:1px solid black;
+                   padding: 0px 2px") %>%
   column_spec(1:ncol(n_type3_pivot[[2]]), color = "black", width_min = "10em", include_thead = T,
               extra_css = "border-bottom:1px solid black; border-top:1px solid black;
-              border-right:1px solid black; vertical-align: middle;") %>%
+              border-right:1px solid black; vertical-align: middle; padding: 0px 2px") %>%
   column_spec(1, bold = T, width = "7em", include_thead = F, 
-              extra_css = "border-left:1px solid black;") %>%
+              extra_css = "border-left:1px solid black; padding: 0px 2px") %>%
+  row_spec(0, extra_css = "padding:0px 2px; width:10em") %>%
   save_kable(paste0("table_id_",
                     i,
-                    "_",
+                    "_2_",
+                    poll_name,
+                    Sys.time(),
+                    ".png"), zoom = 10)
+
+
+## THIRD TABLE
+# defining number of list
+cols_3 <- sub("(.*?)_(.*)", "\\2", names(n_type3_pivot[[3]])) # grab everything after the _
+grps_3 <- sub("(.*?)_(.*)", "\\1", names(n_type3_pivot[[3]])) # grab everything before the _
+
+# generating small table
+n_type3_pivot[[3]] %>%
+  kable(col.names = cols_3, align = "c") %>%
+  kable_styling(full_width = F, font_size = 11) %>%
+  add_header_above(table(grps_3)[unique(grps_3)], color = "black", 
+                   font_size = 11, 
+                   line = F,
+                   extra_css = "font-weight: normal;
+                   border-bottom:1px solid black;
+                   border-right:1px solid black;
+                   border-top:1px solid black;
+                   border-left:1px solid black;
+                   padding:0px 2px") %>%
+  column_spec(1:ncol(n_type3_pivot[[3]]), color = "black", width_min = "10em", include_thead = T,
+              extra_css = "border-bottom:1px solid black; border-top:1px solid black;
+              border-right:1px solid black; vertical-align:middle; padding:0px 2px") %>%
+  column_spec(1, bold = T, width = "7em", include_thead = F, 
+              extra_css = "border-left:1px solid black; padding: 0px 2px") %>%
+  row_spec(0, extra_css = "padding:0px 2px; width:10em") %>%
+  save_kable(paste0("table_id_",
+                    i,
+                    "_3_",
                     poll_name,
                     Sys.time(),
                     ".png"), zoom = 10)
