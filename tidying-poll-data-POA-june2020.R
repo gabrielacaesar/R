@@ -282,7 +282,7 @@ n_type3_pivot[[1]] %>%
                    border-right:1px solid black;
                    border-top:1px solid black;
                    border-left:1px solid black;") %>%
-  column_spec(1:ncol(n_type3_pivot[[1]]), color = "black", width = "4em", include_thead = T,
+  column_spec(1:ncol(n_type3_pivot[[1]]), color = "black", width_min = "10em", include_thead = T,
               extra_css = "border-bottom:1px solid black; border-top:1px solid black;
               border-right:1px solid black; vertical-align: middle;") %>%
   column_spec(1, bold = T, width = "7em", include_thead = F, 
@@ -309,7 +309,7 @@ n_type3_pivot[[2]] %>%
                    border-right:1px solid black;
                    border-top:1px solid black;
                    border-left:1px solid black;") %>%
-  column_spec(1:ncol(n_type3_pivot[[2]]), color = "black", width = "10em", include_thead = T,
+  column_spec(1:ncol(n_type3_pivot[[2]]), color = "black", width_min = "10em", include_thead = T,
               extra_css = "border-bottom:1px solid black; border-top:1px solid black;
               border-right:1px solid black; vertical-align: middle;") %>%
   column_spec(1, bold = T, width = "7em", include_thead = F, 
