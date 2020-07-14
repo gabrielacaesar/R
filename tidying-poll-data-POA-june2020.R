@@ -199,6 +199,14 @@ type1_full_content <- type1_question %>%
 
 write.csv(type1_full_content, paste0("type1_full_content", Sys.time(), ".csv"))
 
+# downloading neighborhood names
+neighborhood_type1 <- type1_full_content %>%
+  filter(question == "neighborhood") %>%
+  select(answer) %>%
+  arrange(unique(answer))
+
+write.csv(neighborhood_type1, paste0("neighborhood_type1", Sys.time(), ".csv"))
+
 #-------------------------------------------
 # cross_col tables - generating PNG of these tables
 # reading libraries
