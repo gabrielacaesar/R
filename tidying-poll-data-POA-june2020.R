@@ -1,6 +1,20 @@
 # manually with Sublime
 # 1. deleted CSS code
 #-------------------------------------------
+# Google Data Studio
+AVG(CASE
+    WHEN REGEXP_MATCH(answer, "(?i)(Positiva)") THEN 3
+    WHEN REGEXP_MATCH(answer, "(?i)(Não sei)") THEN 2
+    WHEN REGEXP_MATCH(answer, "(?i)(Negativa)") THEN 1
+    ELSE 0 END)
+
+AVG(CASE
+    WHEN REGEXP_MATCH(answer, "(?i)(Ótimo / Bom)") THEN 4
+    WHEN REGEXP_MATCH(answer, "(?i)(Regular)") THEN 3
+    WHEN REGEXP_MATCH(answer, "(?i)(Ruim / Péssimo)") THEN 2
+    WHEN REGEXP_MATCH(answer, "(?i)(Não sei)") THEN 1
+    ELSE 0 END)
+#-------------------------------------------
 # reading libraries
 library(rvest)
 library(tidyverse)
