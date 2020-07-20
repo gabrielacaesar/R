@@ -224,7 +224,11 @@ resultado_votacao <- resultado_url_split %>%
          nome = str_replace_all(nome,
          "Cap. Fábio Abreu", "Capitão Fábio Abreu"),
          nome = str_replace_all(nome,
-         "JosimarMaranhãozi", "Josimar Maranhãozinho"))
+         "JosimarMaranhãozi", "Josimar Maranhãozinho"),
+         nome = str_replace_all(nome,
+         "Bozzella", "Júnior Bozzella"),
+         nome = str_replace_all(nome,
+         "Tadeu  Filippelli", "Tadeu Filippelli"))
 
 #6. padronizar partidos
 resultado_votacao <- resultado_votacao %>%
