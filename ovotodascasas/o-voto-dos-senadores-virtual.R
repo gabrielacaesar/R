@@ -41,21 +41,35 @@ votos <- c("Sim", "Não", "-")
 # número maáximo de votantes
 number <- c(1:100)
 
-resultado_url <- url %>%
+get_resultado_url <- function(x){
+  url %>%
   read_html() %>%
   html_nodes("table") %>%
-  .[2] %>%
+  .[x] %>%
   html_nodes("td") %>%
   html_text() %>%
   as.data.frame() %>%
   rename("content" = ".") %>%
   mutate(content = as.character(content)) %>%
-  mutate(voto = ifelse(str_detect(str_trim(content), 
-                                  paste(votos, collapse = "|")), content, NA)) %>%
+  mutate(voto = case_when(content == "Simone Tebet" ~ NA_character_,
+                          content == "Sim" ~ "Sim",
+                          content == "-" ~ "-",
+                          content == "Não" ~ "Não")) %>%
   fill(voto, .direction = "up") %>%
   mutate(n_order = ifelse(str_detect(str_trim(content), 
                                   paste(number, collapse = "|")), content, NA)) %>%
   fill(n_order, .direction = "down") %>%
   filter(content != voto & 
-           content != n_order &
-           content != "")
+         content != n_order &
+         content != "" &
+         content != "Não Compareceu")
+}
+
+resultado_votacao <- map_df(2:4, get_resultado_url)
+
+resultado_votacao <- resultado_votacao %>%
+  mutate(voto = str_replace_all(voto, "Sim", "sim"),
+         voto = str_replace_all(voto, "Não", "nao"),
+         voto = str_replace_all(voto, "-", "ausente")) %>%
+  mutate(nome_upper = toupper(rm_accent(content))) 
+  
