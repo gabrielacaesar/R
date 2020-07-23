@@ -35,9 +35,6 @@ senadores_id <- fread("~/Downloads/plenario2019_SF-politicos-22jul2020.csv")
 #4. pegar o resultado direto via HTML
 url <- "https://www.congressonacional.leg.br/materias/medidas-provisorias/-/mpv/143101/votacoes#votacao_6152"
 
-# variações de voto
-votos <- c("Sim", "Não", "-")
-
 # número máximo de votantes
 number <- c(1:100)
 
