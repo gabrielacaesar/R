@@ -38,7 +38,7 @@ url <- "https://www.congressonacional.leg.br/materias/medidas-provisorias/-/mpv/
 # variações de voto
 votos <- c("Sim", "Não", "-")
 
-# número maáximo de votantes
+# número máximo de votantes
 number <- c(1:100)
 
 get_resultado_url <- function(x){
