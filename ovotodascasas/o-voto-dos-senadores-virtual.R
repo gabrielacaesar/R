@@ -37,6 +37,10 @@ senadores_id <- fread("~/Downloads/plenario2019_SF - politicos.csv",
 ## ALTERAR URL
 url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/141297/votacoes#votacao_6163"
 
+### ATT / A FAZER
+### coletar tb os motivos
+### Impedido (art.306 RISF) >>> naovotou
+
 # número maáximo de votantes
 number <- c(1:100)
 
