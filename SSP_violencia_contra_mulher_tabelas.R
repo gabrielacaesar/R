@@ -15,7 +15,7 @@ mes <- url %>%
   mutate(mes = str_remove_all(mes, "Ocorrências Registradas no mês: "),
          table_id = row_number()) %>%
   mutate(mes = str_replace_all(mes, "Janeiro de ", "01/"),
-         mes = str_replace_all(mes, "Fevereiro de ",  "02/"),
+         mes = str_replace_all(mes, "Fevereiro de ", "02/"),
          mes = str_replace_all(mes, "Março de ", "03/"),
          mes = str_replace_all(mes, "Abril de ", "04/"),
          mes = str_replace_all(mes, "Maio de ", "05/"),
