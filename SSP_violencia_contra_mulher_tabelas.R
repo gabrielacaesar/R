@@ -15,7 +15,7 @@ mes <- url %>%
   mutate(mes = str_remove_all(mes, "Ocorrências Registradas no mês: "),
          table_id = row_number()) %>%
   mutate(mes = str_replace_all(mes, "Janeiro de ", "01/"),
-         mes = str_replace_all(mes, "Fevereiro de ", "02/"),
+         mes = str_replace_all(mes, "Fevereiro de ",  "02/"),
          mes = str_replace_all(mes, "Março de ", "03/"),
          mes = str_replace_all(mes, "Abril de ", "04/"),
          mes = str_replace_all(mes, "Maio de ", "05/"),
@@ -58,56 +58,22 @@ dados <- all_tabela %>%
 ## EXTRA / EXTRA
 # filtering crime and date 
 
-##### ESTUPRO 
-crime_estupro <- dados %>%
+dados_por_crime <- dados %>%
   filter(ano == "2019" | ano ==  "2020") %>%
-  filter(mes == "01" | mes == "02" | mes == "03" | mes == "04" | mes == "05" | mes == "06") %>%
-  filter(crime == "ESTUPRO CONSUMADO") %>%
+  filter(mes == "01" | 
+         mes == "02" | 
+         mes == "03" | 
+         mes == "04" | 
+         mes == "05" | 
+         mes == "06") %>%
+  filter(crime == "ESTUPRO CONSUMADO" | 
+         crime == "ESTUPRO DE VULNERÁVEL CONSUMADO" |
+         crime == "LESÃO CORPORAL DOLOSA" | 
+         crime == "FEMINICÍDIO" | 
+         crime == "HOMICÍDIO DOLOSO (exclui FEMINICÍDIO)") %>%
   group_by(crime, ano) %>%
-  summarize(soma = sum(total))
+  summarize(soma = sum(total)) %>%
+  pivot_wider(names_from = ano, values_from = soma)
 
-crime_estupro
-
-##### ESTUPRO VULNERAVEL
-crime_estupro_vuneravel <- dados %>%
-  filter(ano == "2019" | ano ==  "2020") %>%
-  filter(mes == "01" | mes == "02" | mes == "03" | mes == "04" | mes == "05" | mes == "06") %>%
-  filter(crime == "ESTUPRO DE VULNERÁVEL CONSUMADO") %>%
-  group_by(crime, ano) %>%
-  summarize(soma = sum(total))
-
-crime_estupro_vuneravel
+dados_por_crime
   
-##### LESAO CORPORAL DOLOSA
-crime_lesao_corporal <- dados %>%
-  filter(ano == "2019" | ano ==  "2020") %>%
-  filter(mes == "01" | mes == "02" | mes == "03" | mes == "04" | mes == "05" | mes == "06") %>%
-  filter(crime == "LESÃO CORPORAL DOLOSA") %>%
-  group_by(crime, ano) %>%
-  summarize(soma = sum(total))
-
-crime_lesao_corporal
-
-##### FEMINICIDIO
-
-crime_feminicidio <- dados %>%
-  filter(ano == "2019" | ano ==  "2020") %>%
-  filter(mes == "01" | mes == "02" | mes == "03" | mes == "04" | mes == "05" | mes == "06") %>%
-  filter(crime == "FEMINICÍDIO") %>%
-  group_by(crime, ano) %>%
-  summarize(soma = sum(total))
-
-crime_feminicidio
-
-##### HOMICIDIO DOLOSO
-
-crime_homicidio <- dados %>%
-  filter(ano == "2019" | ano ==  "2020") %>%
-  filter(mes == "01" | mes == "02" | mes == "03" | mes == "04" | mes == "05" | mes == "06") %>%
-  filter(crime == "HOMICÍDIO DOLOSO (exclui FEMINICÍDIO)") %>%
-  group_by(crime, ano) %>%
-  summarize(soma = sum(total))
-
-crime_homicidio
-
-
