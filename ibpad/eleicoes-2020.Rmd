@@ -9,7 +9,7 @@ output: html_document
 
 O objetivo deste texto é responder a cinco perguntas sobre as últimas eleições usando R e os dados disponíveis no [repositório do Tribunal Superior Eleitoral (TSE)](https://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais-1/repositorio-de-dados-eleitorais). Antes de formular as perguntas, porém, precisamos baixar os dados do repositório, ler o pacote e importar o arquivo no RStudio, como fazemos abaixo. 
 
-Vale lembrar que esta é uma análise rápida dos dados eleitorais e, por isso, usaremos apenas o arquivo principal de candidaturas. Para uma análise mais profunda vale destacar os dados de prestação de contas eleitorais, patrimônio declarado e votação nominal. 
+Vale lembrar que esta é uma análise rápida dos dados eleitorais e, por isso, usaremos apenas o arquivo principal de candidaturas. Para baixá-lo, acesse o [repositório](https://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais-1/repositorio-de-dados-eleitorais), clique em "Candidatos" > "2020" > "Candidatos (formato ZIP)". Para uma análise mais profunda vale destacar os dados de prestação de contas eleitorais, patrimônio declarado e votação nominal. 
 
 ```{r}
 library(tidyverse)
