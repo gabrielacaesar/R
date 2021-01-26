@@ -1,0 +1,98 @@
+---
+title: "5 perguntas sobre as eleições respondidas com R"
+author: "Gabriela Caesar"
+date: "25/01/2021"
+output: html_document
+---
+
+## Análise rápida das eleições de 2020
+
+O objetivo deste texto é responder a cinco perguntas sobre as últimas eleições usando R e os dados disponíveis no [repositório do Tribunal Superior Eleitoral (TSE)](https://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais-1/repositorio-de-dados-eleitorais). Antes de formular as perguntas, porém, precisamos baixar os dados do repositório, ler o pacote e importar o arquivo no RStudio, como fazemos abaixo. 
+
+Vale lembrar que esta é uma análise rápida dos dados eleitorais e, por isso, usaremos apenas o arquivo principal de candidaturas. Para uma análise mais profunda vale destacar os dados de prestação de contas eleitorais, patrimônio declarado e votação nominal. 
+
+```{r}
+library(tidyverse)
+
+consulta_cand_2020 <- read_delim("~/eleicoes2020/consulta_cand_2020/consulta_cand_2020_BRASIL.csv", delim = ";", locale = locale(encoding = "Latin1"))
+```
+
+## 1) Quantas pessoas se candidataram? 
+
+Antes de descobrir o número de candidatos, nós removemos as duplicatas com a função `distinct()` (considerando as colunas do nome do candidato e do CPF). Depois, contamos o número de linhas com `nrow()`, já que cada linha apresenta informações sobre cada candidato. As eleições de 2020 tiveram mais de 500 mil candidatos, um recorde.
+
+```{r}
+consulta_cand_2020 %>%
+  distinct(NM_CANDIDATO, NR_CPF_CANDIDATO) %>%
+  nrow()
+```
+
+## 2) Qual é a idade média dos candidatos? E as idades máximas e mínimas?
+
+Novamente, removemos as duplicatas primeiro e chamamos o novo dataframe de "cand_2020". Também vamos pedir para manter todas as colunas no dataframe, o que é importante para as demais análises.
+
+Há duas colunas que podemos nos ajudar a calcular a idade média: "NR_IDADE_DATA_POSSE" e "DT_NASCIMENTO". Vamos usar a primeira opção. Depois usamos as funções `mean()` para calcular a média.
+
+```{r}
+cand_2020 <- consulta_cand_2020 %>%
+  distinct(NM_CANDIDATO, NR_CPF_CANDIDATO, .keep_all = TRUE)
+
+mean(cand_2020$NR_IDADE_DATA_POSSE)
+```
+Usamos ainda as funções `min()` e `max()` para verificar quais foram as idades mínima (no caso, 16 anos) e máxima (no caso, 999 anos). 
+
+A resposta para a idade máxima certamente mostra que o campo da data de nascimento foi preenchido de forma errada (com "0972" em vez de "1972") - e isso afetou consequentemente o campo de idade.
+```{r}
+min(cand_2020$NR_IDADE_DATA_POSSE)
+max(cand_2020$NR_IDADE_DATA_POSSE)
+```
+
+## 3) Quantos candidatos tinham "JOÃO" no nome? E "MARIA"? 
+
+As funções `filter()` e `str_detect()` vão nos ajudar a manter apenas as linhas que tenham a palavra JOÃO na coluna NM_CANDIDATO. Além disso, em seguida, usamos a função para mostrar apenas a coluna de interesse, NM_CANDIDATO.
+
+Há mais de 7 mil candidatos com JOÃO no nome. Vale lembrar que, caso o candidato não tenha usado o acento ao preencher o formulário de candidatura (JOAO em vez de JOÃO), ele não entrou neste recorte. Uma alternativa é tirar os acentos da coluna NM_CANDIDATO e, depois, aplicar o código abaixo. 
+```{r}
+cand_2020 %>%
+  filter(str_detect(NM_CANDIDATO, "JOÃO")) %>%
+  select(NM_CANDIDATO)
+```
+Mas, ao dar o mesmo comando para o termo MARIA, atente que as linhas com nomes que contenham esse nome também estarão no dataframe, como MARIANA, MARIANNE, MARIANGELA etc. Também entram no resultado, inclusive, alguns sobrenomes que contenham o termo, como MARIANO.
+
+Resultado: mais de 34 mil candidatos têm MARIA no nome - mas, vale lembrar, não necessariamente se chamam MARIA. Acrescentar um espaço após o termo poderia ajudar com esse problema.
+
+```{r}
+cand_2020 %>%
+  filter(str_detect(NM_CANDIDATO, "MARIA")) %>%
+  select(NM_CANDIDATO)
+```
+
+## 4) Quantas cidades tiveram apenas um único candidato a prefeito?
+
+Antes de responder a esta pergunta, precisamos lembrar que algumas cidades em diferentes estados têm o mesmo nome. É o caso, por exemplo, de Bom Jesus, nome dado a municípios de Santa Catarina, Rio Grande do Sul, Paraíba, Piauí e Rio Grande do Norte. 
+
+Além disso, também é importante considerar que os dados podem sofrer alterações. Renúncia e morte de candidatos, por exemplo. Para evitar isso, fazemos um filtro na coluna DS_DETALHE_SITUACAO_CAND. Essa coluna é atualizada pelo TSE no decorrer das eleições e, por isso, pode apresentar dados diferentes a depender da data do arquivo.
+
+```{r}
+cand_2020 %>%
+  filter(DS_DETALHE_SITUACAO_CAND != "FALECIDO" &
+           DS_DETALHE_SITUACAO_CAND != "RENÚNCIA" &
+           DS_CARGO == "PREFEITO") %>%
+  group_by(SG_UF, NM_UE) %>%
+  summarise(n_cand = n()) %>%
+  filter(n_cand == 1)
+```
+
+## 5) Quantos candidatos disputaram as eleições fora da cidade natal?
+
+As colunas que nos interessam desta vez são NM_UE (nome do município onde a pessoa disputa) e NM_MUNICIPIO_NASCIMENTO (nome do município onde a pessoa nasceu). Não usamos o código do município porque esse dado não foi preechido na totalidade pelo TSE para os municípios de nascimento - vale destacar novamente o cuidado com municípios homônimos em diferentes estados.
+
+Usamos a função `mutate()` para perguntar se as duas colunas são iguais. A nova coluna "checar_cidade" informa se o resultado da comparação foi TRUE (verdadeiro) ou FALSE (falso).
+
+```{r}
+cand_2020 %>%
+  mutate(checar_cidade = NM_UE == NM_MUNICIPIO_NASCIMENTO) %>%
+  select(NM_UE, NM_MUNICIPIO_NASCIMENTO, checar_cidade) %>%
+  filter(checar_cidade == FALSE)
+```
+
