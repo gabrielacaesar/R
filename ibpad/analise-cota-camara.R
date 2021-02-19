@@ -28,6 +28,7 @@ df %>%
                            "000.000.000/0000-7"))
   
 # 3) Qual foi o gasto médio dos deputados, por UF, com a cota parlamentar (considerando a coluna vlrDocumento)?
+# link para download https://www.camara.leg.br/deputados/quem-sao
 dep_exercicio <- readxl::read_xls("~/Downloads/deputado.xls")
 
 dep_qt <- dep_exercicio %>%
