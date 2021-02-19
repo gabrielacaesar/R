@@ -30,12 +30,12 @@ library(abjutils)
 
 #3. importar o nosso arquivo com o registro de todos os deputados
 # fazer o download da aba 'politicos' da planilha
-deputados_id <- fread("~/Downloads/plenario2019_CD-politicos-4abr2020-2.csv")
+deputados_id <- fread("~/Downloads/plenario2019_CD - politicos.csv")
 
 #4-A. importar o arquivo com o resultado da votação 
 # usar IMPORTHTML() no Spreadsheet, selecionar a lista 13 e separar em colunas
 # opcional
-resultado_votacao <- fread("~/Downloads/votacao-nova-7abr2020.csv")
+# resultado_votacao <- fread("~/Downloads/votacao-nova-7abr2020.csv")
 
 #4-B. ****ou pegar o resultado direto via HTML****
 # ATENÇÃO: APENAS caso não importe o resultado via arquivo (etapa 4-A)
@@ -49,7 +49,7 @@ resultado_url <- url %>%
   html_nodes("li") %>%
   html_text() %>%
   as.data.frame() %>%
-  `colnames<-`("info")
+  rename("info" = ".")
 
 resultado_url_split <- resultado_url %>%
   separate(info, into = c("nome", "info"), sep = "\\(") %>%
@@ -236,7 +236,7 @@ resultado_votacao <- resultado_url_split %>%
          nome = str_replace_all(nome,
                                 "Marcelo Álvaro", "Marcelo Álvaro Antônio"),
          nome = str_replace(nome,
-                                "Pedro Augusto$", "Pedro Augusto Palareti"),
+                            "Pedro Augusto$", "Pedro Augusto Palareti"),
          nome = str_replace_all(nome,
                                 "Pedro A Bezerra", "Pedro Augusto Bezerra"))
 
@@ -244,21 +244,21 @@ resultado_votacao <- resultado_url_split %>%
 #6. padronizar partidos
 resultado_votacao <- resultado_votacao %>%
   mutate(partido = str_replace_all(partido,
-         "NOVO", "Novo"),
+                                   "NOVO", "Novo"),
          partido = str_replace_all(partido,
-         "CIDADANIA", "Cidadania"),
+                                   "CIDADANIA", "Cidadania"),
          partido = str_replace_all(partido,
-         "REDE", "Rede"),     
+                                   "REDE", "Rede"),     
          partido = str_replace_all(partido,
-         "SOLIDARIEDADE", "SD"),
+                                   "SOLIDARIEDADE", "SD"),
          partido = str_replace_all(partido,
-         "PODEMOS", "PODE"),
+                                   "PODEMOS", "PODE"),
          partido = str_replace_all(partido,
-         "PATRIOTA", "Patriota"),
+                                   "PATRIOTA", "Patriota"),
          partido = str_replace_all(partido,
-         "AVANTE", "Avante"),
+                                   "AVANTE", "Avante"),
          partido = str_replace_all(partido,
-         "REPUBLICANOS", "Republicanos"))
+                                   "REPUBLICANOS", "Republicanos"))
 
 #7. tirar acentos e colocar caixa alta
 resultado_votacao <- resultado_votacao %>%
@@ -279,20 +279,25 @@ check_partido <- joined_data %>%
 
 #10. selecionar as colunas que queremos no nosso arquivo
 # é necessário informar abaixo: ID_PROPOSICAO, PROPOSICAO, PERMALINK
+n_id_proposicao <- "68"
+n_proposicao <- "CMC1-2021"
+n_permalink <- "manutencao-da-prisao-de-daniel-silveira"
+
+
 votacao_final <- joined_data %>%
   rename("nome_politico" = nome.y,
          "partido" = partido.y,
          "uf" = uf.y,
          "id_politico" = id) %>%
-  mutate(id_proposicao = "46",
-         proposicao = "PLP232-2019",
-         permalink = "remanejamento-de-verbas-para-a-saude") %>%
+  mutate(id_proposicao = n_id_proposicao,
+         proposicao = n_proposicao,
+         permalink = n_permalink) %>%
   select("id_proposicao", "proposicao", "partido", "id_politico", 
          "nome_upper", "nome_politico", "uf", "voto", "permalink") %>% 
   arrange(nome_upper)
 
 #11. fazer o download
-write.csv(votacao_final, "votacao_final_PLP232-2019.csv")
+write.csv(votacao_final, paste0("votacao_final_", n_proposicao, ".csv"))
 
 #12. checar exercicio
 # opcional: checar se houve mudança nos deputados em exercício
