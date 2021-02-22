@@ -24,7 +24,7 @@ get_crimes <- function(i){
   filter(!str_detect(capital, "Capital")) %>%
   filter(!str_detect(estado, "8A") &
          estado != "") %>%
-  mutate(boletim = url[1])
+  mutate(boletim = url[i])
 }
 
 todos_crimes <- map_dfr(1:length(url), get_crimes)
@@ -32,6 +32,3 @@ todos_crimes <- map_dfr(1:length(url), get_crimes)
 todos_crimes <- todos_crimes %>%
   mutate(dt_boletim = basename(todos_crimes$boletim),
          dt_boletim = str_remove_all(dt_boletim, "\\.htm"))
-
-
-
