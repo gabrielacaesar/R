@@ -60,17 +60,8 @@ dados <- all_tabela %>%
 
 dados_por_crime <- dados %>%
   filter(ano == "2019" | ano ==  "2020") %>%
-  filter(mes == "01" | 
-         mes == "02" | 
-         mes == "03" | 
-         mes == "04" | 
-         mes == "05" | 
-         mes == "06") %>%
-  filter(crime == "ESTUPRO CONSUMADO" | 
-         crime == "ESTUPRO DE VULNERÁVEL CONSUMADO" |
-         crime == "LESÃO CORPORAL DOLOSA" | 
-         crime == "FEMINICÍDIO" | 
-         crime == "HOMICÍDIO DOLOSO (exclui FEMINICÍDIO)") %>%
+  filter(mes %in% c("01", "02", "03", "04", "05", "06")) %>%
+  filter(crime %in% c("ESTUPRO CONSUMADO", "ESTUPRO DE VULNERÁVEL CONSUMADO", "LESÃO CORPORAL DOLOSA", "FEMINICÍDIO", "HOMICÍDIO DOLOSO (exclui FEMINICÍDIO)")) %>%
   group_by(crime, ano) %>%
   summarize(soma = sum(total)) %>%
   pivot_wider(names_from = ano, values_from = soma)
