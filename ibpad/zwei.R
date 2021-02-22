@@ -43,4 +43,15 @@ mean()
 median()
 rename()
 
+is.na()
+mean()
+median()
+max()
+min()
 
+as.character()
+as.integer()
+
+ifelse()
+
+loops: if / map
