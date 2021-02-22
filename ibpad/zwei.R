@@ -43,7 +43,13 @@ mean()
 median()
 rename()
 
+fazer operacoes com: ==; >; >=; <; !=
+e tambem: + - / * ^
+
+cifrao e [] para acessar dados
+
 is.na()
+which()
 mean()
 median()
 max()
