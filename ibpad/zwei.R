@@ -14,7 +14,8 @@ Sys.time()
 
 # capitulo 3
 
-# ler CSV
+# ler CSV // agenda do ministro 
+# download: https://www.gov.br/cgu/pt-br/acesso-a-informacao/agenda-de-autoridades/gabinete-ministro/ministro
 readr::read_csv()
 
 # ler XLSX ou XLS // estimativa da pop / ibge
