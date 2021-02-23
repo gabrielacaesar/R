@@ -17,13 +17,21 @@ Sys.time()
 # ler CSV
 readr::read_csv()
 
-# ler XLSX ou XLS
+# ler XLSX ou XLS // estimativa da pop / ibge
+# download: https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html?=&t=downloads
 readxl::read_excel()
 
 # ler com outro delimitador
 readr::read_delim()
 
 # ler a URL // arquivo 
+# link: https://raw.githubusercontent.com/betafcc/Municipios-Brasileiros-TSE/master/municipios_brasileiros_tse.csv
+
+# ler com fread() // biometria
+
+
+# ler com fread() // microdados - educacao basica / escolas
+
 
 # definir encoding / colunas / tipo colunas / novo header 
 
