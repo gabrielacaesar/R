@@ -4,14 +4,21 @@ library(tidyverse)
 
 - Quem eu sou; meus posts no IBPAD
 - O potencial do R
+- Dados abertos, dados publicos, governo aberto
 - R x RStudio 
 - O basico do RStudio
-- Abrir no nosso projeto
+- Abrir o nosso projeto
 - Comandos iniciais / calculadora e criar variavel
 - Consultar a documentacao
+- Observar sempre o erro no console
 
 fazer operacoes com: ==; >; >=; <; !=
 e tambem: + - / * ^
+
+# round(1.33333333333)
+# round(1.3456789012345, digits = 4)
+# ceiling(1.3333)
+# floor(1.2222)
 
 ################ COMANDOS GERAIS
 # funcoes gerais 
