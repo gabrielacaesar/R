@@ -44,12 +44,19 @@ Sys.time()
 
 # ler CSV // agenda do ministro 
 # download: https://www.gov.br/mcom/pt-br/agenda-de-autoridades/gabinete-do-ministro/ministro/2021-02-24
-agenda <- readr::read_csv("dados/Agendas_MCom/Agenda Ministro - 16-06-2020 a 18-02-2021.csv")
+agenda <- readr::read_csv("dados/agendas_ministerio_comunicacoes/Agenda Ministro - 16-06-2020 a 18-02-2021.csv")
 
 # ler XLSX ou XLS // estimativa da pop / ibge
 # download: https://www.ibge.gov.br/estatisticas/sociais/populacao/9103-estimativas-de-populacao.html?=&t=downloads
-pop <- readxl::read_excel("dados/estimativa_dou_2020.xls",
-                          skip = 1)
+library(readxl)
+pop <- readxl::read_excel("dados/ibge/estimativa_dou_2020.xls",
+                          skip = 1,
+                          sheet = "Municípios")
+
+deputados <- read_xls("dados/camara_dos_deputados/deputado.xls")
+# read_excel() >>>> adivinha se eh xls ou xlsx
+# read_xls() >>>> voce aponta que eh xls; oposto eh read_xlsx()
+
 
 # ler com outro delimitador
 readr::read_delim()
@@ -67,7 +74,7 @@ escolas <- fread("dados/microdados_educacao_basica_2020/DADOS/escolas.CSV",
                  select = columns_selected)
 
 # ler com fread() // resolver problema com encoding
-auxilio <- fread("dados/202008_AuxilioEmergencial.csv",
+auxilio <- fread("dados/portal_da_transparencia/202008_AuxilioEmergencial.csv",
              nrows = 1000,
              encoding = "Latin-1")
 
