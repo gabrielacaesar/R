@@ -149,13 +149,12 @@ loops: if / map
 # if(x3 < 500){
 #  print("Valor é menor que 500")
 #  x4 = x3 + 100
-  print(str_glue("O valor de x é: {x3}"))
 #} else{
 #  print("Valor é maior ou igual a 500")
 #  x4 = x3 - 100
 #  stop("Valor é maior. Pare aqui")
-  #print(str_glue("O valor de x é: {x3}"))
 #}
+
 
 ##### MÁGICA DO MAP
 
