@@ -34,7 +34,9 @@ Sys.time()
 
 ################ OUTROS IMPORTANTES
 
+- o que eh a flecha // atalho Option+-
 - como fazer comentarios
+- o que eh o pipe %>% // atalho Cmd+Shift+M
 - o que sao pacotes?
 - como instalar os pacotes?
 - por que sempre ler os pacotes antes?
