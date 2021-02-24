@@ -94,6 +94,7 @@ rename()
 janitor::clean_names()
 
 cifrao e [] para acessar dados
+# vetor_idade_mun[4] <- 50
 
 ##### criar vetores
 ## criar DFs
