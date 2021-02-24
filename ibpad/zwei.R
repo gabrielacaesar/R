@@ -64,6 +64,9 @@ auxilio <- fread("dados/202008_AuxilioEmergencial.csv",
              nrows = 1000,
              encoding = "Latin-1")
 
+# mostrar tambem como importar usando o mouse
+# Import Dataset > From text (base)
+
 ########### CONHECENDO O DF
 
 glimpse()
