@@ -14,6 +14,11 @@ library(tidyverse)
 - Consultar a documentacao
 - Observar sempre o erro no console
 
+# round(1.33333333333)
+# round(1.3456789012345, digits = 4)
+# ceiling(1.3333)
+# floor(1.2222)
+
 fazer operacoes com: ==; >; >=; <; !=
 e tambem: + - / * ^
 
@@ -21,10 +26,8 @@ e tambem: + - / * ^
 # aniversario <- "2021-08-27"
 # hoje - as.Date(aniversario)
 
-# round(1.33333333333)
-# round(1.3456789012345, digits = 4)
-# ceiling(1.3333)
-# floor(1.2222)
+# x <- as.character(1)
+# y <- as.numeric("1")
 
 ################ COMANDOS GERAIS
 # funcoes gerais 
