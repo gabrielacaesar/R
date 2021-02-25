@@ -17,6 +17,10 @@ library(tidyverse)
 fazer operacoes com: ==; >; >=; <; !=
 e tambem: + - / * ^
 
+# hoje <- Sys.Date()
+# aniversario <- "2021-08-27"
+# hoje - as.Date(aniversario)
+
 # round(1.33333333333)
 # round(1.3456789012345, digits = 4)
 # ceiling(1.3333)
