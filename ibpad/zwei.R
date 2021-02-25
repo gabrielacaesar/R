@@ -14,6 +14,8 @@ library(tidyverse)
 - Consultar a documentacao
 - Observar sempre o erro no console
 
+# round(pi, digits = 2)
+
 # round(1.33333333333)
 # round(1.3456789012345, digits = 4)
 # ceiling(1.3333)
