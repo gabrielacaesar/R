@@ -1,5 +1,7 @@
 library(tidyverse)
 
+#link: http://sillasgonzaga.com/material/cdr/
+
 ################ REVISAO
 
 - Quem eu sou; meus posts no IBPAD
