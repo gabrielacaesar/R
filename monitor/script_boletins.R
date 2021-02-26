@@ -1,7 +1,7 @@
 library(tidyverse)
 library(readxl)
 
-# zip file: 
+# dados: https://github.com/gabrielacaesar/R/blob/master/monitor/dados.zip
 
 path_2020 <- "dados/2020/"
 boletins_2020 <- map_df(paste0(path_2020, list.files(path_2020, pattern = "*xls")), read.delim,
