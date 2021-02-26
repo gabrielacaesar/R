@@ -1,6 +1,8 @@
 library(tidyverse)
 library(readxl)
 
+# zip file: 
+
 path_2020 <- "dados/2020/"
 boletins_2020 <- map_df(paste0(path_2020, list.files(path_2020, pattern = "*xls")), read.delim,
                    fileEncoding = "UTF-16LE", sep = "\t", header = T, stringsAsFactors = F)
