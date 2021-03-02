@@ -11,7 +11,7 @@ boletins_2019 <- map_df(paste0(path_2019, list.files(path_2019, pattern = "*xls"
 
 b_2020 <- boletins_2020 %>%
   filter(STATUS == "Consumado") %>%
-  filter(str_detect(DESDOBRAMENTO, "intervenção policial")) %>%
+  filter(str_detect(DESDOBRAMENTO, "Morte decorrente de intervenção policial")) %>%
   distinct(NUMERO_BOLETIM, NOMEPESSOA, .keep_all = TRUE) %>%
   #unite("endereco", c("LOGRADOURO", "NUMERO", "BAIRRO", "CIDADE", "UF"), sep = ", ") %>%
   group_by(CORCUTIS) %>%
@@ -19,7 +19,7 @@ b_2020 <- boletins_2020 %>%
 
 b_2019 <- boletins_2019 %>%
   filter(STATUS == "Consumado") %>%
-  filter(str_detect(DESDOBRAMENTO, "intervenção policial")) %>%
+  filter(str_detect(DESDOBRAMENTO, "Morte decorrente de intervenção policial")) %>%
   distinct(NUMERO_BOLETIM, NOMEPESSOA, .keep_all = TRUE) %>%
   #unite("endereco", c("LOGRADOURO", "NUMERO", "BAIRRO", "CIDADE", "UF"), sep = ", ") %>%
   group_by(CORCUTIS) %>%
