@@ -61,6 +61,8 @@ joined_data <- resultado_votacao %>%
   left_join(senadores_id, by = "nome_upper") %>%
   arrange(desc(id))
 
+count(is.na(joined_data$id))
+
 #6. informar infos da proposicao
 ## ALTERAR INFORMACOES ABAIXO
 id_proposicao <- "98"
