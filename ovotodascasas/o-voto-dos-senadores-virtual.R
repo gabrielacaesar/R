@@ -71,9 +71,7 @@ permalink <- "tipificacao-e-punicao-para-stalking"
 
 #7. selecionar as colunas que queremos no nosso arquivo
 votacao_final <- joined_data %>%
-  rename("nome_politico" = nome,
-         "partido" = partido,
-         "uf" = uf,
+  rename("nome_politico" = `nome.y`,
          "id_politico" = id) %>%
   mutate(id_proposicao = id_proposicao,
          proposicao = proposicao,
