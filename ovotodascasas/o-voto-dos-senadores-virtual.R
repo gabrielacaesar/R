@@ -15,18 +15,14 @@
 ################################################################
 
 #1. instalar as bibliotecas
-install.packages("tidyverse")
-install.packages("foreign")
-install.packages("rvest")
-install.packages("data.table")
-install.packages("abjutils")
+# install.packages("tidyverse")
+# install.packages("rvest")
+# install.packages("data.table")
 
 #2. ler as bibliotecas
 library(tidyverse)
-library(foreign)
 library(rvest)
 library(data.table)
-library(abjutils)
 
 #3. importar o nosso arquivo com o registro de todos os senadores
 # fazer o download da aba 'politicos' da planilha
@@ -35,48 +31,30 @@ senadores_id <- fread("~/Downloads/plenario2019_SF - politicos.csv",
 
 #4. pegar o resultado direto via HTML
 ## ALTERAR URL
-url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/141297/votacoes#votacao_6163"
+url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/146091/votacoes#votacao_6291"
 
-### ATT / A FAZER
-### coletar tb os motivos
-### Impedido (art.306 RISF) >>> naovotou
-
-# número maáximo de votantes
-number <- c(1:100)
-
-get_resultado_url <- function(x){
+get_resultado_url <- function(i){
   url %>%
     read_html() %>%
-    html_nodes("table") %>%
-    .[x] %>%
-    html_nodes("td") %>%
-    html_text() %>%
+    html_table() %>%
+    .[i] %>%
     as.data.frame() %>%
-    rename("content" = ".") %>%
-    mutate(content = as.character(content)) %>%
-    mutate(voto = case_when(content == "Simone Tebet" ~ NA_character_,
-                            content == "Sim" ~ "Sim",
-                            content == "-" ~ "-",
-                            content == "Não" ~ "Não",
-                            content == "Abstenção" ~ "Abstenção")) %>%
-    fill(voto, .direction = "up") %>%
-    mutate(n_order = ifelse(str_detect(str_trim(content), 
-                                       paste(number, collapse = "|")), content, NA)) %>%
-    fill(n_order, .direction = "down") %>%
-    filter(content != voto & 
-             content != n_order &
-             content != "" &
-             content != "Não Compareceu")
+    janitor::clean_names() %>%
+    mutate(voto = ifelse(str_detect(voto, "-"), obs, voto),
+           nome_upper = toupper(abjutils::rm_accent(parlamentar))) %>%
+    rename(n_order = x, nome = parlamentar) %>%
+    select(n_order, nome, nome_upper, voto) %>%
+    mutate(voto = case_when(voto == "Sim" ~ "sim",
+                            voto == "Não Compareceu" ~ "ausente",
+                            voto == "Não registrou voto" ~ "ausente",
+                            voto == "art. 13, caput - Atividade parlamentar" ~ "ausente",
+                            voto == "art. 43, I - Licença saúde" ~ "ausente",
+                            voto == "Presidente (art. 51 RISF)" ~ "naovotou",
+                            voto == "Não" ~ "nao",
+                            voto == "Abstenção" ~ "abstencao"))
 }
 
 resultado_votacao <- map_df(2:4, get_resultado_url)
-
-resultado_votacao <- resultado_votacao %>%
-  mutate(voto = str_replace_all(voto, "Sim", "sim"),
-         voto = str_replace_all(voto, "Não", "nao"),
-         voto = str_replace_all(voto, "-", "ausente"),
-         voto = str_replace_all(voto, "Abstenção", "abstencao")) %>%
-  mutate(nome_upper = toupper(rm_accent(content))) 
 
 #5. cruzar planilhas
 joined_data <- resultado_votacao %>%
@@ -85,9 +63,9 @@ joined_data <- resultado_votacao %>%
 
 #6. informar infos da proposicao
 ## ALTERAR INFORMACOES ABAIXO
-id_proposicao <- "83"
-proposicao <- "PL1166-2020"
-permalink <- "limite-de-juros-para-cartao-de-credito-durante-a-pandemia"
+id_proposicao <- "98"
+proposicao <- "PL1369-2019"
+permalink <- "tipificacao-e-punicao-para-stalking"
 
 #7. selecionar as colunas que queremos no nosso arquivo
 votacao_final <- joined_data %>%
