@@ -83,102 +83,102 @@ mes_hoje_string <- case_when(mes_hoje == "01" ~ "janeiro",
 total_mortes <- boletim_tidy$numero[1]
 mortes_24h <- boletim_tidy$numero[2]
 media_mortes <- media_movel_tidy$media_movel_mortes_br
-variacao_mortes <- paste0(media_movel_tidy$variacao_mortes_br, "%")
-tendencia_mortes <- case_when(parse_number(variacao_mortes) >= 15 ~ "alta",
-                           parse_number(variacao_mortes) < 15 & parse_number(variacao_mortes) > -15 ~ "estabilidade",
-                           parse_number(variacao_mortes) <= -15 ~ "queda")
+variacao_mortes <- media_movel_tidy$variacao_mortes_br
+tendencia_mortes <- case_when(variacao_mortes >= 15 ~ "alta",
+                           variacao_mortes < 15 & variacao_mortes > -15 ~ "estabilidade",
+                           variacao_mortes <= -15 ~ "queda")
 
 # info CASOS
 total_casos <- boletim_tidy$numero[4]
 casos_24h <- boletim_tidy$numero[5]
 media_casos <- media_movel_tidy$media_movel_casos_br
-variacao_casos <- paste0(media_movel_tidy$variacao_casos_br, "%")
-tendencia_casos <- case_when(parse_number(variacao_casos) >= 15 ~ "alta",
-                              parse_number(variacao_casos) < 15 & parse_number(variacao_casos) > -15 ~ "estabilidade",
-                              parse_number(variacao_casos) <= -15 ~ "queda")
+variacao_casos <- media_movel_tidy$variacao_casos_br
+tendencia_casos <- case_when(variacao_casos >= 15 ~ "alta",
+                             variacao_casos < 15 & variacao_casos > -15 ~ "estabilidade",
+                             variacao_casos <= -15 ~ "queda")
 
 # info / variacao mortes - lista UFs
-variacao_PR <- paste0(media_movel_tidy$variacao_mortes_pr, "%")
-variacao_RS <- paste0(media_movel_tidy$variacao_mortes_rs, "%")
-variacao_SC <- paste0(media_movel_tidy$variacao_mortes_sc, "%")
+variacao_PR <- media_movel_tidy$variacao_mortes_pr
+variacao_RS <- media_movel_tidy$variacao_mortes_rs
+variacao_SC <- media_movel_tidy$variacao_mortes_sc
 
-variacao_ES <- paste0(media_movel_tidy$variacao_mortes_es, "%")
-variacao_MG <- paste0(media_movel_tidy$variacao_mortes_mg, "%")
-variacao_RJ <- paste0(media_movel_tidy$variacao_mortes_rj, "%")
-variacao_SP <- paste0(media_movel_tidy$variacao_mortes_sp, "%")
+variacao_ES <- media_movel_tidy$variacao_mortes_es
+variacao_MG <- media_movel_tidy$variacao_mortes_mg
+variacao_RJ <- media_movel_tidy$variacao_mortes_rj
+variacao_SP <- media_movel_tidy$variacao_mortes_sp
 
-variacao_DF <- paste0(media_movel_tidy$variacao_mortes_df, "%")
-variacao_GO <- paste0(media_movel_tidy$variacao_mortes_go, "%")
-variacao_MS <- paste0(media_movel_tidy$variacao_mortes_ms, "%")
-variacao_MT <- paste0(media_movel_tidy$variacao_mortes_mt, "%")
+variacao_DF <- media_movel_tidy$variacao_mortes_df
+variacao_GO <- media_movel_tidy$variacao_mortes_go
+variacao_MS <- media_movel_tidy$variacao_mortes_ms
+variacao_MT <- media_movel_tidy$variacao_mortes_mt
 
-variacao_AC <- paste0(media_movel_tidy$variacao_mortes_ac, "%")
-variacao_AM <- paste0(media_movel_tidy$variacao_mortes_am, "%")
-variacao_AP <- paste0(media_movel_tidy$variacao_mortes_ap, "%")
-variacao_PA <- paste0(media_movel_tidy$variacao_mortes_pa, "%")
-variacao_RO <- paste0(media_movel_tidy$variacao_mortes_ro, "%")
-variacao_RR <- paste0(media_movel_tidy$variacao_mortes_rr, "%")
-variacao_TO <- paste0(media_movel_tidy$variacao_mortes_to, "%")
+variacao_AC <- media_movel_tidy$variacao_mortes_ac
+variacao_AM <- media_movel_tidy$variacao_mortes_am
+variacao_AP <- media_movel_tidy$variacao_mortes_ap
+variacao_PA <- media_movel_tidy$variacao_mortes_pa
+variacao_RO <- media_movel_tidy$variacao_mortes_ro
+variacao_RR <- media_movel_tidy$variacao_mortes_rr
+variacao_TO <- media_movel_tidy$variacao_mortes_to
 
-variacao_AL <- paste0(media_movel_tidy$variacao_mortes_al, "%")
-variacao_BA <- paste0(media_movel_tidy$variacao_mortes_ba, "%")
-variacao_CE <- paste0(media_movel_tidy$variacao_mortes_ce, "%")
-variacao_MA <- paste0(media_movel_tidy$variacao_mortes_ma, "%")
-variacao_PB <- paste0(media_movel_tidy$variacao_mortes_pb, "%")
-variacao_PE <- paste0(media_movel_tidy$variacao_mortes_pe, "%")
-variacao_PI <- paste0(media_movel_tidy$variacao_mortes_pi, "%")
-variacao_RN <- paste0(media_movel_tidy$variacao_mortes_rn, "%")
-variacao_SE <- paste0(media_movel_tidy$variacao_mortes_se, "%")
+variacao_AL <- media_movel_tidy$variacao_mortes_al
+variacao_BA <- media_movel_tidy$variacao_mortes_ba
+variacao_CE <- media_movel_tidy$variacao_mortes_ce
+variacao_MA <- media_movel_tidy$variacao_mortes_ma
+variacao_PB <- media_movel_tidy$variacao_mortes_pb
+variacao_PE <- media_movel_tidy$variacao_mortes_pe
+variacao_PI <- media_movel_tidy$variacao_mortes_pi
+variacao_RN <- media_movel_tidy$variacao_mortes_rn
+variacao_SE <- media_movel_tidy$variacao_mortes_se
 
 # PARAGRAFOS
 texto_0 <- c("Brasil registra {mortes_24h} mortes em 24 horas")
 texto_1 <- c("País contabilizou {total_casos} casos e {total_mortes} óbitos por Covid-19 desde o início da pandemia, segundo balanço do consórcio de veículos de imprensa. Casos e mortes apresentam tendência de {tendencia_casos}.")
-texto_2 <- c("O país registrou {mortes_24h} mortes pela Covid-19 nas últimas 24 horas e totalizou {neste_nesta} {dia_da_semana_PT} ({dia_hoje}) {total_mortes} óbitos. Com isso, a média móvel de mortes no Brasil nos últimos 7 dias chegou a {media_mortes}, novamente um recorde. Em comparação à média de 14 dias atrás, a variação foi de {variacao_mortes}, indicando tendência de {tendencia_mortes} nos óbitos pela doença.")
+texto_2 <- c("O país registrou {mortes_24h} mortes pela Covid-19 nas últimas 24 horas e totalizou {neste_nesta} {dia_da_semana_PT} ({dia_hoje}) {total_mortes} óbitos. Com isso, a média móvel de mortes no Brasil nos últimos 7 dias chegou a {media_mortes}, novamente um recorde. Em comparação à média de 14 dias atrás, a variação foi de {variacao_mortes}%, indicando tendência de {tendencia_mortes} nos óbitos pela doença.")
 texto_3 <- c("É o que mostra novo levantamento do consórcio de veículos de imprensa sobre a situação da pandemia de coronavírus no Brasil a partir de dados das secretarias estaduais de Saúde, consolidados às 20h {deste_desta} {dia_da_semana_PT}.")
-texto_4 <- c("Em casos confirmados, desde o começo da pandemia {total_casos} brasileiros já tiveram ou têm o novo coronavírus, com {casos_24h} desses confirmados no último dia. A média móvel nos últimos 7 dias foi de {media_casos} novos diagnósticos por dia. Isso representa uma variação de {variacao_casos} em relação aos casos registrados em duas semanas, o que indica tendência de {tendencia_casos} também nos diagnósticos.")
+texto_4 <- c("Em casos confirmados, desde o começo da pandemia {total_casos} brasileiros já tiveram ou têm o novo coronavírus, com {casos_24h} desses confirmados no último dia. A média móvel nos últimos 7 dias foi de {media_casos} novos diagnósticos por dia. Isso representa uma variação de {variacao_casos}% em relação aos casos registrados em duas semanas, o que indica tendência de {tendencia_casos} também nos diagnósticos.")
 texto_5 <- c("Brasil, {dia_hoje} de {mes_hoje_string}
 Total de mortes: {total_mortes}
 Registro de mortes em 24 horas: {mortes_24h}
-Média de novas mortes nos últimos 7 dias: {media_mortes} por dia (variação em 14 dias: {variacao_mortes})
+Média de novas mortes nos últimos 7 dias: {media_mortes} por dia (variação em 14 dias: {variacao_mortes}%)
 Total de casos confirmados: {total_casos}
 Registro de casos confirmados em 24 horas: {casos_24h}
-Média de novos casos nos últimos 7 dias: {media_casos} por dia (variação em 14 dias: {variacao_casos})")
+Média de novos casos nos últimos 7 dias: {media_casos} por dia (variação em 14 dias: {variacao_casos}%)")
 texto_6 <- c("Sul
-PR: {variacao_PR}
-RS: {variacao_RS}
-SC: {variacao_SC}
+PR: {variacao_PR}%
+RS: {variacao_RS}%
+SC: {variacao_SC}%
 
 Sudeste
-ES: {variacao_ES}
-MG: {variacao_MG}
-RJ: {variacao_RJ}
-SP: {variacao_SP}
+ES: {variacao_ES}%
+MG: {variacao_MG}%
+RJ: {variacao_RJ}%
+SP: {variacao_SP}%
 
 Centro-Oeste
-DF: {variacao_DF}
-GO: {variacao_GO}
-MS: {variacao_MS}
-MT: {variacao_MT}
+DF: {variacao_DF}%
+GO: {variacao_GO}%
+MS: {variacao_MS}%
+MT: {variacao_MT}%
 
 Norte
-AC: {variacao_AC}
-AM: {variacao_AM}
-AP: {variacao_AP}
-PA: {variacao_PA}
-RO: {variacao_RO}
-RR: {variacao_RR}
-TO: {variacao_TO}
+AC: {variacao_AC}%
+AM: {variacao_AM}%
+AP: {variacao_AP}%
+PA: {variacao_PA}%
+RO: {variacao_RO}%
+RR: {variacao_RR}%
+TO: {variacao_TO}%
 
 Nordeste
-AL: {variacao_AL}
-BA: {variacao_BA}
-CE: {variacao_CE}
-MA: {variacao_MA}
-PB: {variacao_PB}
-PE: {variacao_PE}
-PI: {variacao_PI}
-RN: {variacao_RN}
-SE: {variacao_SE}")
+AL: {variacao_AL}%
+BA: {variacao_BA}%
+CE: {variacao_CE}%
+MA: {variacao_MA}%
+PB: {variacao_PB}%
+PE: {variacao_PE}%
+PI: {variacao_PI}%
+RN: {variacao_RN}%
+SE: {variacao_SE}%")
 texto_7 <- c("Estados
 Subindo ({alta_n_uf} estados): {alta_lista_uf}
 Em estabilidade ({estabilidade_n_uf} estados): {estabilidade_lista_uf}
