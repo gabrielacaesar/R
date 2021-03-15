@@ -45,12 +45,13 @@ tendencia_uf <- media_movel_tidy %>%
             numero < 15 & numero > -15 ~ "estabilidade",
             numero <= -15 ~ "queda"))
 
-splited_tendencia <- split(tendencia_uf, list(tendencia_uf$tendencia))
+alta_n_uf <- tendencia_uf %>% filter(tendencia == "alta") %>% nrow()
+estabilidade_n_uf <- tendencia_uf %>% filter(tendencia == "estabilidade") %>% nrow()
+queda_n_uf <- tendencia_uf %>% filter(tendencia == "queda") %>% nrow()
 
-splited_tendencia[1] %>%
-  as.data.frame() %>%
-  select(uf)
-
+alta_lista_uf <- tendencia_uf %>% filter(tendencia == "alta") %>% select(uf) 
+estabilidade_lista_uf <- tendencia_uf %>% filter(tendencia == "estabilidade") %>% select(uf) 
+queda_lista_uf <- tendencia_uf %>% filter(tendencia == "queda") %>% select(uf) 
 
 # info DATA
 dia_da_semana_EN <- weekdays(Sys.Date())
@@ -180,7 +181,7 @@ RN: {variacao_RN}
 SE: {variacao_SE}")
 texto_7 <- c("Estados
 Subindo ({alta_n_uf} estados): {alta_lista_uf}
-Em estabilidade ({estabilidade_n_uf} estado): {estabilidade_lista_uf}
+Em estabilidade ({estabilidade_n_uf} estados): {estabilidade_lista_uf}
 Em queda ({queda_n_uf} estados): {queda_lista_uf}")
 
 # GLUUUUUUE
