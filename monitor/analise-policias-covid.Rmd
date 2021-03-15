@@ -1,0 +1,47 @@
+---
+title: "Polícias na pandemia da Covid-19"
+author: "Gabriela Caesar"
+date: "3/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Levantamento nacional
+
+Todos os estados foram perguntados via Lei de Acesso à Informação e também via assessoria de imprensa sobre o impacto da Covid-19 na Polícia Militar e na Polícia Civil. Eis as perguntas:
+
+- Quantos policiais foram afastados do trabalho temporariamente por causa da Covid-19? 	
+- Quantos policiais morreram com a Covid-19?
+
+Os dados devem ser referentes apenas ao ano de 2020. Caso LAI e Ascom enviem números diferentes, isso deve ser questionado. Alguns estados voluntariamente mandaram outros dados, além dos solicitados. 
+
+```{r packages, echo = FALSE}
+library(tidyverse)
+library(googledrive)
+library(readxl)
+```
+
+### Acesso aos dados
+
+A planilha fica compartilhada apenas entre os integrantes do levantamento. Para analisar os dados, precisamos baixar a versão mais atual.
+
+```{r download_dataset, echo=FALSE}
+dir.create(paste0("dados_", Sys.Date()))
+setwd(paste0("dados_", Sys.Date()))
+
+drive_auth(email = "gabriela.caesar.g1@gmail.com")
+drive_download(file = as_id("1EN-WXijt-OtTVvSYyKiUc97y_QuMnnYi3sLb9yaSNfM"), type = "xlsx")
+```
+
+Após o download, vamos ler o arquivo, que tem algumas abas.
+A segunda aba contem dados da Polícia Militar. E a terceira, da Polícia Civil.
+
+```{r read_dataset, echo=FALSE}
+arquivo <- list.files()
+dados_PM <- read_xlsx(arquivo, sheet = 2, skip = 1, col_names = c("uf", "afastado", "morto", "obs"))
+dados_PC <- read_xlsx(arquivo, sheet = 3, skip = 1, col_names = c("uf", "afastado", "morto", "obs"))
+```
+
