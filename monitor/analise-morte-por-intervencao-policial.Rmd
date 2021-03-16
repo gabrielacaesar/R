@@ -1,0 +1,118 @@
+---
+title: "Morte por intervenção policial"
+author: "Gabriela Caesar"
+date: "16/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+```
+
+## Letalidade policial: análise de SP
+
+O objetivo deste caderno é analisar os dados de morte por intervenção policial no estado de São Paulo nos anos de 2019 e 2020. A base de dados foi baixada da seção de transparência da Secretaria de Segurança Pública. A estatística da SSP disponibilizou um único arquivo com dados desse tipo de crime desde 2013. Este arquivo também não tinha duplicatas, ao contrário de outras bases fornecidas pela SSP-SP.
+
+```{r packages}
+library(readxl)
+library(tidyverse)
+```
+
+```{r read_dataset}
+dados <- read_xlsx("dados/outros/MDIP_2013_Jan 2021.xlsx")
+```
+
+#### Filtro por 2019 e 2020
+
+Vamos analisar apenas os dados do período de interesse. Além disso, tambem é interessante ter um cabeçalho mais organizado.
+
+```{r filtro_ano}
+dados_n <- dados %>%
+  janitor::clean_names() %>%
+  filter(ano_bo == 2020 | ano_bo == 2019, 
+         ano == 2020 | ano == 2019)
+```
+
+#### Municípios onde os crimes ocorrem
+
+A capital, cidade mais populosa do estado, é o local onde ocorreram 38% dessas mortes. Algumas cidades da Grande SP, como São Bernardo do Campo, Guarulhos, Santo André e Osasco, também aparecem no top 10. Municípios da Baixada Santista, como Santos, São Vicente e Guarujá, estão ali. 
+
+```{r municipios_qtd}
+dados_n %>%
+  group_by(cidade_elaboracao) %>%
+  summarise(qtd = n(),
+            perc = qtd / 1681 * 100) %>%
+  slice_max(n = 10, order_by = qtd)
+```
+
+#### Situação do policial: em serviço X fora de serviço
+
+Mais de 8 a cada 10 mortes de pessoas por intervenção policial ocorreram quando o policial estava em serviço.
+
+```{r situacao_qtd}
+dados_n %>%
+  mutate(situacao = tolower(situacao)) %>%
+  group_by(situacao) %>%
+  summarise(qtd = n(),
+            perc = qtd / 1681 * 100)
+```
+
+#### Corporação: Polícia Militar X Polícia Civil
+
+A Polícia Militar responde por um volume de mortes muito maior do que a Polícia Civil. Apenas 3,3% das mortes por intervenção policial foram de responsabilidade da PC. A maioria (96,7%) é ligada à PM.
+
+```{r corporacao_qtd}
+dados_n %>%
+  group_by(coorporacao) %>%
+  summarise(qtd = n(),
+            perc = qtd / 1681 * 100)
+```
+
+#### Perfil da vítima: gênero
+
+Apenas nove mulheres fazem parte da lista de pessoas assassinadas por intervenção policial. Quase todos os casos são de homens (99,1%). Há ainda seis casos em que o gênero não foi identificado.
+
+```{r genero_qtd}
+dados_n %>%
+  group_by(sexo_pessoa) %>%
+  summarise(qtd = n(),
+            perc = qtd / 1681 * 100)
+```
+
+#### Perfil da vítima: raça/etnia
+
+As mortes de pessoas negras (pretas + pardas) somam 1.016 de 1.681 - ou seja, 60%. O percentual é maior do que a parcela dessa etnia na população, segundo o IBGE.
+
+Percebe-se também que três casos receberam o rótulo "registrado na PF". E que 74 ficam como "Não informado".
+
+```{r raca_cor_qtd}
+dados_n %>%
+  group_by(cor) %>%
+  summarise(qtd = n(),
+            perc = qtd / 1681 * 100)
+```
+
+#### Perfil da vítima: idade 
+
+Uma a cada quatro vítimas não tem a informação da idade. Quando há o dado da idade, a faixa-etária de 17 a 21 anos é a que aparece com mais constância. 
+
+```{r idade_qtd}
+dados_n %>%
+  group_by(idade_pessoa) %>%
+  summarise(qtd = n(),
+            perc = qtd / 1681 * 100) %>%
+  slice_max(n = 10, order_by = qtd)
+```
+
+#### Perfil da vítima: profissão
+
+Tambem não há informação sobre a profissão de mais da metade das vítimas (837 + 102). Estudante e desempregado aparecem na lista.
+
+```{r profissao_qtd}
+dados_n %>%
+  group_by(descr_profissao) %>%
+  summarise(qtd = n(),
+            perc = qtd / 1681 * 100) %>%
+  slice_max(n = 10, order_by = qtd)
+```
+
