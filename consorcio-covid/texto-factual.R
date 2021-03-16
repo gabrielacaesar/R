@@ -13,7 +13,7 @@ drive_download(file = as_id("1qrzNw0_M5w45WlHpNT6k5I8YGaJTURyXbKIrxwbXuT0"), typ
 # leitura do XLSX - consorcio
 ## ABA - BOLETIM
 arquivo <- list.files()
-boletim <- read_xlsx(arquivo, sheet = 3)
+boletim <- read_xlsx(arquivo, sheet = 'Boletim')
 media_movel <- read_xlsx(arquivo, sheet = 6, skip = 1)
 
 boletim_tidy <- boletim %>%
@@ -56,7 +56,7 @@ queda_lista_uf <- tendencia_uf %>% filter(tendencia == "queda") %>% select(uf)
 # info DATA
 dia_da_semana_EN <- weekdays(Sys.Date())
 dia_da_semana_PT <- case_when(dia_da_semana_EN == "Monday" ~ "segunda-feira",
-                              dia_da_semana_EN == "Tueday" ~ "terça-feira",
+                              dia_da_semana_EN == "Tuesday" ~ "terça-feira",
                               dia_da_semana_EN == "Wednesday" ~ "quarta-feira",
                               dia_da_semana_EN == "Thursday" ~ "quinta-feira",
                               dia_da_semana_EN == "Friday" ~ "sexta-feira",
