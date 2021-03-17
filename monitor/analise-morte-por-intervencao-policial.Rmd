@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
 ## Letalidade policial: análise de SP
@@ -21,28 +21,136 @@ library(tidyverse)
 ```{r read_dataset}
 dados <- read_xlsx("dados/outros/MDIP_2013_Jan 2021.xlsx")
 ```
+#### Verificação dos dados
+
+```{r verificacao}
+glimpse(dados)
+```
+
+#### Padronização dos dados
+
+Precisamos corrigir os nomes de alguns municípios para melhorar a comunicação e padronizá-los. Além disso, tambem é interessante ter um cabeçalho mais organizado. Removemos ainda as colunas x37, x38, x39, x40 e x41, que estavam vazias.
+
+```{r padronizacao}
+dados_tidy <- dados %>%
+  janitor::clean_names() %>%
+  select(-c(x37, x38, x39, x40, x41)) %>%
+  mutate(municipio_circ = str_replace_all(municipio_circ, "S.ANDRE", "SANTO ANDRÉ"),
+         municipio_circ = str_replace_all(municipio_circ, "S.PAULO", "SÃO PAULO"),
+         municipio_circ = str_replace_all(municipio_circ,
+"S.BERNARDO DO CAMPO", "SÃO BERNARDO DO CAMPO"),
+         municipio_circ = str_replace_all(municipio_circ, "S.CARLOS", "SÃO CARLOS"),
+         municipio_circ = str_replace_all(municipio_circ, "S.VICENTE", "SÃO VICENTE"),
+         municipio_circ = str_replace_all(municipio_circ, "S.JOSE DOS CAMPOS", "SÃO JOSE DOS CAMPOS"),
+         municipio_circ = str_replace_all(municipio_circ, "AGUAS DE S. BARBARA", "AGUAS DE SANTA BARBARA"),
+         municipio_circ = str_replace_all(municipio_circ, "S.LUIS DO PARAITINGA", "SÃO LUIS DO PARAITINGA"),
+         municipio_circ = str_replace_all(municipio_circ, "ESPIRITO STO. PINHAL", "ESPIRITO SANTO PINHAL"),
+         municipio_circ = str_replace_all(municipio_circ, "S.CRUZ DAS PALMEIRAS", "SANTA CRUZ DAS PALMEIRAS"),
+         municipio_circ = str_replace_all(municipio_circ, "S.BARBARA D OESTE", "SANTA BARBARA D OESTE"),
+         municipio_circ = str_replace_all(municipio_circ, "S.ROQUE", "SÃO ROQUE"),
+         municipio_circ = str_replace_all(municipio_circ, "S.ISABEL", "SANTA ISABEL"),
+         municipio_circ = str_replace_all(municipio_circ, "S.JOAQUIM DA BARRA", "SÃO JOAQUIM DA BARRA"),
+         municipio_circ = str_replace_all(municipio_circ, "S.CAETANO DO SUL", "SÃO CAETANO DO SUL"),
+         municipio_circ = str_replace_all(municipio_circ, "S.CRUZ DA CONCEICAO", "SANTA CRUZ DA CONCEICAO"),
+         municipio_circ = str_replace_all(municipio_circ, "S.MIGUEL ARCANJO", "SÃO MIGUEL ARCANJO"),
+         municipio_circ = str_replace_all(municipio_circ, "S.SEBASTIAO", "SÃO SEBASTIAO"),
+         municipio_circ = str_replace_all(municipio_circ, "S.JOSE DO RIO PRETO", "SÃO JOSE DO RIO PRETO")) %>%
+  mutate_at(vars(logradouro, numero_logradouro, municipio_circ), tolower) %>%
+  mutate_at(vars(logradouro, numero_logradouro, municipio_circ), abjutils::rm_accent)
+```
 
 #### Filtro por 2019 e 2020
 
-Vamos analisar apenas os dados do período de interesse. Além disso, tambem é interessante ter um cabeçalho mais organizado.
+Vamos analisar apenas os dados do período de interesse: os anos completos de 2019 e 2020.
 
 ```{r filtro_ano}
-dados_n <- dados %>%
-  janitor::clean_names() %>%
+dados_n <- dados_tidy %>%
   filter(ano_bo == 2020 | ano_bo == 2019, 
          ano == 2020 | ano == 2019)
+
+total_mortes <- nrow(dados_n)
 ```
 
-#### Municípios onde os crimes ocorrem
+#### Municípios onde as mortes ocorrem
 
 A capital, cidade mais populosa do estado, é o local onde ocorreram 38% dessas mortes. Algumas cidades da Grande SP, como São Bernardo do Campo, Guarulhos, Santo André e Osasco, também aparecem no top 10. Municípios da Baixada Santista, como Santos, São Vicente e Guarujá, estão ali. 
 
 ```{r municipios_qtd}
 dados_n %>%
-  group_by(cidade_elaboracao) %>%
+  group_by(municipio_circ) %>%
   summarise(qtd = n(),
-            perc = qtd / 1681 * 100) %>%
+            perc = qtd / total_mortes * 100) %>%
   slice_max(n = 10, order_by = qtd)
+```
+
+#### Crimes que ocorreram na Grande São Paulo
+
+Abaixo verificamos que, apesar de 37,8% das mortes terem ocorrido na capital, o percentual é bastante superior quando considerada a Grande São Paulo (65%). Os municípios desse bloco estão [nesta lista](https://cetesb.sp.gov.br/licenciamentoambiental/licenca-previa-documentacao-nescessaria/municipios-que-fazem-parte-regiao-metropolitana-de-sao-paulo/).
+
+```{r grande_sp}
+grande_sp <- c("sao paulo", "aruja", "barueri", "biritiba-mirim", "caieiras", "cajamar", "carapicuiba", "cotia", "diadema", "embu", "embu-guacu", "ferraz de vasconcelos", "francisco morato", "franco da rocha", "guararema", "guarulhos", "itapecerica da serra", "itapevi", "itaquaquecetuba", "jandira", "juquitiba", "mairipora", "maua", "mogi das cruzes", "osasco", "pirapora do bom jesus", "poa", "ribeirao pires", "rio grande da serra", "salesopolis", "santa isabel", "santana de parnaiba", "santo andre", "sao bernardo do campo", "sao caetano do sul", "sao lourenco da serra", "suzano", "taboao da serra", "vargem grande paulista")
+
+dados_n %>%
+  select(municipio_circ) %>%
+  mutate(grande_sp = ifelse(str_detect(municipio_circ, paste(grande_sp, collapse = "|")), TRUE, FALSE)) %>%
+  group_by(grande_sp) %>%
+  summarise(qtd = n(),
+            perc = qtd / total_mortes * 100)
+```
+
+#### Quais são as circunscrições mais frequentes?
+
+```{r circunscricao}
+dados_n %>%
+  mutate(circunscricao = abjutils::rm_accent(tolower(circunscricao))) %>%
+  group_by(circunscricao) %>%
+  summarise(qtd = n(),
+            perc = qtd / total_mortes * 100) %>%
+  slice_max(n = 10, order_by = qtd)
+```
+
+#### Quais são as seccionais de circunscrição mais frequentes?
+
+```{r seccionais}
+dados_n %>%
+  mutate(seccional_circ = abjutils::rm_accent(tolower(seccional_circ))) %>%
+  group_by(seccional_circ) %>%
+  summarise(qtd = n(),
+            perc = qtd / total_mortes * 100) %>%
+  slice_max(n = 10, order_by = qtd)
+```
+
+#### Quais foram os meses com mais crimes?
+
+Em 2019, percebe-se uma estabilidade no número de mortes, com uma queda mais clara em setembro. Naquele ano, o mês com mais morte foi dezembro (87), seguido por março, com 82.
+
+Já 2020 alcançou o maior número de abril, mês seguinte ao do anúncio da pandemia da Covid-19. Foram 119 mortes. Depois, o mês com mais mortes foi fevereiro (98).
+
+```{r meses_crimes}
+
+dados_n %>%
+  group_by(ano_ocro, mes_ocor) %>%
+  summarise(qtd = n()) %>%
+  ggplot(aes(x = mes_ocor, y = qtd)) +
+  labs(title = "Morte por intervenção policial", x = "Meses", y = "Nº de mortes") +
+  scale_x_discrete(limit = c(1:12)) +
+  geom_line() +
+  facet_wrap(~ano_ocro, dir = "v")
+
+```
+
+#### Local da morte: rua X outros
+
+Embora haja um grave problema de padronização e preenchimento na coluna, ao menos 2/3 das mortes (66%) ocorreram na via pública. Note que outras 59 mortes ainda estão registradas como "rodovia/estrada". 
+
+```{r local_morte}
+dados_n %>%
+  mutate(descr_tipolocal = abjutils::rm_accent(tolower(descr_tipolocal))) %>%
+  group_by(descr_tipolocal) %>%
+  summarise(qtd = n(),
+            perc = qtd / total_mortes * 100) %>%
+  slice_max(n = 25, order_by = qtd)
+  
 ```
 
 #### Situação do policial: em serviço X fora de serviço
@@ -54,7 +162,7 @@ dados_n %>%
   mutate(situacao = tolower(situacao)) %>%
   group_by(situacao) %>%
   summarise(qtd = n(),
-            perc = qtd / 1681 * 100)
+            perc = qtd / total_mortes * 100)
 ```
 
 #### Corporação: Polícia Militar X Polícia Civil
@@ -65,7 +173,7 @@ A Polícia Militar responde por um volume de mortes muito maior do que a Políci
 dados_n %>%
   group_by(coorporacao) %>%
   summarise(qtd = n(),
-            perc = qtd / 1681 * 100)
+            perc = qtd / total_mortes * 100)
 ```
 
 #### Perfil da vítima: gênero
@@ -76,7 +184,7 @@ Apenas nove mulheres fazem parte da lista de pessoas assassinadas por intervenç
 dados_n %>%
   group_by(sexo_pessoa) %>%
   summarise(qtd = n(),
-            perc = qtd / 1681 * 100)
+            perc = qtd / total_mortes * 100)
 ```
 
 #### Perfil da vítima: raça/etnia
@@ -89,30 +197,61 @@ Percebe-se também que três casos receberam o rótulo "registrado na PF". E que
 dados_n %>%
   group_by(cor) %>%
   summarise(qtd = n(),
-            perc = qtd / 1681 * 100)
+            perc = qtd / total_mortes * 100) %>%
+  arrange(desc(qtd))
 ```
 
 #### Perfil da vítima: idade 
 
-Uma a cada quatro vítimas não tem a informação da idade. Quando há o dado da idade, a faixa-etária de 17 a 21 anos é a que aparece com mais constância. 
+Uma a cada quatro vítimas não tem a informação da idade. Percebemos logo que as idades que mais aparecem são de jovens: 19, 20, 21, 18, 17...
 
 ```{r idade_qtd}
 dados_n %>%
   group_by(idade_pessoa) %>%
   summarise(qtd = n(),
-            perc = qtd / 1681 * 100) %>%
+            perc = qtd / total_mortes * 100) %>%
   slice_max(n = 10, order_by = qtd)
 ```
 
+#### Perfil da vítima: faixa-etária
+
+Para ficar mais fácil de analisar, vamos agrupar por faixa-etária, e não por idade. Observe que mais de 40% das mortes estão concentradas nas faixas de 18 a 29 anos.
+
+```{r faixa-etaria_qtd}
+dados_n %>%
+  select(idade_pessoa) %>%
+  mutate(faixa_etaria = case_when(
+    idade_pessoa == "NÃO INFORMADO" ~ "nao_informado",
+    idade_pessoa == "REGISTRADO NA PF" ~ "nao_informado",
+    idade_pessoa <= 13 ~ "13_anos_ou_menos",
+    idade_pessoa >= 14 & idade_pessoa <= 17 ~ "14_a_17_anos",
+    idade_pessoa >= 18 & idade_pessoa <= 21 ~ "18_a_21_anos",
+    idade_pessoa >= 22 & idade_pessoa <= 25 ~ "22_a_25_anos",
+    idade_pessoa >= 26 & idade_pessoa <= 29 ~ "26_a_29_anos",
+    idade_pessoa >= 30 & idade_pessoa <= 33 ~ "30_a_33_anos",
+    idade_pessoa >= 34 & idade_pessoa <= 37 ~ "34_a_37_anos",
+    idade_pessoa >= 38 & idade_pessoa <= 41 ~ "38_a_41_anos",
+    idade_pessoa >= 42 & idade_pessoa <= 45 ~ "42_a_45_anos",
+    idade_pessoa >= 46 & idade_pessoa <= 49 ~ "46_a_49_anos",
+    idade_pessoa >= 50 ~ "50_anos_ou_mais"
+    )) %>%
+  group_by(faixa_etaria) %>%
+  summarise(qtd = n(),
+            perc = qtd / total_mortes * 100) %>%
+  slice_max(n = 12, order_by = qtd)
+
+```
+
+
 #### Perfil da vítima: profissão
 
-Tambem não há informação sobre a profissão de mais da metade das vítimas (837 + 102). Estudante e desempregado aparecem na lista.
+Tambem não há informação sobre a profissão de mais da metade das vítimas (837 + 102 + 14). Estudante e desempregado aparecem na lista.
 
 ```{r profissao_qtd}
 dados_n %>%
   group_by(descr_profissao) %>%
   summarise(qtd = n(),
-            perc = qtd / 1681 * 100) %>%
+            perc = qtd / total_mortes * 100) %>%
   slice_max(n = 10, order_by = qtd)
 ```
 
