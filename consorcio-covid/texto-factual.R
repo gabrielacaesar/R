@@ -41,9 +41,9 @@ tendencia_uf <- media_movel_tidy %>%
   pivot_longer(-1, names_to = "tipo", values_to = "numero") %>%
   filter(str_detect(tipo, "variacao_mortes_") & tipo != "variacao_mortes_br") %>%
   mutate(uf = toupper(str_sub(tipo, start = -2, end = -1))) %>%
-  mutate(tendencia = case_when(numero >= 15 ~ "alta",
-            numero < 15 & numero > -15 ~ "estabilidade",
-            numero <= -15 ~ "queda"))
+  mutate(tendencia = case_when(numero > 15 ~ "alta",
+                               numero <= 15 & numero >= -15 ~ "estabilidade",
+                               numero < -15 ~ "queda"))
 
 alta_n_uf <- tendencia_uf %>% filter(tendencia == "alta") %>% nrow()
 estabilidade_n_uf <- tendencia_uf %>% filter(tendencia == "estabilidade") %>% nrow()
@@ -84,9 +84,9 @@ total_mortes <- boletim_tidy$numero[1]
 mortes_24h <- boletim_tidy$numero[2]
 media_mortes <- media_movel_tidy$media_movel_mortes_br
 variacao_mortes <- media_movel_tidy$variacao_mortes_br
-tendencia_mortes <- case_when(variacao_mortes >= 15 ~ "alta",
-                           variacao_mortes < 15 & variacao_mortes > -15 ~ "estabilidade",
-                           variacao_mortes <= -15 ~ "queda")
+tendencia_mortes <- case_when(variacao_mortes > 15 ~ "alta",
+                              variacao_mortes <= 15 & variacao_mortes >= -15 ~ "estabilidade",
+                              variacao_mortes < -15 ~ "queda")
 
 # info CASOS
 total_casos <- boletim_tidy$numero[4]
@@ -94,8 +94,8 @@ casos_24h <- boletim_tidy$numero[5]
 media_casos <- media_movel_tidy$media_movel_casos_br
 variacao_casos <- media_movel_tidy$variacao_casos_br
 tendencia_casos <- case_when(variacao_casos >= 15 ~ "alta",
-                             variacao_casos < 15 & variacao_casos > -15 ~ "estabilidade",
-                             variacao_casos <= -15 ~ "queda")
+                             variacao_casos <= 15 & variacao_casos >= -15 ~ "estabilidade",
+                             variacao_casos < -15 ~ "queda")
 
 # info / variacao mortes - lista UFs
 variacao_PR <- media_movel_tidy$variacao_mortes_pr
@@ -147,19 +147,16 @@ texto_6 <- c("Sul
 PR: {variacao_PR}%
 RS: {variacao_RS}%
 SC: {variacao_SC}%
-
 Sudeste
 ES: {variacao_ES}%
 MG: {variacao_MG}%
 RJ: {variacao_RJ}%
 SP: {variacao_SP}%
-
 Centro-Oeste
 DF: {variacao_DF}%
 GO: {variacao_GO}%
 MS: {variacao_MS}%
 MT: {variacao_MT}%
-
 Norte
 AC: {variacao_AC}%
 AM: {variacao_AM}%
@@ -168,7 +165,6 @@ PA: {variacao_PA}%
 RO: {variacao_RO}%
 RR: {variacao_RR}%
 TO: {variacao_TO}%
-
 Nordeste
 AL: {variacao_AL}%
 BA: {variacao_BA}%
@@ -191,5 +187,6 @@ str_glue(texto_2)
 str_glue(texto_3)
 str_glue(texto_4)
 str_glue(texto_5)
-str_glue(texto_6)
 str_glue(texto_7)
+str_glue(texto_6)
+
