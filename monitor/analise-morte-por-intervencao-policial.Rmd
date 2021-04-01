@@ -37,8 +37,7 @@ dados_tidy <- dados %>%
   select(-c(x37, x38, x39, x40, x41)) %>%
   mutate(municipio_circ = str_replace_all(municipio_circ, "S.ANDRE", "SANTO ANDRÉ"),
          municipio_circ = str_replace_all(municipio_circ, "S.PAULO", "SÃO PAULO"),
-         municipio_circ = str_replace_all(municipio_circ,
-"S.BERNARDO DO CAMPO", "SÃO BERNARDO DO CAMPO"),
+         municipio_circ = str_replace_all(municipio_circ, "S.BERNARDO DO CAMPO", "SÃO BERNARDO DO CAMPO"),
          municipio_circ = str_replace_all(municipio_circ, "S.CARLOS", "SÃO CARLOS"),
          municipio_circ = str_replace_all(municipio_circ, "S.VICENTE", "SÃO VICENTE"),
          municipio_circ = str_replace_all(municipio_circ, "S.JOSE DOS CAMPOS", "SÃO JOSE DOS CAMPOS"),
