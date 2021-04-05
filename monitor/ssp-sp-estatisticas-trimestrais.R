@@ -29,10 +29,11 @@ get_crimes <- function(i){
 
 todos_crimes <- map_dfr(1:length(url), get_crimes)
 
-todos_crimes <- todos_crimes %>%
+todos_crimes_n <- todos_crimes %>%
   mutate(dt_boletim = basename(todos_crimes$boletim),
          dt_boletim = str_remove_all(dt_boletim, "\\.htm")) %>%
   separate(dt_boletim, c("ano", "mes"), sep = "-") %>%
-  filter(str_detect(crime, "mortas em confronto com a polícia militar em")) %>%
-  group_by(ano) %>%
-  summarise(qt = sum(as.numeric(estado)))
+  filter(str_detect(crime, "Pessoas mortas")) %>%
+  mutate(corporacao = ifelse(str_detect(crime, "polícia civil|policiais civis"), "PC", "PM")) %>%
+  group_by(ano, corporacao) %>%
+  summarise(qt = sum(as.numeric(capital)))
