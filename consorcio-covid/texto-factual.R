@@ -1,3 +1,4 @@
+# leitura de pacotes
 library(tidyverse)
 library(readxl)
 library(googledrive)
@@ -49,6 +50,34 @@ alta_n_uf <- tendencia_uf %>% filter(tendencia == "alta") %>% nrow()
 estabilidade_n_uf <- tendencia_uf %>% filter(tendencia == "estabilidade") %>% nrow()
 queda_n_uf <- tendencia_uf %>% filter(tendencia == "queda") %>% nrow()
 
+alta_n_uf_string <- case_when(alta_n_uf == 1 ~ "Um",
+                              alta_n_uf == 2 ~ "Dois",
+                              alta_n_uf == 3 ~ "Três",
+                              alta_n_uf == 4 ~ "Quatro",
+                              alta_n_uf == 5 ~ "Cinco",
+                              alta_n_uf == 6 ~ "Seis",
+                              alta_n_uf == 7 ~ "Sete",
+                              alta_n_uf == 8 ~ "Oito",
+                              alta_n_uf == 9 ~ "Nove",
+                              alta_n_uf == 10 ~ "Dez",
+                              alta_n_uf == 11 ~ "Onze",
+                              alta_n_uf == 12 ~ "Doze",
+                              alta_n_uf == 13 ~ "Treze",
+                              alta_n_uf == 14 ~ "Quatorze",
+                              alta_n_uf == 15 ~ "Quinze",
+                              alta_n_uf == 16 ~ "Dezesseis",
+                              alta_n_uf == 17 ~ "Dezessete",
+                              alta_n_uf == 18 ~ "Dezoito",
+                              alta_n_uf == 19 ~ "Dezenove",
+                              alta_n_uf == 20 ~ "Vinte",
+                              alta_n_uf == 21 ~ "Vinte e um",
+                              alta_n_uf == 22 ~ "Vinte e dois",
+                              alta_n_uf == 23 ~ "Vinte e três",
+                              alta_n_uf == 24 ~ "Vinte e quatro",
+                              alta_n_uf == 25 ~ "Vinte e cinco",
+                              alta_n_uf == 26 ~ "Vinte e seis",
+                              alta_n_uf == 27 ~ "Vinte e sete")
+
 alta_lista_uf <- tendencia_uf %>% filter(tendencia == "alta") %>% select(uf) 
 estabilidade_lista_uf <- tendencia_uf %>% filter(tendencia == "estabilidade") %>% select(uf) 
 queda_lista_uf <- tendencia_uf %>% filter(tendencia == "queda") %>% select(uf) 
@@ -64,7 +93,7 @@ dia_da_semana_PT <- case_when(dia_da_semana_EN == "Monday" ~ "segunda-feira",
                               dia_da_semana_EN == "Sunday" ~ "domingo")
 neste_nesta <- ifelse(dia_da_semana_PT == "sábado|domingo", "neste", "nesta")
 deste_desta <- ifelse(dia_da_semana_PT == "sábado|domingo", "deste", "desta")
-dia_hoje <- Sys.Date() %>% str_sub(start = -2, end = -1)
+dia_hoje <- Sys.Date() %>% str_sub(start = -2, end = -1) %>% as.numeric()
 mes_hoje <- Sys.Date() %>% str_sub(start = 6, end = 7) 
 mes_hoje_string <- case_when(mes_hoje == "01" ~ "janeiro",
                              mes_hoje == "02" ~ "fevereiro",
@@ -136,14 +165,19 @@ texto_1 <- c("País contabilizou {total_casos} casos e {total_mortes} óbitos po
 texto_2 <- c("O país registrou {mortes_24h} mortes pela Covid-19 nas últimas 24 horas e totalizou {neste_nesta} {dia_da_semana_PT} ({dia_hoje}) {total_mortes} óbitos. Com isso, a média móvel de mortes no Brasil nos últimos 7 dias chegou a {media_mortes}, novamente um recorde. Em comparação à média de 14 dias atrás, a variação foi de {variacao_mortes}%, indicando tendência de {tendencia_mortes} nos óbitos pela doença.")
 texto_3 <- c("É o que mostra novo levantamento do consórcio de veículos de imprensa sobre a situação da pandemia de coronavírus no Brasil a partir de dados das secretarias estaduais de Saúde, consolidados às 20h {deste_desta} {dia_da_semana_PT}.")
 texto_4 <- c("Em casos confirmados, desde o começo da pandemia {total_casos} brasileiros já tiveram ou têm o novo coronavírus, com {casos_24h} desses confirmados no último dia. A média móvel nos últimos 7 dias foi de {media_casos} novos diagnósticos por dia. Isso representa uma variação de {variacao_casos}% em relação aos casos registrados em duas semanas, o que indica tendência de {tendencia_casos} também nos diagnósticos.")
-texto_5 <- c("Brasil, {dia_hoje} de {mes_hoje_string}
+texto_5 <- c("{alta_n_uf_string} estados estão com alta nas mortes: {alta_lista_uf}")
+texto_6 <- c("Brasil, {dia_hoje} de {mes_hoje_string}
 Total de mortes: {total_mortes}
 Registro de mortes em 24 horas: {mortes_24h}
 Média de novas mortes nos últimos 7 dias: {media_mortes} por dia (variação em 14 dias: {variacao_mortes}%)
 Total de casos confirmados: {total_casos}
 Registro de casos confirmados em 24 horas: {casos_24h}
 Média de novos casos nos últimos 7 dias: {media_casos} por dia (variação em 14 dias: {variacao_casos}%)")
-texto_6 <- c("Sul
+texto_7 <- c("Estados
+Subindo ({alta_n_uf} estados): {alta_lista_uf}
+Em estabilidade ({estabilidade_n_uf} estados): {estabilidade_lista_uf}
+Em queda ({queda_n_uf} estados): {queda_lista_uf}")
+texto_8 <- c("Sul
 PR: {variacao_PR}%
 RS: {variacao_RS}%
 SC: {variacao_SC}%
@@ -175,10 +209,6 @@ PE: {variacao_PE}%
 PI: {variacao_PI}%
 RN: {variacao_RN}%
 SE: {variacao_SE}%")
-texto_7 <- c("Estados
-Subindo ({alta_n_uf} estados): {alta_lista_uf}
-Em estabilidade ({estabilidade_n_uf} estados): {estabilidade_lista_uf}
-Em queda ({queda_n_uf} estados): {queda_lista_uf}")
 
 # GLUUUUUUE
 str_glue(texto_0)
@@ -187,5 +217,6 @@ str_glue(texto_2)
 str_glue(texto_3)
 str_glue(texto_4)
 str_glue(texto_5)
-str_glue(texto_7)
 str_glue(texto_6)
+str_glue(texto_7)
+str_glue(texto_8)
