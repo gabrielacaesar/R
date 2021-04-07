@@ -77,7 +77,7 @@ tabela_tidy <- bind_rows(tabela1_tidy, tabela2_tidy, tabela3_tidy)
 ## correcoes partido, voto e nome
 tabela_tidy <- tabela_tidy %>%
   mutate(partido = str_replace_all(partido, "Podemos", "PODE"),
-         partido = str_replace_all(partido, "PROGRES", "Pogressistas"),
+         partido = str_replace_all(partido, "PROGRES", "PP"),
          partido = str_replace_all(partido, "REDE", "Rede"),
          partido = str_replace_all(partido, "Republica", "Republicanos"),
          voto = str_replace_all(voto, "SIM", "sim"),
