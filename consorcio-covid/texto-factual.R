@@ -162,9 +162,9 @@ tendencia_casos <- case_when(variacao_casos >= 15 ~ "alta",
   variacao_SE <- media_movel_tidy$variacao_mortes_se
 
 # PARAGRAFOS
-texto_0 <- c("Brasil registra {mortes_24h} mortes em 24 horas")
-texto_1 <- c("País contabilizou {total_casos} casos e {total_mortes} óbitos por Covid-19 desde o início da pandemia, segundo balanço do consórcio de veículos de imprensa. Mortes apresentam tendência de {tendencia_mortes}; e casos, de {tendencia_casos}.")
-texto_2 <- c("O país registrou {mortes_24h} mortes pela Covid-19 nas últimas 24 horas e totalizou {neste_nesta} {dia_da_semana_PT} ({dia_hoje}) {total_mortes} óbitos. Com isso, a média móvel de mortes no Brasil nos últimos 7 dias chegou a {media_mortes}, novamente um recorde. Em comparação à média de 14 dias atrás, a variação foi de {variacao_mortes}%, indicando tendência de {tendencia_mortes} nos óbitos pela doença.")
+texto_0 <- c("Brasil registra {mortes_24h} novas mortes por Covid e se aproxima de {total_mortes} mil")
+texto_1 <- c("País contabilizou {total_mortes} óbitos e {total_casos} casos por Covid-19 desde o início da pandemia, segundo balanço do consórcio de veículos de imprensa. Mortes apresentam tendência de {tendencia_mortes}; e casos, de {tendencia_casos}.")
+texto_2 <- c("O Brasil registrou {mortes_24h} mortes por Covid-19 nas últimas 24 horas, totalizando {neste_nesta} {dia_da_semana_PT} ({dia_hoje}) {total_mortes} óbitos desde o início da pandemia. Com isso, a média móvel de mortes nos últimos 7 dias chegou a {media_mortes}. Em comparação à média de 14 dias atrás, a variação foi de {variacao_mortes}%, indicando tendência de {tendencia_mortes} nos óbitos decorrentes do vírus.")
 texto_3 <- c("É o que mostra novo levantamento do consórcio de veículos de imprensa sobre a situação da pandemia de coronavírus no Brasil a partir de dados das secretarias estaduais de Saúde, consolidados às 20h {deste_desta} {dia_da_semana_PT}.")
 texto_4 <- c("Em casos confirmados, desde o começo da pandemia {total_casos} brasileiros já tiveram ou têm o novo coronavírus, com {casos_24h} desses confirmados no último dia. A média móvel nos últimos 7 dias foi de {media_casos} novos diagnósticos por dia. Isso representa uma variação de {variacao_casos}% em relação aos casos registrados em duas semanas, o que indica tendência de {tendencia_casos} também nos diagnósticos.")
 texto_5 <- c("{alta_n_uf_string} estados estão com alta nas mortes: {alta_lista_uf}")
