@@ -41,7 +41,7 @@ deputados_id <- fread("~/Downloads/plenario2019_CD - politicos.csv")
 # ATENÇÃO: APENAS caso não importe o resultado via arquivo (etapa 4-A)
 # caminho para achar a URL: Atividade legislativa > Agenda > (selecionar o dia) > (selecionar a sessão) > Votação > (selecionar a votação)
 # indicar NOVA URL abaixo
-url <- "https://www.camara.leg.br/presenca-comissoes/votacao-portal?reuniao=59543&itemVotacao=28632"
+url <- "https://www.camara.leg.br/presenca-comissoes/votacao-portal?reuniao=61505&itemVotacao=9604"
 
 resultado_url <- url %>%
   read_html() %>%
@@ -63,7 +63,8 @@ resultado_url_split <- resultado_url %>%
          voto = str_replace_all(voto, "Não", "nao"),
          voto = str_replace_all(voto, "Abstenção", "abstencao"),
          voto = str_replace_all(voto, "Obstrução", "obstrucao"),
-         voto = str_replace_all(voto, "Presidente", "naovotou"))
+         voto = str_replace_all(voto, "Presidente", "naovotou"),
+         voto = str_replace_all(voto, "Art. 17", "naovotou"))
 
 resultado_votacao <- resultado_url_split
 
@@ -238,7 +239,9 @@ resultado_votacao <- resultado_url_split %>%
          nome = str_replace(nome,
                             "Pedro Augusto$", "Pedro Augusto Palareti"),
          nome = str_replace_all(nome,
-                                "Pedro A Bezerra", "Pedro Augusto Bezerra"))
+                                "Pedro A Bezerra", "Pedro Augusto Bezerra"),
+         nome = str_replace_all(nome,
+                                "Paulo V. Caleffi", "Paulo Vicente Caleffi"))
 
 
 #6. padronizar partidos
@@ -258,7 +261,13 @@ resultado_votacao <- resultado_votacao %>%
          partido = str_replace_all(partido,
                                    "AVANTE", "Avante"),
          partido = str_replace_all(partido,
-                                   "REPUBLICANOS", "Republicanos"))
+                                   "REPUBLICANOS", "Republicanos"),
+         partido = str_replace_all(partido,
+                                   "Republican", "Republicanos"),
+         partido = str_replace_all(partido,
+                                   "Podemos", "PODE"),
+         partido = str_replace_all(partido,
+                                   "Solidaried", "SD"))
 
 #7. tirar acentos e colocar caixa alta
 resultado_votacao <- resultado_votacao %>%
@@ -267,7 +276,7 @@ resultado_votacao <- resultado_votacao %>%
 
 #8. cruzar planilhas
 joined_data <- resultado_votacao %>%
-  left_join(deputados_id, by = "nome_upper") %>%
+  full_join(deputados_id, by = "nome_upper") %>%
   arrange(desc(id))
 
 #9. checar PARTIDO
@@ -279,9 +288,9 @@ check_partido <- joined_data %>%
 
 #10. selecionar as colunas que queremos no nosso arquivo
 # é necessário informar abaixo: ID_PROPOSICAO, PROPOSICAO, PERMALINK
-n_id_proposicao <- "68"
-n_proposicao <- "CMC1-2021"
-n_permalink <- "manutencao-da-prisao-de-daniel-silveira"
+n_id_proposicao <- "72"
+n_proposicao <- "PL3729-2004"
+n_permalink <- "dispensa-de-licenca-ambiental-para-diversas-atividades"
 
 
 votacao_final <- joined_data %>%
@@ -301,14 +310,3 @@ write.csv(votacao_final, paste0("votacao_final_", n_proposicao, ".csv"))
 
 #12. checar exercicio
 # opcional: checar se houve mudança nos deputados em exercício
-joined_data <- deputados_id %>%
-  left_join(resultado_votacao, by = "nome_upper") %>%
-  arrange(desc(id)) %>%
-  filter(!is.na(voto),
-         exercicio != "sim")
-
-joined_data <- deputados_id %>%
-  left_join(resultado_votacao, by = "nome_upper") %>%
-  arrange(desc(id)) %>%
-  filter(is.na(voto),
-         exercicio != "nao")
