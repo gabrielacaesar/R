@@ -277,7 +277,8 @@ resultado_votacao <- resultado_votacao %>%
 #8. cruzar planilhas
 joined_data <- resultado_votacao %>%
   full_join(deputados_id, by = "nome_upper") %>%
-  arrange(desc(id))
+  arrange(desc(id)) %>%
+  filter(!is.na(`nome.x`))
 
 #9. checar PARTIDO
 # verificar se houve mudança de partido
@@ -291,7 +292,6 @@ check_partido <- joined_data %>%
 n_id_proposicao <- "72"
 n_proposicao <- "PL3729-2004"
 n_permalink <- "dispensa-de-licenca-ambiental-para-diversas-atividades"
-
 
 votacao_final <- joined_data %>%
   rename("nome_politico" = nome.y,
