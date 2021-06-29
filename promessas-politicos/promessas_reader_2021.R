@@ -45,3 +45,35 @@ att_nova <- list.files(pattern = "*xlsx") %>%
 erro_status <- att_nova %>%
   filter(!status %in% c("cumpriu", "nao-cumpriu-ainda", "em-parte", "nao-avaliada"))
 
+# verificar ERROS em CATEGORIA
+erro_cat <- att_nova %>%
+  filter(categoria %in% c("Infraestrutura", "Transparência"))
+
+# verificar ERROS em TEMA
+erro_tema <- att_nova %>%
+  filter(tema %in% c("Mobilidade Urbana", "infraestrutura", "Administracão", "Educação e Cultura",
+                     "Meio Ambiente", "Meio Ambiente e Agronegócio", "Segurança Pública"))
+# calcular STATUS geral
+status_geral <- att_nova %>%
+  group_by(status) %>%
+  summarise(qt = n()) %>%
+  mutate(perc = round(qt / 1157, 3) * 100)
+
+# calcular STATUS por TEMA
+status_cat <- att_nova %>%
+  mutate(tema = str_replace_all(tema, "Meio ambiente$", "Meio ambiente e agronegócio")) %>%
+  group_by(status, tema) %>%
+  summarise(qt = n()) %>%
+  pivot_wider(names_from = status, values_from = qt) %>%
+  replace(is.na(.), 0) %>%
+  janitor::clean_names() %>%
+  mutate(total = cumpriu + em_parte + nao_avaliada + nao_cumpriu_ainda,
+         cumpriu_perc = round((cumpriu / total) * 100),
+         em_parte_perc = round((em_parte / total) * 100),
+         nao_avaliada_perc = round((nao_avaliada / total) * 100),
+         nao_cumpriu_ainda_perc = round((nao_cumpriu_ainda / total) * 100),
+         total_perc = cumpriu_perc + em_parte_perc + nao_avaliada_perc + nao_cumpriu_ainda_perc) %>%
+  select(tema, cumpriu_perc, em_parte_perc, nao_avaliada_perc, nao_cumpriu_ainda_perc, total) %>%
+  arrange(desc(nao_cumpriu_ainda_perc))
+
+write.csv(status_cat, "status_cat.csv")
