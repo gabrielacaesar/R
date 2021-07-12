@@ -15,33 +15,35 @@
 ################################################################
 
 #1. instalar as bibliotecas
-install.packages("tidyverse")
-install.packages("foreign")
-install.packages("rvest")
-install.packages("data.table")
-install.packages("abjutils")
+#install.packages("tidyverse")
+#install.packages("rvest")
+#install.packages("data.table")
+#install.packages("abjutils")
+#install.packages("googledrive")
+#install.packages("readxl")
 
 #2. ler as bibliotecas
 library(tidyverse)
-library(foreign)
 library(rvest)
 library(data.table)
 library(abjutils)
+library(googledrive)
+library(readxl)
 
 #3. importar o nosso arquivo com o registro de todos os deputados
 # fazer o download da aba 'politicos' da planilha
-deputados_id <- fread("~/Downloads/plenario2019_CD - politicos.csv")
+dir.create(paste0("dados_votacao_", Sys.Date()))
+setwd(paste0("dados_votacao_", Sys.Date()))
 
-#4-A. importar o arquivo com o resultado da votação 
-# usar IMPORTHTML() no Spreadsheet, selecionar a lista 13 e separar em colunas
-# opcional
-# resultado_votacao <- fread("~/Downloads/votacao-nova-7abr2020.csv")
+drive_auth(email = "gabriela.caesar.g1@gmail.com")
+drive_download(file = as_id("1Rxi_INy51j9BXCHRc4B-H13QfKegICtUtshd_rGULag"), type = "xlsx")
+arquivo <- list.files()
+deputados_id <- read_xlsx(arquivo, sheet = 'politicos')
 
-#4-B. ****ou pegar o resultado direto via HTML****
-# ATENÇÃO: APENAS caso não importe o resultado via arquivo (etapa 4-A)
+#4: pegar resultado no HTML
 # caminho para achar a URL: Atividade legislativa > Agenda > (selecionar o dia) > (selecionar a sessão) > Votação > (selecionar a votação)
 # indicar NOVA URL abaixo
-url <- "https://www.camara.leg.br/presenca-comissoes/votacao-portal?reuniao=61505&itemVotacao=9604"
+url <- "https://www.camara.leg.br/presenca-comissoes/votacao-portal?reuniao=62259&itemVotacao=9862"
 
 resultado_url <- url %>%
   read_html() %>%
@@ -241,7 +243,9 @@ resultado_votacao <- resultado_url_split %>%
          nome = str_replace_all(nome,
                                 "Pedro A Bezerra", "Pedro Augusto Bezerra"),
          nome = str_replace_all(nome,
-                                "Paulo V. Caleffi", "Paulo Vicente Caleffi"))
+                                "Paulo V. Caleffi", "Paulo Vicente Caleffi"),
+         nome = str_replace_all(nome,
+                                "Henrique Paraíso", "Henrique do Paraíso"))
 
 
 #6. padronizar partidos
@@ -267,7 +271,9 @@ resultado_votacao <- resultado_votacao %>%
          partido = str_replace_all(partido,
                                    "Podemos", "PODE"),
          partido = str_replace_all(partido,
-                                   "Solidaried", "SD"))
+                                   "Solidaried", "SD"),
+         partido = str_replace_all(partido,
+                                   "S.Part.", "S/Partido"))
 
 #7. tirar acentos e colocar caixa alta
 resultado_votacao <- resultado_votacao %>%
@@ -289,9 +295,10 @@ check_partido <- joined_data %>%
 
 #10. selecionar as colunas que queremos no nosso arquivo
 # é necessário informar abaixo: ID_PROPOSICAO, PROPOSICAO, PERMALINK
-n_id_proposicao <- "72"
-n_proposicao <- "PL3729-2004"
-n_permalink <- "dispensa-de-licenca-ambiental-para-diversas-atividades"
+n_id_proposicao <- "78"
+n_proposicao <- "PL12-2021"
+n_permalink <- "quebra-temporaria-de-patentes-para-vacinas"
+
 
 votacao_final <- joined_data %>%
   rename("nome_politico" = nome.y,
@@ -310,3 +317,14 @@ write.csv(votacao_final, paste0("votacao_final_", n_proposicao, ".csv"))
 
 #12. checar exercicio
 # opcional: checar se houve mudança nos deputados em exercício
+joined_data <- deputados_id %>%
+  left_join(resultado_votacao, by = "nome_upper") %>%
+  arrange(desc(id)) %>%
+  filter(!is.na(voto),
+         exercicio != "sim")
+
+joined_data <- deputados_id %>%
+  left_join(resultado_votacao, by = "nome_upper") %>%
+  arrange(desc(id)) %>%
+  filter(is.na(voto),
+         exercicio != "nao")
