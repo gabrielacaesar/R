@@ -23,15 +23,25 @@
 library(tidyverse)
 library(rvest)
 library(data.table)
+library(googledrive)
+library(readxl)
 
 #3. importar o nosso arquivo com o registro de todos os senadores
 # fazer o download da aba 'politicos' da planilha
-senadores_id <- fread("~/Downloads/plenario2019_SF - politicos.csv", 
-                      drop = c("foto", "permalink"))
+dir.create(paste0("dados_votacao_", Sys.Date()))
+setwd(paste0("dados_votacao_", Sys.Date()))
+
+drive_auth(email = "gabriela.caesar.g1@gmail.com")
+drive_download(file = as_id("1D57BJfGXxwizxK1yD1qbzx8CH6v7q8jSltK9puaw2_Q"), type = "xlsx")
+arquivo <- list.files()
+senadores_id <- read_xlsx(arquivo, sheet = 'politicos')
+
+senadores_id <- senadores_id %>%
+                select(!c("foto", "permalink"))
 
 #4. pegar o resultado direto via HTML
 ## ALTERAR URL
-url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/146091/votacoes#votacao_6291"
+url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/148656/votacoes#votacao_6336"
 
 get_resultado_url <- function(i){
   url %>%
@@ -45,6 +55,7 @@ get_resultado_url <- function(i){
     rename(n_order = x, nome = parlamentar) %>%
     select(n_order, nome, nome_upper, voto) %>%
     mutate(voto = case_when(voto == "Sim" ~ "sim",
+                            voto == "Presente (art. 40 - em Missão)" ~ "ausente",
                             voto == "Não Compareceu" ~ "ausente",
                             voto == "Não registrou voto" ~ "ausente",
                             voto == "art. 13, caput - Atividade parlamentar" ~ "ausente",
@@ -63,11 +74,16 @@ joined_data <- resultado_votacao %>%
 
 is.na(joined_data$id)
 
+# checar placar
+joined_data %>%
+  group_by(voto) %>%
+  summarise(n())
+
 #6. informar infos da proposicao
 ## ALTERAR INFORMACOES ABAIXO
-id_proposicao <- "98"
-proposicao <- "PL1369-2019"
-permalink <- "tipificacao-e-punicao-para-stalking"
+id_proposicao <- "104"
+proposicao <- "PL827-2020"
+permalink <- "suspensao-de-despejos-durante-a-pandemia"
 
 #7. selecionar as colunas que queremos no nosso arquivo
 votacao_final <- joined_data %>%
