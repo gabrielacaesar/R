@@ -41,7 +41,7 @@ senadores_id <- senadores_id %>%
 
 #4. pegar o resultado direto via HTML
 ## ALTERAR URL
-url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/148656/votacoes#votacao_6336"
+url <- "https://www25.senado.leg.br/web/atividade/materias/-/materia/146095/votacoes#votacao_6372"
 
 get_resultado_url <- function(i){
   url %>%
@@ -58,6 +58,7 @@ get_resultado_url <- function(i){
                             voto == "Presente (art. 40 - em Missão)" ~ "ausente",
                             voto == "Não Compareceu" ~ "ausente",
                             voto == "Não registrou voto" ~ "ausente",
+                            voto == "art. 43, II - Licença particular" ~ "ausente",
                             voto == "art. 13, caput - Atividade parlamentar" ~ "ausente",
                             voto == "art. 43, I - Licença saúde" ~ "ausente",
                             voto == "Presidente (art. 51 RISF)" ~ "naovotou",
@@ -81,9 +82,9 @@ joined_data %>%
 
 #6. informar infos da proposicao
 ## ALTERAR INFORMACOES ABAIXO
-id_proposicao <- "104"
-proposicao <- "PL827-2020"
-permalink <- "suspensao-de-despejos-durante-a-pandemia"
+id_proposicao <- "105"
+proposicao <- "PL5613-2020"
+permalink <- "combate-a-violencia-politica-contra-mulheres"
 
 #7. selecionar as colunas que queremos no nosso arquivo
 votacao_final <- joined_data %>%
