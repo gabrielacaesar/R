@@ -1,7 +1,6 @@
-
 ################################################################
 ###                                                          ###
-###                   O voto dos deputados                   ###
+###                    O voto do Congresso                   ###
 ###                                                          ###
 ###                      gabriela caesar                     ###
 ###                                                          ###
@@ -29,8 +28,9 @@ library(tidyverse)
 library(foreign)
 
 #3. importar o arquivo novo de votação
+# ATENÇÃO: repare que o nome do arquivo começa com "CN", e não "CD"
 setwd("~/Downloads/")
-votacao_nova_dbf <- read.dbf("CD190358.dbf")
+votacao_nova_dbf <- read.dbf("CN210023.dbf")
 
 
 #4. mudar os nomes de colunas
@@ -44,6 +44,7 @@ votacao_nova_dbf$voto[votacao_nova_dbf$voto == "NAO"] <- "nao"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "OBSTRUCAO"] <- "obstrucao"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "ABSTENCAO"] <- "abstencao"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "ART. 17"] <- "naovotou"
+votacao_nova_dbf$voto[votacao_nova_dbf$voto == "ART.51"] <- "naovotou"
 votacao_nova_dbf$voto[votacao_nova_dbf$voto == "<------->"] <- "ausente"
 
 unique(votacao_nova_dbf$voto)
@@ -94,10 +95,10 @@ votacao_nova_dbf$partido[votacao_nova_dbf$partido == "Solidaried"] <- "SD"
 votacao_nova_dbf$partido[votacao_nova_dbf$partido == "Podemos"] <- "PODE"
 votacao_nova_dbf$partido[votacao_nova_dbf$partido == "S.Part."] <- "S/Partido"
 votacao_nova_dbf$partido[votacao_nova_dbf$partido == "Republican"] <- "Republicanos"
-votacao_nova_dbf$partido[votacao_nova_dbf$partido == "REPUBLICAN"] <- "Republicanos"
 
 
 unique(votacao_nova_dbf$partido)
+
 
 ################################################################
 ###                       Segunda etapa                      ###
@@ -105,7 +106,7 @@ unique(votacao_nova_dbf$partido)
 
 #8. importar o arquivo com os IDs (aba 'politicos')
 
-id_politicos <- read.csv("plenario2019_CD-10set2019.csv", encoding = "UTF-8", stringsAsFactors = F)
+id_politicos <- read.csv("plenario2019_CD - politicos.csv", encoding = "UTF-8", stringsAsFactors = F)
 
 #9. dar um join para pegar os IDs e os nomes em caixa alta e baixa
 
@@ -115,21 +116,33 @@ id_politicos <- read.csv("plenario2019_CD-10set2019.csv", encoding = "UTF-8", st
 
 joined_data <- left_join(votacao_nova_dbf, id_politicos, by = "nome_upper")
 
+View(joined_data)
+
 #10. verificar quais linhas não tiveram correspondência
 # OBS: Ao abrir o 'joined_data', nós ordenamos e vemos quais são os casos.
 # Abaixo, fazemos a correção no arquivo original das correções.
 
 votacao_nova_dbf$nome_upper <- as.character(votacao_nova_dbf$nome_upper)
 
+# senado
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "LUCAS BARRETOÿ"] <- "LUCAS BARRETO"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "MARCIO BITAR"] <- "MARCIO BITTAR"
+
+# câmara
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "PROFESSORA DORINHA SEABRA REZEN"] <- "PROFESSORA DORINHA SEABRA REZENDE"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "CHICO D`ANGELO"] <- "CHICO D'ANGELO"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "LUIZ PHILIPPE DE ORLEANS E BRAG"] <- "LUIZ PHILIPPE DE ORLEANS E BRAGANCA"
-votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "VITOR HUGO"] <- "MAJOR VITOR HUGO"
-votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "GILDENEMYR"] <- "PASTOR GILDENEMYR"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "OTTACI NASCIMENTO"] <- "OTACI NASCIMENTO"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "PASTOR GIL"] <- "PASTOR GILDENEMYR"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "JOSE AIRTON FELIX CIRILO"] <- "JOSE AIRTON CIRILO"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "JUNIO AMARAL"] <- "CABO JUNIO AMARAL"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "BOZZELLA"] <- "JUNIOR BOZZELLA"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "GLAUSTIN DA FOKUS"] <- "GLAUSTIN FOKUS"
+votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "VITOR HUGO"] <- "MAJOR VITOR HUGO"
 votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "ROMAN"] <- "EVANDRO ROMAN"
-votacao_nova_dbf$nome_upper[votacao_nova_dbf$nome_upper == "FABIANO TOLENTINO"] <- "FABIANO GALLETTI TOLENTINO"
-  
+
+
+
 #11. fazer novamente o left_join
 
 joined_data_2 <- left_join(votacao_nova_dbf, id_politicos, by = "nome_upper")
@@ -151,15 +164,15 @@ colnames(votacao_final) <- c("nome_upper", "voto", "partido", "uf", "nome_politi
 
 #15. inserir coluna com o ID da proposição
 
-votacao_final$id_proposicao <- "26"
+votacao_final$id_proposicao <- "87"
 
 #16. inserir coluna com o nome da proposição
 
-votacao_final$proposicao <- "PEC372-2017-1t"
+votacao_final$proposicao <- "PLN3-2021"
 
 #17. inserir coluna com o permalink da proposição
 
-votacao_final$permalink <- "criacao-da-policia-penitenciaria-1-turno"
+votacao_final$permalink <- "lei-de-diretrizes-orcamentarias-de-2022"
 
 
 #18. definir a ordem das colunas
@@ -169,6 +182,10 @@ votacao_final <- votacao_final %>%
          "nome_upper", "nome_politico", "uf", "voto", "permalink") %>% 
   arrange(nome_upper)
 
+votacao_final %>%
+  group_by(voto) %>%
+  summarise(n())
+
 #19. fazer o download
 
-write.csv(votacao_final, "votacao_final.csv")
+write.csv(votacao_final, "votacao_final_PLN3-2021.csv")
